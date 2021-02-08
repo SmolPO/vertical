@@ -19,6 +19,10 @@ class HBoxLayoutExample(App):
         for i in range(5):
             btn = Button(text="Button #%s" % (i + 1), color=blue)
             layout.add_widget(btn)
+
+        for i in range(5):
+            btn = Button(text="Button #%s" % (i + 1), color=blue)
+            layout.add_widget(btn)
         return layout
 
 
