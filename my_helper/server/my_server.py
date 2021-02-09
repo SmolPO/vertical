@@ -42,13 +42,13 @@ class Server:
     def queue_worker(self):
         message = self.my_queue.pop()
         if message['cmd'] == app_connect_to_ser:
-            self.conn['sock_app'].send(ser_connect_to_app, self.size_next_mess)
+            self.conn['sock_app'].send(answ_ser_connect_to_app, self.size_next_mess)
         elif message['cmd'] == nb_connect_to_ser:
-            self.conn['sock_nb'].send(ser_connect_to_nb, self.size_next_mess)
+            self.conn['sock_nb'].send(answ_ser_connect_nb, self.size_next_mess)
         elif message['cmd'] == app_test_cmd:
-            self.conn['sock_nb'].send(ser_test_cmd, self.size_next_mess)
+            self.conn['sock_nb'].send(app_test_cmd, self.size_next_mess)
         elif message['cmd'] == nb_test_cmd:
-            self.conn['sock_app'].send(ser_test_cmd, self.size_next_mess)
+            self.conn['sock_app'].send(nb_test_cmd, self.size_next_mess)
             pass
 
     def run(self):

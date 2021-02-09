@@ -33,7 +33,7 @@ class HBoxLayoutExample(App):
         self.sock.send(zip_data)
         data = self.sock.recv(1024)
         answer = pickle.loads(data)
-        if answer['cmd'] == ser_connect_to_app:
+        if answer['cmd'] == answ_ser_connect_to_app:
             self.size_next_mess = answer['next_mess']
             logging.info("Подключился к серверу")
         else:
@@ -50,13 +50,15 @@ class HBoxLayoutExample(App):
             data = self.sock.recv(self.size_next_mess)
             if not data:
                 continue
-            receive_data = pickle.loads(data)
-            if receive_data['cmd'] == ser_connect_to_app:
-                self.send_message(ser_connect_to_app, self.size_next_mess)
+            message = pickle.loads(data)
+            if message['cmd'] == answ_ser_connect_to_app:
+                print('yes, connect')
                 logging.info("Сервер подключился ко мне снова, зачем?")
-
-            elif receive_data['cmd'] == ser_test_cmd:
-                print(receive_data['data'])
+            elif message['cmd'] == nb_test_cmd:
+                self.send_message(answ_app_test_cmd, "привееет, тестовую команду получил!")
+                print(message['data'])
+            elif message['cmd'] == answ_nb_test_cmd:
+                print(message['data'])
 
 
 if __name__ == "__main__":
