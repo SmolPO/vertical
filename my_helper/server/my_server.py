@@ -17,6 +17,7 @@ class Server:
         self.config.read('../config.ini')
         self.size_next_mess = int(self.config.get("server", "size_first_mes"))
         logging.info("Сервер создан")
+        self.flag_app = False
 
     def close(self):
         self.conn['sock_app'].close()
@@ -25,11 +26,12 @@ class Server:
     def send_message(self, cmd, where, data=0, size_next=1024):
         message = dict(cmd=cmd, data=data, size_next_message=size_next)
         zip_message = pickle.dumps(message)
-        key = 'sock_app' if where == to_app else to_pc
+        key = 'sock_app' if where == to_app else 'sock_pc'
         self.conn[key].send(zip_message)
 
-    def listener(self, source):
-        key = 'sock_app' if source == from_app else from_pc
+    def listener(self):
+        key = 'sock_app' if self.flag_app else 'sock_pc'
+        self.flag_app = False
         conn, adr = self.conn[key], self.conn[key]
         while True:
             message = pickle.loads(conn.recv(self.size_next_mess))  # TODO проверка на успешное преобразование
@@ -57,18 +59,24 @@ class Server:
         while True:
             conn, adr = self.sock.accept()
             message = pickle.loads(conn.recv(self.size_next_mess))
+
             if message['cmd'] == app_connect_to_ser:
                 self.conn['sock_app'] = conn
                 self.conn['adr_app'] = adr
                 self.my_queue.append(message)
-                threading.Thread(target=self.listener, args="app").start()
-                threading.Thread(target=self.queue_worker()).start()
+                self.flag_app = True
+                my_thr = threading.Thread(target=self.listener)
+                my_thr.start()
+                my_qu_thr = threading.Thread(target=self.queue_worker)
+                my_qu_thr.start()
             elif message['cmd'] == pc_connect_to_ser:
                 self.conn['sock_pc'] = conn
                 self.conn['adr_pc'] = adr
-                threading.Thread(target=self.listener, args="pc").start()
                 self.my_queue.append(message)
-                threading.Thread(target=self.queue_worker()).start()
+                my_thr = threading.Thread(target=self.listener)
+                my_thr.start()
+                my_qu_thr = threading.Thread(target=self.queue_worker)
+                my_qu_thr.start()
             else:
                 conn.send(b'go to city Nachuy')
                 logging.info("Левое подключение")

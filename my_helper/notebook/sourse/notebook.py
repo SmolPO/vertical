@@ -5,15 +5,32 @@ import socket
 import pickle
 import logging
 import configparser
-from ...server.commands import *
+import threading
 
+# команда App
+app_connect_to_ser = 1
+app_test_cmd = 2
+to_app = "pc"
+from_app = "app"
+answ_pc_test_cmd = 5
+
+# команда Notebook
+pc_connect_to_ser = 101
+pc_test_cmd = 102
+to_pc = 103
+from_pc = 104
+answ_app_test_cmd = 105
+
+# команда Server
+answ_ser_connect_to_pc = 201
+answ_ser_connect_to_app = 202
+answ_ser_test_cmd = 203
 
 class HBoxLayoutExample:
     def __init__(self):
         self.sock = socket.socket()
         self.config = configparser.ConfigParser()
-        self.config.read('../config.ini')
-        self.size_next_mess = int(self.config.get("server", "size_first_mes"))
+        self.size_next_mess = 1024
         logging.basicConfig(filename="log_file.log", level=logging.INFO)
         print("hello, I am pc. Connecting to server...")
         if self.connect_to_server():
@@ -31,6 +48,7 @@ class HBoxLayoutExample:
         if answer['cmd'] == answ_ser_connect_to_pc:
             print("Подключился к серверу")
             logging.info("Подключился к серверу")
+            self.handler.start()
             return True
         else:
             print("Сервер недоступен")
@@ -60,6 +78,7 @@ class HBoxLayoutExample:
                 print(message['data'])
 
     def run(self):
+        self.handler = threading.Thread(target=self.listen_server)
         while True:
             cmd = input()
             if cmd == 7:

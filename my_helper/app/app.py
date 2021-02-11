@@ -8,7 +8,25 @@ import socket
 import pickle
 import logging
 import configparser
-from ..server.commands import *
+
+# команда App
+app_connect_to_ser = 1
+app_test_cmd = 2
+to_app = "pc"
+from_app = "app"
+answ_pc_test_cmd = 5
+
+# команда Notebook
+pc_connect_to_ser = 101
+pc_test_cmd = 102
+to_pc = 103
+from_pc = 104
+answ_app_test_cmd = 105
+
+# команда Server
+answ_ser_connect_to_pc = 201
+answ_ser_connect_to_app = 202
+answ_ser_test_cmd = 203
 
 red = [1, 0, 0, 1]
 green = [0, 1, 0, 1]
@@ -30,17 +48,16 @@ class HBoxLayoutExample(App):
         layout.add_widget(btn_test)
         self.config = configparser.ConfigParser()
         self.config.read('../config.ini')
-        self.connect_to_server()
+        self.size_next_mess = int(self.config.get("server", "size_first_mes"))
         return layout
 
-    def btn_test_cmd(self):
+    def btn_test_cmd(self, instance):
         self.send_message(app_test_cmd)
 
-    def btn_connect_cmd(self):
-        self.send_message(app_connect_to_ser)
+    def btn_connect_cmd(self, instance):
+        self.connect_to_server()
 
     def connect_to_server(self):
-        self.size_next_mess = int(self.config.get("server", "size_first_mes"))
         self.sock.connect(('localhost', 9090))
         self.send_message(app_connect_to_ser)
         buffer = self.sock.recv(self.size_next_mess)
