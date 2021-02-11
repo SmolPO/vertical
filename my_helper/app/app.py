@@ -8,6 +8,7 @@ import socket
 import pickle
 import logging
 import configparser
+import threading
 
 # команда App
 app_connect_to_ser = 1
@@ -49,6 +50,8 @@ class HBoxLayoutExample(App):
         self.config = configparser.ConfigParser()
         self.config.read('../config.ini')
         self.size_next_mess = int(self.config.get("server", "size_first_mes"))
+        self.handler = threading.Thread(target=self.listen_server)
+
         return layout
 
     def btn_test_cmd(self, instance):
@@ -65,6 +68,7 @@ class HBoxLayoutExample(App):
         if answer['cmd'] == answ_ser_connect_to_app:
             self.size_next_mess = answer['size_next_message']
             logging.info("Подключился к серверу")
+            self.handler.start()
         else:
             logging.info("Сервер недоступен")
 
@@ -74,7 +78,6 @@ class HBoxLayoutExample(App):
         self.sock.send(zip_data)
 
     def listen_server(self):
-        self.sock.listen()
         while True:
             data = self.sock.recv(self.size_next_mess)
             if not data:

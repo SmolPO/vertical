@@ -32,6 +32,7 @@ class HBoxLayoutExample:
         self.config = configparser.ConfigParser()
         self.size_next_mess = 1024
         logging.basicConfig(filename="log_file.log", level=logging.INFO)
+        self.handler = threading.Thread(target=self.listen_server)
         print("hello, I am pc. Connecting to server...")
         if self.connect_to_server():
             print("yes, I connected to server")
@@ -61,7 +62,6 @@ class HBoxLayoutExample:
         self.sock.send(zip_data)
 
     def listen_server(self):
-        self.sock.listen()
         while True:
             data = self.sock.recv(self.size_next_mess)
             if not data:
@@ -78,7 +78,6 @@ class HBoxLayoutExample:
                 print(message['data'])
 
     def run(self):
-        self.handler = threading.Thread(target=self.listen_server)
         while True:
             cmd = input()
             if cmd == 7:
