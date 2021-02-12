@@ -10,8 +10,6 @@ HOST_ = "mySMTP.server.com"
 class MyEmail:
     def __init__(self):
         self.time_last_check = datetime.datetime.today()
-
-    def connect_to_email(self):
         self.config = configparser.ConfigParser()
         self.config.read('../config.ini')
         self.imap = self.config.get("post", "imap")
@@ -19,10 +17,10 @@ class MyEmail:
         self.password = self.config.get("post", "password")
         self.inbox = self.config.get("post", "inbox")
         self.HOST = self.config.get("post", "smtp")
-
         self.mailbox = imap.MailBox(self.imap)
+
+    def connect_to_email(self):
         self.mailbox.login(self.login, self.password, initial_folder=self.inbox)
-        pass
 
     def close(self):
         self.mailbox.logout()
@@ -39,33 +37,30 @@ class MyEmail:
         pass
 
     def check_new_letters(self):
-        result, data = self.mail.search(None, "ALL")
-        pass
+        result, data = self.mailbox.search(None, "ALL")
+        return result, data
 
     def get_new_post(self):
         for msg in self.mailbox.fetch():
             if msg.is_new_post(msg):
                 pass
+            else:
+                break
+        self.time_last_check = datetime.datetime.today()
         pass
 
     def is_new_post(self, msg):
-        matches = next(datefinder.find_dates("original date - 'Tue, 03 Jan 2017 22:26:59 +0500'"))
-        day = matches.day
-        month = matches.month
-        year = matches.year
-        hour = matches.hour
-        minute = matches.minute
-        second = matches.second
-        micro = matches.microsecond
-        post_data = datetime.datetime(year, month, day, hour, minute, second, micro)
+        data = [x for x in next(datefinder.find_dates(msg.data_str))]
+        post_data = datetime.datetime(*data[0:5])
         now_data = datetime.datetime.today()
-
         delte_1 = now_data - self.time_last_check
         delte_2 = now_data - post_data
         delte = delte_1.seconds - delte_2.seconds
+        if delte < 0:
+            return True
+        else:
+            return False
 
-        if delte > 0:
-            pass
 
 matches = next(datefinder.find_dates("original date - 'Tue, 03 Jan 2017 22:26:59 +0500'"))
 day = matches[0].day
