@@ -6,6 +6,8 @@ import pickle
 import logging
 import configparser
 import threading
+import webbrowser
+import os
 
 # команда App
 app_connect_to_ser = 1
@@ -13,6 +15,8 @@ app_test_cmd = 2
 to_app = "pc"
 from_app = "app"
 answ_pc_test_cmd = 5
+app_on_music = 6
+app_open_scan = 7
 
 # команда Notebook
 pc_connect_to_ser = 101
@@ -20,6 +24,9 @@ pc_test_cmd = 102
 to_pc = 103
 from_pc = 104
 answ_app_test_cmd = 105
+answ_pc_on_music = 106
+answ_pc_open_scan = 107
+answ_pc_errore = 404
 
 # команда Server
 answ_ser_connect_to_pc = 201
@@ -67,15 +74,23 @@ class HBoxLayoutExample:
             if not data:
                 continue
             message = pickle.loads(data)
-            if message['cmd'] == answ_ser_connect_to_pc:
+            cmd = message['cmd']
+            if cmd == answ_ser_connect_to_pc:
                 print("yes, connect")
                 logging.info("Сервер подключился ко мне снова, зачем?")
-            elif message['cmd'] == app_test_cmd:
+            elif cmd == app_test_cmd:
                 print("Получил тестовую команду от приложения")
                 self.send_message(answ_pc_test_cmd, b"Hello! I am notebook!")
-            elif message['cmd'] == answ_app_test_cmd:
+            elif cmd == answ_app_test_cmd:
                 print("Получил ответ на свою тестовую команду от приложения")
                 print(message['data'])
+            elif cmd == app_on_music:
+                self.on_music()
+                self.send_message(answ_pc_on_music, b"may be PC play music")
+            elif cmd == app_open_scan:
+                os.startfile(r'C:/Program Files/Pantum/ptm6500/PushScan/ptm6500app.exe')
+                self.send_message(answ_pc_open_scan, b"may be PC start scan")
+
 
     def run(self):
         while True:
@@ -89,6 +104,10 @@ class HBoxLayoutExample:
             elif cmd == 8:
                 exit()
         pass
+
+    def on_music(self):
+        webbrowser.open('http://atmoradio.ru/')  # Go to example.com
+        return True
 
 if __name__ == "__main__":
     app = HBoxLayoutExample()

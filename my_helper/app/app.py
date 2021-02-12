@@ -16,6 +16,8 @@ app_test_cmd = 2
 to_app = "pc"
 from_app = "app"
 answ_pc_test_cmd = 5
+app_on_music = 6
+app_open_scan = 7
 
 # команда Notebook
 pc_connect_to_ser = 101
@@ -23,6 +25,9 @@ pc_test_cmd = 102
 to_pc = 103
 from_pc = 104
 answ_app_test_cmd = 105
+answ_pc_on_music = 106
+answ_pc_open_scan = 107
+answ_pc_errore = 404
 
 # команда Server
 answ_ser_connect_to_pc = 201
@@ -39,7 +44,7 @@ class HBoxLayoutExample(App):
     def build(self):
         self.sock = socket.socket()
         logging.basicConfig(filename="log_file.log", level=logging.INFO)
-
+        self.is_connect_to_pc = False
         layout = BoxLayout(padding=10)
         btn_test = Button(text="Test", color=blue)
         btn_test.bind(on_press=self.btn_test_cmd)
@@ -59,6 +64,29 @@ class HBoxLayoutExample(App):
 
     def btn_connect_cmd(self, instance):
         self.connect_to_server()
+
+    def btn_on_music(self, instance):
+        self.send_message(app_on_music) if self.is_connect_to_pc else logging.info("pc is not connect")
+
+    def btn_open_scan(self, instance):
+        self.send_message(app_open_scan) if self.is_connect_to_pc else logging.info("pc is not connect")
+        pass
+
+    def btn_create_post_message(self, instance):
+        email = input("input email")
+        subject = input("input subject")
+        text = input("input text")
+        self.connect_to_email()
+        self.send_post(email=email, sub=subject, text=text)
+        pass
+
+    def connect_to_email(self):
+
+        pass
+
+    def send_post(self, email, sub, text):
+
+        pass
 
     def connect_to_server(self):
         self.sock.connect(('localhost', 9090))
@@ -90,6 +118,8 @@ class HBoxLayoutExample(App):
                 self.send_message(answ_app_test_cmd, b"hello, I am app!")
                 print(message['data'])
             elif message['cmd'] == answ_pc_test_cmd:
+                print(message['data'])
+            elif message['cmd'] == answ_pc_on_music or answ_pc_errore:
                 print(message['data'])
 
 

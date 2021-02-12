@@ -43,14 +43,18 @@ class Server:
 
     def queue_worker(self):
         message = self.my_queue.pop()
-        if message['cmd'] == app_connect_to_ser:
+        cmd = message['cmd']
+        if cmd == app_test_cmd or \
+                app_on_music or \
+                app_on_music:
+            self.send_message(cmd, to_pc)
+        if cmd == app_connect_to_ser:
             self.send_message(answ_ser_connect_to_app, to_app)
-        elif message['cmd'] == pc_connect_to_ser:
+        elif cmd == pc_connect_to_ser:
             self.send_message(answ_ser_connect_to_pc, to_pc)
-        elif message['cmd'] == app_test_cmd:
+        elif cmd == app_test_cmd:
             self.send_message(app_test_cmd, to_pc)
-        elif message['cmd'] == pc_test_cmd:
-            self.send_message(pc_test_cmd, to_app)
+
         pass
 
     def run(self):
