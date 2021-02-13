@@ -96,7 +96,7 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>400</y>
+      <y>380</y>
       <width>121</width>
       <height>21</height>
      </rect>
@@ -122,7 +122,7 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>370</y>
+      <y>350</y>
       <width>121</width>
       <height>21</height>
      </rect>
@@ -427,7 +427,7 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>350</y>
+      <y>330</y>
       <width>49</width>
       <height>16</height>
      </rect>
@@ -541,13 +541,39 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>430</y>
+      <y>410</y>
       <width>121</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>Новый босс</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b_create_act_2">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>440</y>
+      <width>121</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Соединение</string>
+    </property>
+   </widget>
+   <widget class="QRadioButton" name="r_connect">
+    <property name="geometry">
+     <rect>
+      <x>570</x>
+      <y>440</y>
+      <width>21</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

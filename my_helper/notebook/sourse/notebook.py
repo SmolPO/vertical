@@ -54,6 +54,7 @@ class MainWindow(QMainWindow):
         self.b_get_material.clicked.connect(self.ev_get_material)
         self.b_pdf_check.clicked.connect(self.ev_pdf_check)
         self.b_send_covid.clicked.connect(self.ev_send_covid)
+        self.b_connect.clicked.connect(self.ev_send_covid)
 
     def ev_pass_week(self):
         print("pass week")
@@ -97,8 +98,9 @@ class MainWindow(QMainWindow):
     def ev_send_covid(self):
         print("send covid")
 
-
-
+    def ev_connect(self):
+        self.r_connect
+        print("connect")
 
 
 
