@@ -1,106 +1,90 @@
 import imap_tools as imap
-import email
 import configparser
 import smtplib
 import datetime
 import datefinder
 
-HOST_ = "mySMTP.server.com"
+from email import encoders
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+from email.utils import formatdate
 
-class MyEmail:
-    def __init__(self):
-        self.time_last_check = datetime.datetime.today()
-        self.config = configparser.ConfigParser()
-        self.config.read('../config.ini')
-        self.imap = self.config.get("post", "imap")
-        self.login = self.config.get("post", "login")
-        self.password = self.config.get("post", "password")
-        self.inbox = self.config.get("post", "inbox")
-        self.HOST = self.config.get("post", "smtp")
-        self.mailbox = imap.MailBox(self.imap)
+time_last_check = datetime.datetime.today()
+config = configparser.ConfigParser()
+config.read('../config.ini')
+my_imap = config.get("post", "my_imap")
+login = config.get("post", "login")
+password = config.get("post", "password")
+inbox = config.get("post", "inbox")
+host = config.get("post", "smtp")
 
-    def connect_to_email(self):
-        self.mailbox.login(self.login, self.password, initial_folder=self.inbox)
+def connect_to_email():
+    mailbox = imap.MailBox(my_imap)
+    mailbox.login(login, password, initial_folder=inbox)
 
-    def close(self):
-        self.mailbox.logout()
+def break_connect():
+    mailbox = imap.MailBox(my_imap)
+    mailbox.logout()
 
-    def send_post(self, email_, sub, text, file=None):
-        message = "\r\n".join((
-            "From: %s" % self.login,
-            "To: %s" % email_,
-            "Subject: %s" % sub,
-            "", text))
-        server = smtplib.SMTP(self.HOST)
-        server.sendmail(self.login, [email_], message)
-        server.quit()
-        pass
+def send_post(to_email, sub, text):
+    message = "\r\n".join((
+        "From: %s" % login,
+        "To: %s" % to_email,
+        "Subject: %s" % sub,
+        "", text))
+    server = smtplib.SMTP(host)
+    server.sendmail(login, [to_email], message)
+    server.quit()
+    pass
 
-    def check_new_letters(self):
-        result, data = self.mailbox.search(None, "ALL")
-        return result, data
+def check_new_letters():
+    result, data = mailbox.search(None, "ALL")
+    return result, data
 
-    def get_new_post(self):
-        for msg in self.mailbox.fetch():
-            if msg.is_new_post(msg):
-                pass
-            else:
-                break
-        self.time_last_check = datetime.datetime.today()
-        pass
-
-    def is_new_post(self, msg):
-        data = [x for x in next(datefinder.find_dates(msg.data_str))]
-        post_data = datetime.datetime(*data[0:5])
-        now_data = datetime.datetime.today()
-        delte_1 = now_data - self.time_last_check
-        delte_2 = now_data - post_data
-        delte = delte_1.seconds - delte_2.seconds
-        if delte < 0:
-            return True
+def get_new_post():
+    new_message = []
+    for msg in mailbox.fetch():
+        if msg.is_new_post(msg):
+            new_message.append(msg)
         else:
-            return False
+            break
+    time_last_check = datetime.datetime.today()
+    return new_message
 
+def is_new_post(msg):
+    data = [x for x in next(datefinder.find_dates(msg.data_str))]
+    post_data = datetime.datetime(*data[0:5])
+    now_data = datetime.datetime.today()
+    delte_1 = now_data - time_last_check
+    delte_2 = now_data - post_data
+    return delte_1.seconds - delte_2.seconds < 0
 
-matches = next(datefinder.find_dates("original date - 'Tue, 03 Jan 2017 22:26:59 +0500'"))
-day = matches[0].day
-month = matches[0].month
-year = matches[0].year
-hour = matches[0].hour
-minute = matches[0].minute
-second = matches[0].second
-micro = matches[0].microsecond
-new_data = datetime.datetime(year, month, day, hour, minute, second, micro)
-now_data = datetime.datetime.now()
-delte = new_data - now_data
+def send_post_with_file(to_email, sub, text, file):
+    msg = MIMEMultipart()
+    msg["From"] = login
+    msg["To"] = to_email
+    msg["Subject"] = sub
+    msg["Date"] = formatdate(localtime=True)
 
-print(mail.list())
-mail.select("inbox") # Подключаемся к папке "входящие".
-result, data = mail.search(None, "ALL")
+    if text:
+        msg.attach(MIMEText(text))
 
-ids = data[0]  # Получаем сроку номеров писем
-id_list = ids.split()  # Разделяем ID писем
-latest_email_id = id_list[1]  # Берем последний ID
+    attachment = MIMEBase('application', "octet-stream")
 
-result, data = mail.fetch(latest_email_id, "(RFC822)")  # Получаем тело письма (RFC822) для данного ID
+    try:
+        with open(file, "rb") as fh:
+            data = fh.read()
 
-raw_email = data[0][1]  # Тело письма в необработанном виде
+        attachment.set_payload(data)
+        encoders.encode_base64(attachment)
+        msg.attach(attachment)
+    except IOError:
+        msg = "Error opening attachment file %s" % file
+        print(msg)
+        return False
+    server = smtplib.SMTP(host)
+    server.sendmail(login, to_email, msg.as_string())
+    server.quit()
+    return True
 
-import email
-
-email_message = email.message_from_string(str(raw_email))
-
-print (email_message['To'])
-print (email.utils.parseaddr(email_message['From']))  # получаем имя отправителя "Yuji Tomita"
-print(email_message.items())  # Выводит все заголовки.
-
-def get_first_text_block(self, email_message_instance):
-    maintype = email_message_instance.get_content_maintype()
-    if maintype == 'multipart':
-        for part in email_message_instance.get_payload():
-            if part.get_content_maintype() == 'text':
-                return part.get_payload()
-    elif maintype == 'text':
-        return email_message_instance.get_payload()
-
-# включает в себя заголовки и альтернативные полезные нагрузки

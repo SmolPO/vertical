@@ -4,11 +4,15 @@ import random
 from kivy.app import App
 from kivy.uix.button import Button
 from kivy.uix.boxlayout import BoxLayout
+from kivy.lang import Builder
+from kivy.properties import ListProperty, StringProperty, ObjectProperty
 import socket
 import pickle
 import logging
 import configparser
 import threading
+import os
+import mail_handle as post
 
 # команда App
 app_connect_to_ser = 1
@@ -46,12 +50,22 @@ class HBoxLayoutExample(App):
         logging.basicConfig(filename="log_file.log", level=logging.INFO)
         self.is_connect_to_pc = False
         layout = BoxLayout(padding=10)
-        btn_test = Button(text="Test", color=blue)
+
+        btn_test = Button(text="Тест", color=red, size_hint=(.5, .5),  pos_hint ={'center_x': .5, 'center_y': .5})
+        btn_conn = Button(text="Подклюючиться к серверу", color=red, size_hint=(.5, .5), pos_hint={'center_x': .5, 'center_y': .5})
+        btn_on_music = Button(text="Включить музыку", color=red, size_hint=(.5, .5), pos_hint={'center_x': .5, 'center_y': .5})
+        btn_open_scan = Button(text="Отправить сканер", color=red, size_hint=(.5, .5), pos_hint={'center_x': .5, 'center_y': .5})
+
         btn_test.bind(on_press=self.btn_test_cmd)
-        btn_conn = Button(text="Server", color=blue)
         btn_conn.bind(on_press=self.btn_connect_cmd)
+        btn_on_music.bind(on_press=self.btn_on_music)
+        btn_open_scan.bind(on_press=self.btn_open_scan)
+
         layout.add_widget(btn_conn)
         layout.add_widget(btn_test)
+        layout.add_widget(btn_on_music)
+        layout.add_widget(btn_open_scan)
+
         self.config = configparser.ConfigParser()
         self.config.read('../config.ini')
         self.size_next_mess = int(self.config.get("server", "size_first_mes"))
@@ -81,11 +95,15 @@ class HBoxLayoutExample(App):
         pass
 
     def connect_to_email(self):
-
+        post.connect_to_email()
         pass
 
     def send_post(self, email, sub, text):
+        post.send_post(email, sub, text)
+        pass
 
+    def send_post_with_file(self, email, sub, text, file):
+        post.send_post_with_file(email, sub, text, file)
         pass
 
     def connect_to_server(self):
@@ -126,3 +144,7 @@ class HBoxLayoutExample(App):
 if __name__ == "__main__":
     app = HBoxLayoutExample()
     app.run()
+
+
+
+
