@@ -14,7 +14,7 @@
    <string>MainWindow</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <widget class="QPushButton" name="ui_attorney">
+   <widget class="QPushButton" name="b_attorney">
     <property name="geometry">
      <rect>
       <x>440</x>
@@ -27,7 +27,7 @@
      <string>Доверенность</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="ui_invoice">
+   <widget class="QPushButton" name="b_invoice">
     <property name="geometry">
      <rect>
       <x>440</x>
@@ -40,7 +40,7 @@
      <string>Накладная</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="ui_journal">
+   <widget class="QPushButton" name="b_journal">
     <property name="geometry">
      <rect>
       <x>440</x>
@@ -53,7 +53,7 @@
      <string>Журнал-ковид</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="ui_tabel">
+   <widget class="QPushButton" name="b_tabel">
     <property name="geometry">
      <rect>
       <x>440</x>
@@ -79,7 +79,7 @@
      <enum>Qt::Vertical</enum>
     </property>
    </widget>
-   <widget class="QPushButton" name="ui_scan">
+   <widget class="QPushButton" name="b_scan">
     <property name="geometry">
      <rect>
       <x>440</x>
@@ -550,7 +550,7 @@
      <string>Новый босс</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b_create_act_2">
+   <widget class="QPushButton" name="b_connect">
     <property name="geometry">
      <rect>
       <x>440</x>

@@ -1,6 +1,3 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication
-
 import random
 import socket
 import pickle
@@ -10,6 +7,7 @@ import threading
 import webbrowser
 import os
 import sys
+import mainwindow
 
 # команда App
 app_connect_to_ser = 1
@@ -34,75 +32,6 @@ answ_pc_errore = 404
 answ_ser_connect_to_pc = 201
 answ_ser_connect_to_app = 202
 answ_ser_test_cmd = 203
-
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        super(MainWindow, self).__init__()
-        uic.loadUi('../designer_ui/main_menu.ui', self)
-        self.b_pass_week.clicked.connect(self.ev_pass_week)
-        self.b_pass_month.clicked.connect(self.ev_pass_month)
-        self.b_pass_auto.clicked.connect(self.ev_pass_auto)
-        self.b_pass_recover.clicked.connect(self.ev_pass_recover)
-        self.b_pass_unlock.clicked.connect(self.ev_pass_unlock)
-        self.b_pass_issue.clicked.connect(self.ev_pass_issue)
-        self.b_new_person.clicked.connect(self.ev_new_person)
-        self.b_new_bill.clicked.connect(self.ev_new_bill)
-        self.b_new_build.clicked.connect(self.ev_new_build)
-        self.b_new_boss.clicked.connect(self.ev_new_boss)
-        self.b_create_act.clicked.connect(self.ev_create_act)
-        self.b_get_material.clicked.connect(self.ev_get_material)
-        self.b_pdf_check.clicked.connect(self.ev_pdf_check)
-        self.b_send_covid.clicked.connect(self.ev_send_covid)
-        self.b_connect.clicked.connect(self.ev_send_covid)
-
-    def ev_pass_week(self):
-        print("pass week")
-
-    def ev_pass_month(self):
-        print("pass month")
-
-    def ev_pass_auto(self):
-        print("pass auto")
-
-    def ev_pass_recover(self):
-        print("pass rec")
-
-    def ev_pass_issue(self):
-        print("pass issue")
-
-    def ev_pass_unlock(self):
-        print("pass unlock")
-
-    def ev_new_boss(self):
-        print("new boss")
-
-    def ev_new_bill(self):
-        print("new bill")
-
-    def ev_new_build(self):
-        print("new build")
-
-    def ev_new_person(self):
-        print("new person")
-
-    def ev_create_act(self):
-        print("create act")
-
-    def ev_get_material(self):
-        print("get mat")
-
-    def ev_pdf_check(self):
-        print("pdf check")
-
-    def ev_send_covid(self):
-        print("send covid")
-
-    def ev_connect(self):
-        self.r_connect
-        print("connect")
-
-
 
 
 class Notebook:
