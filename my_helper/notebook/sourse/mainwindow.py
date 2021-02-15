@@ -1,6 +1,12 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QApplication
 import sys
+import os
+import logging
+import datetime
+import openpyxl
+from openpyxl.styles.borders import Border, Side
+import psycopg2
 from add_company import AddCompany
 from new_boss import NewBoss
 
@@ -36,18 +42,44 @@ class MainWindow(QMainWindow):
         self.b_invoice.clicked.connect(self.ev_invoice)
 
         self.get_param_from_widget = None
+        self.current_build = None
+        self.company = 'ООО "Вертикаль"'
 
     def ev_pass_week(self):
         # открыть диалоговое окно дл выбора дней. Открыть календарь.
-        # получить из БД список сотрудников, дата рождения, паспортные, место жительства
-        # сформировать документ
-        # направить на печать
+
+        days = [6, 7]
+        workbook, sheet = self.open_wb(name="week")
+        insert = "SELECT name, family, surname, post, birthdate, passport_seria, passport_number, address,  live_address " + \
+                 "FROM workers WHERE build = '" + self.current_build + "'"
+        rows = self.database_cur.execute(insert)
+        self.wb, self.sheet = self.open_wb("week")
+        i = iter(range(10))
+        for row in rows:
+            self.add_new_row_to_excel(row)
+            next(i)
+        self.set_numder_and_date()
+        self.set_week_days(days)
+        self.wb.save("./week_print.xlsx")
+        self.wb.close()
+        self.wb, self.sheet = None, None
+        os.startfile("./week_print.xlsx")
         print("pass week")
 
     def ev_pass_month(self):
         # получить из БД список сотрудников, дата рождения, паспортные, место жительства
         # сформировать документ
         # направить на печать
+        self.open_wb('month')
+        insert = "SELECT name, family, surname, post, birthdate, passport_seria, passport_number, address,  live_address " + \
+                 "FROM workers"
+        rows = self.database_cur.execute(insert)
+        self.set_numder_and_date()
+        for row in rows:
+            self.add_new_row_to_excel(row)
+
+        self.wb.save("./week_print.xlsx")
+        self.wb.close()
         print("pass month")
 
     def ev_pass_auto(self):
@@ -163,6 +195,76 @@ class MainWindow(QMainWindow):
         # печать накладной
         self.r_connect.setChecked(True)
         print("invoice")
+
+    # работа с Excel
+    def open_wb(self, name):
+        path = "D:/test.xlsx"
+        wb_obj = openpyxl.load_workbook(path)
+        if name in wb_obj.sheetnames:
+            my_sheet = wb_obj[name]
+            return wb_obj, my_sheet
+        else:
+            logging.info("данного листа в книге не существует")
+            print("нет выбранного листа " + name)
+            return None, None
+
+    def add_new_row_to_excel(self, row):
+        self.sheet.insert_rows(idx=10, amount=1)
+        i = iter(range(10))
+        thin_border = Border(left=Side(style='thin'),
+                             right=Side(style='thin'),
+                             top=Side(style='thin'),
+                             bottom=Side(style='thin'))
+        for item in row:
+            cell = self.sheet.cell(row=10, column=next(i))
+            cell.value = item
+            cell.border = thin_border
+
+    def set_week_days(self, days):
+        if len(days) > 1:
+            title = "Прошу Вас разрешить работы в выходные дни {0} г. и {1}. по ремонту {2} работникам {3}, " \
+                    "с рабочей сменой с 07-00 до 19-00 часов:".format(*days, self.current_build, self.company)
+        else:
+            title = "Прошу Вас разрешить работы в выходной день {0} г. и {1}. по ремонту {2} работникам {3}, " \
+                    "с рабочей сменой с 07-00 до 19-00 часов:".format(*days, self.current_build, self.company)
+        cell = self.sheet.cell(row=15, column=1)
+        cell.value = title
+
+    def set_numder_and_date(self):
+        if datetime.datetime.now().month < 10:
+            month = "0" + str(datetime.datetime.now().month)
+        else:
+            month = str(datetime.datetime.now().month)
+        date = str(datetime.datetime.now().day) + "." + \
+                month + "." + \
+                str(datetime.datetime.now().year)
+        cell_count = self.sheet.cell(row=5, column=0)
+        cell_data = self.sheet.cell(row=6, column=0)
+        cell_count.value = "Исх. №" + self.next_number_doc()
+        cell_data.value = "от " + date
+
+    def set_month_date(self):
+        now_month = datetime.datetime.now().month
+        next_month = 1 if now_month == 12 else now_month + 1
+        num_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 29)
+        if datetime.datetime.now().year / 4 == 0:
+            ind = num_days[12]
+        else:
+            ind = next_month
+        max_day = num_days[ind]
+
+        pass
+
+    # database
+    def connect_to_database(self):
+        self.database_conn = psycopg2.connect(dbname='Company', user='postgres',
+                                                password='pol_ool_123', host='localhost')
+        self.database_cur = self.database_conn.cursor()
+        pass
+
+    # Прочее
+    def next_number_doc(self):
+        return "600"
 
 
 if __name__ == "__main__":
