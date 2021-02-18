@@ -22,6 +22,7 @@ answ_ser_connect_to_pc = 201
 answ_ser_connect_to_app = 202
 answ_ser_test_cmd = 203
 
+# запросы
 
 
 

@@ -9,6 +9,7 @@ from openpyxl.styles.borders import Border, Side
 import psycopg2
 from add_company import AddCompany
 from new_boss import NewBoss
+from add_worker import AddWorker
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -74,11 +75,12 @@ class MainWindow(QMainWindow):
         insert = "SELECT name, family, surname, post, birthdate, passport_seria, passport_number, address,  live_address " + \
                  "FROM workers"
         rows = self.database_cur.execute(insert)
+        self.open_wb("month")
         self.set_numder_and_date()
+        self.set_month_date()
         for row in rows:
             self.add_new_row_to_excel(row)
-
-        self.wb.save("./week_print.xlsx")
+        self.wb.save("./month_print.xlsx")
         self.wb.close()
         print("pass month")
 
@@ -86,6 +88,15 @@ class MainWindow(QMainWindow):
         # получить из БД список машин, номер, владельцы
         # сформировать документ
         # направить на печать
+        insert = "SELECT model, number, family, name, surname, passport_seria, passport_number, address " + \
+                 "FROM auto"
+        rows = self.database_cur.execute(insert)
+        self.open_wb("auto")
+        self.set_numder_and_date()
+        for row in rows:
+            self.add_next_auto(row)
+        self.wb.save("./month_print.xlsx")
+        self.wb.close()
         print("pass auto")
 
     def ev_pass_recover(self):
@@ -93,12 +104,20 @@ class MainWindow(QMainWindow):
         # открыть диалоговое окно с выбором сотрудника
         # cформировать документ
         # отправить на печать
+        insert = "SELECT family, name, surname FROM workers"
+        rows = self.database_cur.execute(insert)
+        self.open_wb("recovery")
+        self.set_numder_and_date()
+
         print("pass rec")
 
     def ev_pass_issue(self):
         # диалоговое окно с вводом нового сотрудника
         # ввод данных
         # добавление в БД
+        wnd = AddWorker()
+        wnd.start()
+
         print("pass issue")
 
     def ev_pass_unlock(self):
@@ -106,6 +125,29 @@ class MainWindow(QMainWindow):
         # открыть диалоговое окно с выбором сотрудника
         # cформировать документ
         # отправить на печать
+        insert = "SELECT family, name, surname, address, post FROM workers"
+        rows = self.database_cur.execute(insert)
+        # открыть окно
+        person = dict(name="ivan", family="f", surname="s", post="p", address="a")
+        self.open_wb("unlock")
+        self.set_numder_and_date()
+        start_date = datetime.datetime.now().day
+        num_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 29)
+        if datetime.datetime.now().year / 4 == 0:
+            ind = num_days[12]
+        else:
+            ind = datetime.datetime.now().month
+        max_day = num_days[ind]
+        title = "Прошу вас разблокировать электронный пропуск {post} организации " \
+                "{company} {family} {name} {surname} c {start_date} по {end_month}".format(post=person['post'],
+                                                                                           company=self.company,
+                                                                                           family=person['family'],
+                                                                                           name=person['name'],
+                                                                                           surname=person['surname'],
+                                                                                           start_date=start_date,
+                                                                                           end_month=max_day)
+        self.wb.save("./unlock_print.xlsx")
+        self.wb.close()
         print("pass unlock")
 
     def ev_new_boss(self):
@@ -121,6 +163,7 @@ class MainWindow(QMainWindow):
         # распознать отсканированный
         # добавить значение в БД
         # сохранить скрин в папку месяца
+        os.startfile("D:\scan.exe")
         print("new bill")
 
     def ev_new_build(self):
@@ -128,26 +171,32 @@ class MainWindow(QMainWindow):
         # заполнить данные
         # добавить объект в БД
         # получить новый список объектов для списка объектов на главном меню
+
         print("new build")
 
     def ev_new_person(self):
         # открыть окно для нового сотрудника
         # заполнить данные
         # отправить в БД
+        wnd = AddWorker()
+        wnd.start()
         print("new person")
 
     def ev_create_act(self):
+
         print("create act")
 
     def ev_get_material(self):
         # открыть форму для ввода название материала и даты завоза
         # сформировать документ
         # печать
+
         print("get mat")
 
     def ev_pdf_check(self):
         # открыть директорию
         # рассортировать все отсканированные файлы по папкам
+        
         print("pdf check")
 
     def ev_send_covid(self):
@@ -220,6 +269,20 @@ class MainWindow(QMainWindow):
             cell.value = item
             cell.border = thin_border
 
+    def add_next_auto(self, row):
+        driver = " ".join(row[2:])
+        add_row = [row[0], row[1], driver]
+        thin_border = Border(left=Side(style='thin'),
+                             right=Side(style='thin'),
+                             top=Side(style='thin'),
+                             bottom=Side(style='thin'))
+        self.sheet.insert_rows(idx=10, amount=1)
+        i = iter(range(10))
+        for item in add_row:
+            cell = self.sheet.cell(row=10, column=next(i))
+            cell.value = item
+            cell.border = thin_border
+
     def set_week_days(self, days):
         if len(days) > 1:
             title = "Прошу Вас разрешить работы в выходные дни {0} г. и {1}. по ремонту {2} работникам {3}, " \
@@ -246,21 +309,36 @@ class MainWindow(QMainWindow):
     def set_month_date(self):
         now_month = datetime.datetime.now().month
         next_month = 1 if now_month == 12 else now_month + 1
+        year = datetime.datetime.now().year if now_month < 12 else datetime.datetime.now().year + 1
         num_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31, 29)
         if datetime.datetime.now().year / 4 == 0:
             ind = num_days[12]
         else:
             ind = next_month
+        if next_month < 10:
+            next_month = "0" + str(next_month)
         max_day = num_days[ind]
-
+        first_date = "01." + str(next_month) + "." + str(year)
+        end_date = str(max_day) + str(next_month) + "." + str(year)
+        title = "Прошу Вас продлить электронные пропуска для организации и производства работ " \
+                "на территории ПАО «Дорогобуж» " \
+                "работникам  {0} с {1} г. по {2} г. с рабочей сменой " \
+                "с 07-00 до 19-00 часов:".format(self.company, first_date, end_date)
+        cell_title = self.sheet.cell(row=9, column=0)
+        cell_title.value = title
         pass
 
     # database
     def connect_to_database(self):
-        self.database_conn = psycopg2.connect(dbname='Company', user='postgres',
-                                                password='pol_ool_123', host='localhost')
+        self.database_conn = psycopg2.connect(dbname='Company',
+                                              user='postgres',
+                                              password='pol_ool_123',
+                                              host='localhost')
         self.database_cur = self.database_conn.cursor()
         pass
+
+    def get_from_insert(self, insert):
+        return self.database_cur.execute(insert)
 
     # Прочее
     def next_number_doc(self):
