@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication
+from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog
 import sys
 import os
 import logging
@@ -10,6 +10,11 @@ import psycopg2
 from add_company import AddCompany
 from new_boss import NewBoss
 from add_worker import AddWorker
+from pdf_module import check_file
+from chouse_week import ChoseWeek
+from chose_people import ChosePeople
+import inserts as ins
+import config as conf
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -47,13 +52,12 @@ class MainWindow(QMainWindow):
         self.company = 'ООО "Вертикаль"'
 
     def ev_pass_week(self):
+        # TODO: передача данных между формами
         # открыть диалоговое окно дл выбора дней. Открыть календарь.
-
+        wnd = ChoseWeek()
+        wnd.show()
         days = [6, 7]
-        workbook, sheet = self.open_wb(name="week")
-        insert = "SELECT name, family, surname, post, birthdate, passport_seria, passport_number, address,  live_address " + \
-                 "FROM workers WHERE build = '" + self.current_build + "'"
-        rows = self.database_cur.execute(insert)
+        rows = self.database_cur.execute(ins.pass_week(self.current_build))
         self.wb, self.sheet = self.open_wb("week")
         i = iter(range(10))
         for row in rows:
@@ -61,73 +65,85 @@ class MainWindow(QMainWindow):
             next(i)
         self.set_numder_and_date()
         self.set_week_days(days)
-        self.wb.save("./week_print.xlsx")
+        self.wb.save(conf.path_for_print + "/week_print.xlsx")
         self.wb.close()
         self.wb, self.sheet = None, None
-        os.startfile("./week_print.xlsx")
+        os.startfile(conf.path_for_print + "/week_print.xlsx")
         print("pass week")
 
     def ev_pass_month(self):
-        # получить из БД список сотрудников, дата рождения, паспортные, место жительства
-        # сформировать документ
-        # направить на печать
+        """
+        получить из БД список сотрудников, дата рождения, паспортные, место жительства
+        сформировать документ
+        направить на печать
+        """
         self.open_wb('month')
-        insert = "SELECT name, family, surname, post, birthdate, passport_seria, passport_number, address,  live_address " + \
-                 "FROM workers"
-        rows = self.database_cur.execute(insert)
+        rows = self.database_cur.execute(ins.full_worker_date)
         self.open_wb("month")
         self.set_numder_and_date()
         self.set_month_date()
         for row in rows:
             self.add_new_row_to_excel(row)
-        self.wb.save("./month_print.xlsx")
+        self.wb.save(conf.path_for_print + "/month_print.xlsx")
         self.wb.close()
+        os.startfile(conf.path_for_print + "/month_print.xlsx", "print")
         print("pass month")
 
     def ev_pass_auto(self):
-        # получить из БД список машин, номер, владельцы
-        # сформировать документ
-        # направить на печать
-        insert = "SELECT model, number, family, name, surname, passport_seria, passport_number, address " + \
-                 "FROM auto"
-        rows = self.database_cur.execute(insert)
+        """
+        получить из БД список машин, номер, владельцы
+        сформировать документ
+        печать
+        """
+        rows = self.database_cur.execute(ins.auto)
         self.open_wb("auto")
         self.set_numder_and_date()
         for row in rows:
             self.add_next_auto(row)
-        self.wb.save("./month_print.xlsx")
+        self.wb.save(conf.path_for_print + "/auto_print.xlsx")
         self.wb.close()
+        os.startfile(conf.path_for_print + "/auto_print.xlsx", "print")
         print("pass auto")
 
     def ev_pass_recover(self):
-        # получить список работников
-        # открыть диалоговое окно с выбором сотрудника
-        # cформировать документ
-        # отправить на печать
+        """
+        получить список работников
+        открыть диалоговое окно с выбором сотрудника
+        cформировать документ
+        печать
+        TODO: передача данных между окнами
+        """
         insert = "SELECT family, name, surname FROM workers"
-        rows = self.database_cur.execute(insert)
+        rows = self.database_cur.execute(ins.workers)
+        wnd = ChosePeople(rows)
+        wnd.show()
         self.open_wb("recovery")
         self.set_numder_and_date()
-
         print("pass rec")
 
     def ev_pass_issue(self):
-        # диалоговое окно с вводом нового сотрудника
-        # ввод данных
-        # добавление в БД
+        """
+        диалоговое окно с вводом нового сотрудника
+        ввод данных
+        добавление в БД
+        TODO: передача между формами
+        """
         wnd = AddWorker()
-        wnd.start()
-
+        wnd.show()
+        self.database_cur.execute(ins.add_worker)
         print("pass issue")
 
     def ev_pass_unlock(self):
-        # получить список работников
-        # открыть диалоговое окно с выбором сотрудника
-        # cформировать документ
-        # отправить на печать
-        insert = "SELECT family, name, surname, address, post FROM workers"
-        rows = self.database_cur.execute(insert)
+        """
+        получить список работников
+        открыть диалоговое окно с выбором сотрудника
+        cформировать документ
+        печать
+        """
+        rows = self.database_cur.execute(ins.workers_with_adr)
         # открыть окно
+        wnd = ChosePeople(rows)
+        wnd.show()
         person = dict(name="ivan", family="f", surname="s", post="p", address="a")
         self.open_wb("unlock")
         self.set_numder_and_date()
@@ -146,7 +162,7 @@ class MainWindow(QMainWindow):
                                                                                            surname=person['surname'],
                                                                                            start_date=start_date,
                                                                                            end_month=max_day)
-        self.wb.save("./unlock_print.xlsx")
+        self.wb.save(conf.path_for_print + "/unlock_print.xlsx")
         self.wb.close()
         print("pass unlock")
 
@@ -160,10 +176,18 @@ class MainWindow(QMainWindow):
 
     def ev_new_bill(self):
         # открыть сканер
-        # распознать отсканированный
-        # добавить значение в БД
-        # сохранить скрин в папку месяца
         os.startfile("D:\scan.exe")
+        # распознать отсканированный
+        date, price, number = check_file()
+        # добавить значение в БД
+        insert = ""
+        self.database_cur.execute(insert)
+        # сохранить скрин в папку месяца
+        os.replace("", "D:/after_OCR/bill/{0}".format(datetime.datetime.now().month) + "bill_" + str(number) + str(date))
+        self.open_wb("bill")
+        self.add_new_row_to_excel((date, price, number), 2)
+        self.wb.save()
+        self.wb.close()
         print("new bill")
 
     def ev_new_build(self):
@@ -196,7 +220,7 @@ class MainWindow(QMainWindow):
     def ev_pdf_check(self):
         # открыть директорию
         # рассортировать все отсканированные файлы по папкам
-        
+        check_file()
         print("pdf check")
 
     def ev_send_covid(self):
@@ -204,6 +228,7 @@ class MainWindow(QMainWindow):
         # сформировать письмо
         # взять ковид из папки
         # отправить
+
         print("send covid")
 
     def ev_connect(self):
@@ -225,39 +250,44 @@ class MainWindow(QMainWindow):
 
     def ev_journal(self):
         # печать ковид журнала
+        os.startfile("D:/шаблоны/covid.xlsx", "print")
         print("journal")
 
     def ev_tabel(self):
         # печать табеля
+        os.startfile("D:/шаблоны/табель.xlsx", "print")
         print("tabel")
 
     def ev_scan(self):
         # открыть сканер
+        os.startfile("D:/scan.exe")
         print("scan")
 
     def ev_attorney(self):
         # печать доверенности
         self.r_connect.setChecked(True)
+        os.startfile("D:/шаблоны/доверенность.xlsx", "print")
         print("attorney")
 
     def ev_invoice(self):
         # печать накладной
         self.r_connect.setChecked(True)
+        os.startfile("D:/шаблоны/накладная.xlsx", "print")
         print("invoice")
 
     # работа с Excel
-    def open_wb(self, name):
+    def open_wb(self, sheet):
         path = "D:/test.xlsx"
         wb_obj = openpyxl.load_workbook(path)
-        if name in wb_obj.sheetnames:
-            my_sheet = wb_obj[name]
+        if sheet in wb_obj.sheetnames:
+            my_sheet = wb_obj[sheet]
             return wb_obj, my_sheet
         else:
             logging.info("данного листа в книге не существует")
-            print("нет выбранного листа " + name)
+            print("нет выбранного листа " + sheet)
             return None, None
 
-    def add_new_row_to_excel(self, row):
+    def add_new_row_to_excel(self, row, start_row=10):
         self.sheet.insert_rows(idx=10, amount=1)
         i = iter(range(10))
         thin_border = Border(left=Side(style='thin'),
@@ -265,7 +295,7 @@ class MainWindow(QMainWindow):
                              top=Side(style='thin'),
                              bottom=Side(style='thin'))
         for item in row:
-            cell = self.sheet.cell(row=10, column=next(i))
+            cell = self.sheet.cell(row=start_row, column=next(i))
             cell.value = item
             cell.border = thin_border
 

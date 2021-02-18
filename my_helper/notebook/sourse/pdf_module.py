@@ -23,22 +23,17 @@ def check_file():
         elif "выходные" or "выходной" in text:
             os.replace(file, "D:/after_OCR/pass" + "выходные_" + str(datetime.now().date()))
         elif "чек" in text:
-            next_bill(text, file)
+            date, price, number = next_bill(text, file)
+
             pass
 
 
 def next_bill(text, file):
-    ind_price = text.rindex("Итог")
+    ind_price = text.rindex("ИТОГ")
     ind_number = text.rindex("ЧЕК")
-    ind_date = text.rindex("")
-    img = cv2.imread(file)
-    detector = cv2.QRCodeDetector()
-    data, bbox, straight_qrcode = detector.detectAndDecode(img)
-
-
-pytesseract.pytesseract.tesseract_cmd = r'C:\Program Files\Tesseract-OCR\tesseract.exe'
-filename = "D:\my_img.jpg"
-text = str(((pytesseract.image_to_string(Image.open(filename), lang='rus'))))
-text = text.replace('-\n', '')
-print(text)
-j = input()
+    year = datetime.now().year
+    ind_date = text.rindex(str(year))
+    date = text[ind_date-6:ind_date]
+    price = text[ind_price+3:ind_price+13]
+    number = text[ind_number+5:ind_number+15]
+    return date, price, number
