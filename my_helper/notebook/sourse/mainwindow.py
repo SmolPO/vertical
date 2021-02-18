@@ -167,23 +167,25 @@ class MainWindow(QMainWindow):
         print("pass unlock")
 
     def ev_new_boss(self):
-        # диалоговое окно с формой для нового босса
-        # заполнение данных
-        # добавление в БД
+        """
+        диалоговое окно с формой для нового босса
+        заполнение данных
+        добавление в БД
+        """
         wnd = NewBoss()
         wnd.show()
         print("new boss")
 
     def ev_new_bill(self):
         # открыть сканер
-        os.startfile("D:\scan.exe")
+        os.startfile(conf.path + "/scan.exe")
         # распознать отсканированный
         date, price, number = check_file()
         # добавить значение в БД
         insert = ""
         self.database_cur.execute(insert)
         # сохранить скрин в папку месяца
-        os.replace("", "D:/after_OCR/bill/{0}".format(datetime.datetime.now().month) + "bill_" + str(number) + str(date))
+        os.replace("", conf.path_OCR + "/bill/{0}".format(datetime.datetime.now().month) + "bill_" + str(number) + str(date))
         self.open_wb("bill")
         self.add_new_row_to_excel((date, price, number), 2)
         self.wb.save()
@@ -191,17 +193,21 @@ class MainWindow(QMainWindow):
         print("new bill")
 
     def ev_new_build(self):
-        # открыть форму для нового объекта
-        # заполнить данные
-        # добавить объект в БД
-        # получить новый список объектов для списка объектов на главном меню
+        """
+        открыть форму для нового объекта
+        заполнить данные
+        добавить объект в БД
+        получить новый список объектов для списка объектов на главном меню
+        """
 
         print("new build")
 
     def ev_new_person(self):
-        # открыть окно для нового сотрудника
-        # заполнить данные
-        # отправить в БД
+        """
+        открыть окно для нового сотрудника
+        заполнить данные
+        отправить в БД
+        """
         wnd = AddWorker()
         wnd.start()
         print("new person")
@@ -211,24 +217,29 @@ class MainWindow(QMainWindow):
         print("create act")
 
     def ev_get_material(self):
-        # открыть форму для ввода название материала и даты завоза
-        # сформировать документ
-        # печать
+        """
+        открыть форму для ввода название материала и даты завоза
+        сформировать документ
+        печать
+        """
 
         print("get mat")
 
     def ev_pdf_check(self):
-        # открыть директорию
-        # рассортировать все отсканированные файлы по папкам
+        """
+        открыть директорию
+        рассортировать все отсканированные файлы по папкам
+        """
         check_file()
         print("pdf check")
 
     def ev_send_covid(self):
-        # если нет соответствующего файла, то открыть окно для сканирования
-        # сформировать письмо
-        # взять ковид из папки
-        # отправить
-
+        """
+        если нет соответствующего файла, то открыть окно для сканирования
+        сформировать письмо
+        взять ковид из папки
+        отправить
+        """
         print("send covid")
 
     def ev_connect(self):
@@ -237,48 +248,51 @@ class MainWindow(QMainWindow):
         print("connect")
 
     def ev_new_invoice(self):
-        # открыть сканер
-        # добавить накладную в папку
+        """
+        открыть сканер
+        добавить накладную в папку
+        """
         print("create invoice")
 
     def ev_new_boss_post(self):
-        # получить весь список боссов
-        # открыть окно для нового босса. Боса можно выбрать старого или ввести новые данные.
-        # ввести данные
-        # добавить в БД
+        """
+        получить весь список боссов
+        открыть окно для нового босса. Боса можно выбрать старого или ввести новые данные.
+        ввести данные
+        добавить в БД
+        """
         print("new post of boss")
 
     def ev_journal(self):
         # печать ковид журнала
-        os.startfile("D:/шаблоны/covid.xlsx", "print")
+        os.startfile(conf.path_default + "/covid.xlsx", "print")
         print("journal")
 
     def ev_tabel(self):
         # печать табеля
-        os.startfile("D:/шаблоны/табель.xlsx", "print")
+        os.startfile(conf.path_default + "/табель.xlsx", "print")
         print("tabel")
 
     def ev_scan(self):
         # открыть сканер
-        os.startfile("D:/scan.exe")
+        os.startfile(conf.path + "/scan.exe")
         print("scan")
 
     def ev_attorney(self):
         # печать доверенности
         self.r_connect.setChecked(True)
-        os.startfile("D:/шаблоны/доверенность.xlsx", "print")
+        os.startfile(conf.path_default + "/доверенность.xlsx", "print")
         print("attorney")
 
     def ev_invoice(self):
         # печать накладной
         self.r_connect.setChecked(True)
-        os.startfile("D:/шаблоны/накладная.xlsx", "print")
+        os.startfile(conf.path_default + "/накладная.xlsx", "print")
         print("invoice")
 
     # работа с Excel
     def open_wb(self, sheet):
-        path = "D:/test.xlsx"
-        wb_obj = openpyxl.load_workbook(path)
+        wb_obj = openpyxl.load_workbook(conf.path_xlsx)
         if sheet in wb_obj.sheetnames:
             my_sheet = wb_obj[sheet]
             return wb_obj, my_sheet
