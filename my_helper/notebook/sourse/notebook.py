@@ -8,6 +8,7 @@ import webbrowser
 import os
 import sys
 import mainwindow
+from threading import Thread
 
 # команда App
 app_connect_to_ser = 1
@@ -34,8 +35,9 @@ answ_ser_connect_to_app = 202
 answ_ser_test_cmd = 203
 
 
-class Notebook:
+class Notebook(Thread):
     def __init__(self):
+        super(Notebook, self).__init__()
         self.sock = socket.socket()
         self.config = configparser.ConfigParser()
         self.size_next_mess = 1024

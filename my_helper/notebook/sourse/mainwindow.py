@@ -5,6 +5,7 @@ import os
 import logging
 import datetime
 import openpyxl
+import configparser
 from openpyxl.styles.borders import Border, Side
 import psycopg2
 from add_company import AddCompany
@@ -15,6 +16,8 @@ from chouse_week import ChoseWeek
 from chose_people import ChosePeople
 import inserts as ins
 import config as conf
+from notebook import Notebook
+import threading
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -50,6 +53,9 @@ class MainWindow(QMainWindow):
         self.get_param_from_widget = None
         self.current_build = None
         self.company = 'ООО "Вертикаль"'
+        self.handle = Notebook()
+        self.handle.start()
+        self.config = configparser.ConfigParser()
 
     def ev_pass_week(self):
         # TODO: передача данных между формами
@@ -386,7 +392,10 @@ class MainWindow(QMainWindow):
 
     # Прочее
     def next_number_doc(self):
-        return "600"
+        self.config.read(conf.path_conf_ini)
+        next_number = int(self.config.get("conf", "next_number"))
+        self.config.set("conf", "next_number", str(int(self.next_number)+1))
+        return next_number
 
 
 if __name__ == "__main__":
