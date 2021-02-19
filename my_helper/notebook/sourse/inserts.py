@@ -5,6 +5,8 @@ workers = "SELECT family, name, surname FROM workers"
 add_worker = "INSERT INTO workers * VALUES {0}"
 auto = "SELECT model, number, family, name, surname, passport_serial, passport_number, address " + \
                  "FROM auto"
+def get_person(person):
+    return "SELECT * FROM workers WHERE family={0}".format(person)
 
 def pass_week(build):
     return "SELECT name, family, surname, post, birthdate, passport_seria, passport_number, address,  live_address " + \

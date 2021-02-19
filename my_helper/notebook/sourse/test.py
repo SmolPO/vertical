@@ -16,56 +16,38 @@ class Example(QWidget):
         self.initUI()
 
     def initUI(self):
-        self.lbl = QLabel("Ubuntu", self)
-
-        combo = QComboBox(self)
-        combo.addItem("Ubuntu")
-        combo.addItem("Mandriva")
-        combo.addItem("Fedora")
-        combo.addItem("Arch")
-        combo.addItem("Gentoo")
-        combo.move(50, 50)
-        self.lbl.move(50, 150)
-        combo.activated[str].connect(self.onActivated)
+        self.btn = QPushButton('open', self)
+        self.btn.move(20, 20)
+        self.btn.clicked.connect(self.onActivated)
 
         self.setGeometry(300, 300, 300, 200)
         self.setWindowTitle('QComboBox')
         self.show()
 
     def onActivated(self, text):
-        self.lbl.setText(text)
-        self.lbl.adjustSize()
+        items = ("Red", "Blue", "Green")
+        item, okPressed = QInputDialog.getItem(self, "Get item", "Color:", items, 0, False)
+        if okPressed and item:
+            print(item)
 
-class Example(QWidget):
+class Example2(QInputDialog):
 
     def __init__(self):
         super().__init__()
-
         self.initUI()
 
-
     def initUI(self):
-
-        self.btn = QPushButton('Dialog', self)
+        self.btn = QPushButton('OK', self)
         self.btn.move(20, 20)
-        self.btn.clicked.connect(self.showDialog)
-
         self.le = QLineEdit(self)
         self.le.move(130, 22)
-
         self.setGeometry(300, 300, 290, 150)
         self.setWindowTitle('Input dialog')
         self.show()
 
-
-    def showDialog(self):
-
-        text, ok = QInputDialog.getText(self, 'Input Dialog',
-            'Enter your name:')
-
-        if ok:
-            self.le.setText(str(text))
-
+    def getText(parent: QWidget, title: str, label: str):
+        print(1)
+        return (4, 8)
 
 if __name__ == '__main__':
 

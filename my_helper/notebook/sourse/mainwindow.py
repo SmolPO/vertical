@@ -12,12 +12,11 @@ from add_company import AddCompany
 from new_boss import NewBoss
 from add_worker import AddWorker
 from pdf_module import check_file
-from chouse_week import ChoseWeek
-from chose_people import ChosePeople
 import inserts as ins
 import config as conf
 from notebook import Notebook
 import threading
+from collections import deque
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -56,13 +55,30 @@ class MainWindow(QMainWindow):
         self.handle = Notebook()
         self.handle.start()
         self.config = configparser.ConfigParser()
+        self.stack = deque()
 
     def ev_pass_week(self):
         # TODO: передача данных между формами
-        # открыть диалоговое окно дл выбора дней. Открыть календарь.
-        wnd = ChoseWeek()
-        wnd.show()
-        days = [6, 7]
+        # открыть диалоговое окно для выбора дней. Открыть календарь.
+        items = ("сб", "сб и вск", "вск", "другой день")
+        text, ok = QInputDialog.getItem(self, "Выберите день", items, 0, "список")
+        days = []
+        week_day_now = datetime.datetime.now().weekday()
+        day_now = datetime.datetime.now().day
+        if ok:
+            if "сб" in text:
+                days.append(5 - week_day_now + datetime.datetime.now().day)
+            if "вск" in text:
+                days.append(6 - week_day_now + datetime.datetime.now().day)
+            if "другой день" in text:
+                text, ok = QInputDialog.getInt(self, "Выберите день", "День:", day_now, day_now, 31, 1)
+            if ok:
+                days.append(int(text))
+            else:
+                return
+        else:
+            return
+
         rows = self.database_cur.execute(ins.pass_week(self.current_build))
         self.wb, self.sheet = self.open_wb("week")
         i = iter(range(10))
@@ -119,12 +135,25 @@ class MainWindow(QMainWindow):
         печать
         TODO: передача данных между окнами
         """
-        insert = "SELECT family, name, surname FROM workers"
-        rows = self.database_cur.execute(ins.workers)
-        wnd = ChosePeople(rows)
-        wnd.show()
-        self.open_wb("recovery")
-        self.set_numder_and_date()
+        rows = self.database_cur.execute(ins.workers_with_adr)
+        items = []
+        for row in rows:
+            items.append(row[0] + " " + row[1][0] + "." + row[2][0] + ".")
+        family, ok = QInputDialog.getItem(self, "Выберите сотрудника", items, 0, "список")
+        if ok:
+            self.open_wb("recovery")
+            people = self.database_cur.execute(ins.get_person(family))
+            self.set_numder_and_date()
+            worker = []
+            worker.append(" ".join(*people[:2]))
+            worker.append(people[3])
+            worker.append(" ".join(people[4:9]))  # паспорт, адрес
+            worker.append(people[10])  # адрес
+            self.add_new_row_to_excel()
+            pass
+        else:
+            return
+
         print("pass rec")
 
     def ev_pass_issue(self):
@@ -148,8 +177,7 @@ class MainWindow(QMainWindow):
         """
         rows = self.database_cur.execute(ins.workers_with_adr)
         # открыть окно
-        wnd = ChosePeople(rows)
-        wnd.show()
+
         person = dict(name="ivan", family="f", surname="s", post="p", address="a")
         self.open_wb("unlock")
         self.set_numder_and_date()
