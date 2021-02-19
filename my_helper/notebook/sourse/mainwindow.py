@@ -1,4 +1,4 @@
-from PyQt5 import uic
+from PyQt5 import uic, QtWidgets
 from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QInputDialog
 import sys
 import os
@@ -8,7 +8,6 @@ import openpyxl
 import configparser
 from openpyxl.styles.borders import Border, Side
 import psycopg2
-from add_company import AddCompany
 from new_boss import NewBoss
 from add_worker import AddWorker
 from pdf_module import check_file
@@ -56,6 +55,7 @@ class MainWindow(QMainWindow):
         self.handle.start()
         self.config = configparser.ConfigParser()
         self.stack = deque()
+        self.new_worker = None
 
     def ev_pass_week(self):
         # TODO: передача данных между формами
@@ -144,17 +144,17 @@ class MainWindow(QMainWindow):
             self.open_wb("recovery")
             people = self.database_cur.execute(ins.get_person(family))
             self.set_numder_and_date()
-            worker = []
+            worker = list()
             worker.append(" ".join(*people[:2]))
             worker.append(people[3])
             worker.append(" ".join(people[4:9]))  # паспорт, адрес
             worker.append(people[10])  # адрес
-            self.add_new_row_to_excel()
-            pass
+            self.add_new_row_to_excel(worker)
+            self.wb.save(conf.path_for_print + "/recovery_print.xlsx")
+            self.wb.close()
+            print("pass rec")
         else:
             return
-
-        print("pass rec")
 
     def ev_pass_issue(self):
         """
@@ -164,8 +164,9 @@ class MainWindow(QMainWindow):
         TODO: передача между формами
         """
         wnd = AddWorker()
-        wnd.show()
-        self.database_cur.execute(ins.add_worker)
+        wnd.exec_()
+        self.database_cur.execute(ins.add_worker(self.new_worker))
+        self.new_worker = None
         print("pass issue")
 
     def ev_pass_unlock(self):
@@ -243,7 +244,11 @@ class MainWindow(QMainWindow):
         отправить в БД
         """
         wnd = AddWorker()
-        wnd.start()
+        wnd.exec_()
+        # запрос в БД на добавление человека
+        if not self.new_worker:
+            return
+
         print("new person")
 
     def ev_create_act(self):
@@ -424,6 +429,14 @@ class MainWindow(QMainWindow):
         next_number = int(self.config.get("conf", "next_number"))
         self.config.set("conf", "next_number", str(int(self.next_number)+1))
         return next_number
+
+    def get_new_worker(self, worker):
+        """
+        получаем полный список данных нового работника
+        добавляем в БД
+        """
+        self.new_worker = worker
+        print(worker)
 
 
 if __name__ == "__main__":

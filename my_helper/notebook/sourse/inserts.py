@@ -2,9 +2,12 @@ workers_with_adr = "SELECT family, name, surname, post, address, post FROM worke
 full_worker_date = "SELECT name, family, surname, post, birthdate, passport_seria, passport_number, address,  live_address " + \
                  "FROM workers"
 workers = "SELECT family, name, surname FROM workers"
-add_worker = "INSERT INTO workers * VALUES {0}"
 auto = "SELECT model, number, family, name, surname, passport_serial, passport_number, address " + \
                  "FROM auto"
+
+def add_worker(worker):
+    return "INSERT INTO workers * VALUES {0}".format(*worker)
+
 def get_person(person):
     return "SELECT * FROM workers WHERE family={0}".format(person)
 

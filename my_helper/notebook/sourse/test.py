@@ -1,56 +1,62 @@
-#!/usr/bin/python3
-# -*- coding: utf-8 -*-
-
-import sys
-from PyQt5.QtWidgets import (QWidget, QPushButton, QLineEdit,
-    QInputDialog, QApplication)
-
-import sys
-from PyQt5.QtWidgets import (QWidget, QLabel, QComboBox, QApplication)
+from PyQt5 import QtCore, QtGui, QtWidgets
 
 
-class Example(QWidget):
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        super(MainWindow, self).__init__(parent)
+        self.initUI()
+        self.data = ""
 
-    def __init__(self):
-        super().__init__()
+    def initUI(self):
+        self.setWindowTitle("title")
+        self.setGeometry(300, 300, 600, 600)
+
+        button = QtWidgets.QPushButton('push', self)
+        button.setToolTip('This is an example button')
+        button.move(100, 70)
+        button.clicked.connect(self.on_click)
+        self.show()
+
+    def set_data(self, text):
+        self.data = text
+
+    @QtCore.pyqtSlot()
+    def on_click(self):
+        my_dialog = MyDialog(self)
+        my_dialog.exec_()
+        print(self.data)
+
+
+class MyDialog(QtWidgets.QDialog):
+    def __init__(self, parent=None):
+        super(MyDialog, self).__init__(parent)
+        self.parent = parent
         self.initUI()
 
     def initUI(self):
-        self.btn = QPushButton('open', self)
-        self.btn.move(20, 20)
-        self.btn.clicked.connect(self.onActivated)
+        self.setWindowTitle("title")
+        self.setGeometry(300, 300, 500, 500)
 
-        self.setGeometry(300, 300, 300, 200)
-        self.setWindowTitle('QComboBox')
+        button = QtWidgets.QPushButton('dialog push', self)
+        button.setToolTip('This is an example button')
+        button.move(100, 70)
+        button.clicked.connect(self.browserFile)
         self.show()
 
-    def onActivated(self, text):
-        items = ("Red", "Blue", "Green")
-        item, okPressed = QInputDialog.getItem(self, "Get item", "Color:", items, 0, False)
-        if okPressed and item:
-            print(item)
+    @QtCore.pyqtSlot()
+    def browserFile(self):
+        self.close()
 
-class Example2(QInputDialog):
+    def get_assignment(self):
+        return {"name": "assignmentName", "due": "assignmentDue", "description": "description"}
 
-    def __init__(self):
-        super().__init__()
-        self.initUI()
+    def close(self):
+        self.parent.set_data("ghbdtn")
 
-    def initUI(self):
-        self.btn = QPushButton('OK', self)
-        self.btn.move(20, 20)
-        self.le = QLineEdit(self)
-        self.le.move(130, 22)
-        self.setGeometry(300, 300, 290, 150)
-        self.setWindowTitle('Input dialog')
-        self.show()
+if __name__ == "__main__":
+    import sys
 
-    def getText(parent: QWidget, title: str, label: str):
-        print(1)
-        return (4, 8)
-
-if __name__ == '__main__':
-
-    app = QApplication(sys.argv)
-    ex = Example()
+    app = QtWidgets.QApplication(sys.argv)
+    w = MainWindow()
+    w.show()
     sys.exit(app.exec_())
