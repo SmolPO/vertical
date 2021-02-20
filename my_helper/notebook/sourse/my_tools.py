@@ -4,6 +4,7 @@ from PyQt5 import QtWidgets
 from PyQt5 import uic
 import config as conf
 
+
 def calc_tap_segments():
     d = int(input("Введите диаметр голой трубы"))
     b = int(input("Введите толщину изоляции"))

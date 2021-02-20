@@ -11,6 +11,7 @@ import psycopg2
 from new_boss import NewBoss
 from add_worker import AddWorker
 from pdf_module import check_file
+from my_tools import Notepad
 import inserts as ins
 import config as conf
 from notebook import Notebook
@@ -47,6 +48,7 @@ class MainWindow(QMainWindow):
         self.b_scan.clicked.connect(self.ev_scan)
         self.b_attorney.clicked.connect(self.ev_attorney)
         self.b_invoice.clicked.connect(self.ev_invoice)
+        self.b_notepad.clicked.connect(self.ev_notepad)
 
         self.get_param_from_widget = None
         self.current_build = None
@@ -56,6 +58,7 @@ class MainWindow(QMainWindow):
         self.config = configparser.ConfigParser()
         self.stack = deque()
         self.new_worker = None
+        self.new_boss = None
 
     def ev_pass_week(self):
         # TODO: передача данных между формами
@@ -178,8 +181,16 @@ class MainWindow(QMainWindow):
         """
         rows = self.database_cur.execute(ins.workers_with_adr)
         # открыть окно
-
-        person = dict(name="ivan", family="f", surname="s", post="p", address="a")
+        people = list()
+        for row in rows:
+            people.append(row[0])
+        text, ok = QInputDialog.getItem(self, "Выберите день", people, 0, "список")
+        if not ok:
+            return
+        bad_people = list()
+        for row in rows:
+            if text == row:
+                bad_people = row
         self.open_wb("unlock")
         self.set_numder_and_date()
         start_date = datetime.datetime.now().day
@@ -190,11 +201,11 @@ class MainWindow(QMainWindow):
             ind = datetime.datetime.now().month
         max_day = num_days[ind]
         title = "Прошу вас разблокировать электронный пропуск {post} организации " \
-                "{company} {family} {name} {surname} c {start_date} по {end_month}".format(post=person['post'],
+                "{company} {family} {name} {surname} c {start_date} по {end_month}".format(post=bad_people[3],
                                                                                            company=self.company,
-                                                                                           family=person['family'],
-                                                                                           name=person['name'],
-                                                                                           surname=person['surname'],
+                                                                                           family=bad_people[1],
+                                                                                           name=bad_people[0],
+                                                                                           surname=bad_people[2],
                                                                                            start_date=start_date,
                                                                                            end_month=max_day)
         self.wb.save(conf.path_for_print + "/unlock_print.xlsx")
@@ -208,7 +219,8 @@ class MainWindow(QMainWindow):
         добавление в БД
         """
         wnd = NewBoss()
-        wnd.show()
+        wnd.exec_()
+        self.database_cur.execute(ins.add_boss(self.new_boss))
         print("new boss")
 
     def ev_new_bill(self):
@@ -245,10 +257,8 @@ class MainWindow(QMainWindow):
         """
         wnd = AddWorker()
         wnd.exec_()
-        # запрос в БД на добавление человека
-        if not self.new_worker:
-            return
-
+        self.database_cur.execute(ins.add_worker(self.new_worker))
+        self.new_worker = None
         print("new person")
 
     def ev_create_act(self):
@@ -328,6 +338,10 @@ class MainWindow(QMainWindow):
         self.r_connect.setChecked(True)
         os.startfile(conf.path_default + "/накладная.xlsx", "print")
         print("invoice")
+
+    def ev_notepad(self):
+        wnd = Notepad()
+        wnd.show()
 
     # работа с Excel
     def open_wb(self, sheet):
@@ -437,6 +451,9 @@ class MainWindow(QMainWindow):
         """
         self.new_worker = worker
         print(worker)
+
+    def set_new_boss(self, boss):
+        self.new_boss = boss
 
 
 if __name__ == "__main__":
