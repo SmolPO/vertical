@@ -6,6 +6,10 @@ auto = "SELECT model, number, family, name, surname, passport_series, passport_n
                  "FROM auto"
 
 
+def new_contract(contract):
+    return "INSERT INTO contracts * VALUES {0}".format(*contract)
+
+
 def add_worker(worker):
     return "INSERT INTO workers * VALUES {0}".format(*worker)
 

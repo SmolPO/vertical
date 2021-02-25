@@ -9,11 +9,14 @@ import openpyxl
 import psycopg2
 from new_boss import NewBoss
 from add_worker import AddWorker
-from pdf_module import check_file
-# from my_tools import Notepad
+from pdf_module import check_file, create_covid
+from new_contract import NewContact
+from email_module import send_post
+from my_tools import Notepad
 import inserts as ins
 import config as conf
-# from notebook import Notebook
+from notebook import Notebook
+from PyPDF2 import PdfFileMerger as pypdf
 
 
 class MainWindow(QMainWindow):
@@ -52,13 +55,13 @@ class MainWindow(QMainWindow):
         self.get_param_from_widget = None
         self.current_build = "(Объект)"
         self.company = 'ООО "Вертикаль"'
-        self.ui_l_company.text = self.company
-        self.ui_l_build.text = self.current_build
-        # self.handle = Notebook()
-        # self.handle.start()
-        self.config = configparser.ConfigParser()
         self.new_worker = None
         self.new_boss = None
+        self.new_contract = None
+        self.ui_l_company.text = self.company
+        self.ui_l_build.text = self.current_build
+        self.config = configparser.ConfigParser()
+
         self.init_notif()
 
         # Database
@@ -67,9 +70,11 @@ class MainWindow(QMainWindow):
         for item in builds:
             self.cb_builds.addItems(item)
 
+        self.handle = Notebook()
+        self.handle.start()
+
     def ev_pass_week(self):
         # TODO: выбор нескольких дней по календарю или из формы
-
         # открыть диалоговое окно для выбора дней. Открыть календарь.
         items = ("сб", "сб и вск", "вск", "другой день")
         chose, ok = QInputDialog.getItem(self, "Пропуск на выходные", "Выберите день", items)
@@ -183,6 +188,7 @@ class MainWindow(QMainWindow):
         family, ok = QInputDialog.getItem(self, "Выберите сотрудника", items, 0, "Список")
         if not ok:
             return
+
         # xlsx
         if not self.open_wb("recovery"):
             return
@@ -193,12 +199,14 @@ class MainWindow(QMainWindow):
         worker.append(people[3])
         worker.append(" ".join(people[4:9]))  # паспорт, адрес
         worker.append(people[10])  # адрес
+
         # xlsx
         self.set_numder_and_date()
         self.add_new_row_to_excel(worker)
         self.wb.save(conf.path_for_print + "/recovery_print.xlsx")
         self.wb.close()
         os.startfile(conf.path_for_print + "/recovery_print.xlsx")
+
         # уведомление
         self.add_notif("Отправить на согласование восстановление", 0)
         self.add_notif("Написать ковид журнал на работника", 0)
@@ -240,6 +248,7 @@ class MainWindow(QMainWindow):
         for one in workers:
             if family == one:
                 bad_people = one
+
         # узнать сколько дней в месяце
         start_date = ".".join(str(x) for x in (dt.now().day, dt.now().month, dt.now().year))
         num_days = [31, 28 if dt.now().year / 4 else 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
@@ -304,7 +313,12 @@ class MainWindow(QMainWindow):
         добавить объект в БД
         получить новый список объектов для списка объектов на главном меню
         """
-
+        wnd = NewContact(self)
+        wnd.exec_()
+        if not self.new_contract:
+            return
+        self.database_cur.execute(ins.new_contract(self.new_contract))
+        self.new_contract = None
         print("new build")
 
     def ev_new_person(self):
@@ -349,10 +363,22 @@ class MainWindow(QMainWindow):
         взять ковид из папки
         отправить
         """
+        try:
+            covid = open(conf.path + conf.path_to_covid + "/covid{0}_{1}".format(dt.now().day, dt.now().month))
+        except:
+            QMessageBox(self, "Нет файла с ковидом")
+            os.startfile(conf.path_scan)
+            return
+        # отправить письмо
+        create_covid()
+        to_email = "kalent_ivan@mail.ru"
+        if not send_post("Ковидный журнал", "Доброе утро", to_email, conf.path_OCR + "/covid/covid_01_01.pdf"):
+            QMessageBox(self, "Сообщение не отправилось").show()
         print("send covid")
 
     def ev_connect(self):
         # подключиться к серверу
+        self.handle.connect_to_server()
         self.r_connect.setChecked(True)
         print("connect")
 
@@ -378,39 +404,33 @@ class MainWindow(QMainWindow):
         print("journal")
 
     def ev_tabel(self):
-        # печать табеля
         os.startfile(conf.path_default + "/табель.xlsx", "print")
         print("tabel")
 
     def ev_scan(self):
-        # открыть сканер
         os.startfile(conf.path + "/scan.exe")
         print("scan")
 
     def ev_attorney(self):
-        # печать доверенности
-        self.r_connect.setChecked(True)
         os.startfile(conf.path_default + "/доверенность.xlsx", "print")
         print("attorney")
 
     def ev_invoice(self):
-        # печать накладной
-        self.r_connect.setChecked(True)
         os.startfile(conf.path_default + "/накладная.xlsx", "print")
         print("invoice")
 
     def ev_notepad(self):
-        #  wnd = Notepad()
-        #  wnd.show()
+        wnd = Notepad()
+        wnd.show()
         pass
 
     # работа с Excel
     def open_wb(self, sheet):
         # открытие файла
         try:
-            self.wb = openpyxl.load_workbook(conf.path + conf.path_xlsx)
+            self.wb = openpyxl.load_workbook(conf.path_xlsx)
         except:
-            QMessageBox("Нет xlsx файла по адресу {0}".format(conf.path + conf.path_xlsx)).show()
+            QMessageBox(self, "Нет xlsx файла по адресу {0}".format(conf.path_xlsx)).show()
             return False
 
         # открытие листа
@@ -445,7 +465,7 @@ class MainWindow(QMainWindow):
         self.sheet.insert_rows(idx=10, amount=1)
         i = iter(range(10))
         for item in add_row:
-            cell = self.sheet.cell(row=10, column=next(i))
+            cell = self.sheet.cell(row=10, column=next(i)+1)
             cell.value = item
             # cell.border = thin_border
 
@@ -455,9 +475,8 @@ class MainWindow(QMainWindow):
         cell_count.value = count + 1
         i = iter(range(4))
         for item in date:
-            cell = self.sheet.cell(row=count, column=next(i))
+            cell = self.sheet.cell(row=count, column=next(i)+1)
             cell.value = item
-        pass
 
     def set_week_days(self, days):
         if len(days) > 1:
@@ -481,11 +500,9 @@ class MainWindow(QMainWindow):
         cell_data.value = "от " + date
 
     def set_month_date(self):
-        now_month = dt.now().month
-        next_month = 1 if now_month == 12 else now_month + 1
-        year = dt.now().year if now_month < 12 else dt.now().year + 1
+        next_month = 1 if dt.now().month == 12 else dt.now().month + 1
+        year = dt.now().year if dt.now().month < 12 else dt.now().year + 1
         num_days = [31, 28 if dt.now().year / 4 else 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        max_day = num_days[dt.now().month]
         if next_month < 10:
             next_month = "0" + str(next_month)
         max_day = num_days[dt.now().month]
@@ -511,8 +528,7 @@ class MainWindow(QMainWindow):
         self.database_cur = self.database_conn.cursor()
         if not self.database_conn:
             return False
-        else:
-            return True
+        return True
 
     # Прочее
     def next_number_doc(self):
@@ -532,24 +548,29 @@ class MainWindow(QMainWindow):
     def set_new_boss(self, boss):
         self.new_boss = boss
 
-    def on_click_notif(self):
+    def on_click_notif(self): # TODO переделать в XML
         # read
+        sender = self.sender()
+        notif = sender.get_text()
         f = open(conf.path + "/notif.txt", "r")
-        file = list()
+        buffer = ""
+        mes = ""
         for line in f.readlines():
-            file.append("[1, " + str(line[5:]))
+            if notif in line and line[1] == "0":
+                mes = line[0] + "1" + line[2:]
+            else:
+                mes = line
+            buffer = buffer + mes
         f.close()
-        # write
         f = open(conf.path + "/notif.txt", "w")
-        f.write(str(file))
+        f.write(buffer)
         f.close()
-        pass
 
     def init_notif(self):
         f = open(conf.path + "/notif.txt", "r")
         for line in f.readlines():
             if line[1] == '0':
-                #  self.ui_notification.addItem(QCheckBox(line[5:-4]))
+                self.ui_notification.addItem(QCheckBox(line[5:-4]))
                 print(line[5:-3])
 
     def add_notif(self, message, mode):

@@ -6,5 +6,6 @@ path_for_print = path + "/to_print"
 path_default = path + "/default"
 path_xlsx = path + "/workbook.xlsx"
 path_conf_ini = path + "/config.ini"
+path_to_covid = "/covid"
 
 

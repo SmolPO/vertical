@@ -39,17 +39,16 @@ answ_ser_test_cmd = 203
 class Notebook(Thread):
     def __init__(self):
         super(Notebook, self).__init__()
+        # server
         self.sock = socket.socket()
+
         self.config = configparser.ConfigParser()
         self.size_next_mess = 1024
         logging.basicConfig(filename="log_file.log", level=logging.INFO)
         self.handler = threading.Thread(target=self.listen_server)
         print("hello, I am pc. Connecting to server...")
-        if self.connect_to_server():
-            print("yes, I connected to server")
-        else:
+        if not self.connect_to_server():
             print("no, I did not connect to server")
-        pass
 
     def connect_to_server(self):
         self.sock.connect(('localhost', 9090))
