@@ -169,24 +169,19 @@
      <string>Объект:</string>
     </property>
    </widget>
-   <widget class="QLineEdit" name="ui_chose_build">
-    <property name="geometry">
-     <rect>
-      <x>430</x>
-      <y>30</y>
-      <width>113</width>
-      <height>22</height>
-     </rect>
-    </property>
-   </widget>
    <widget class="QLabel" name="ui_l_chose">
     <property name="geometry">
      <rect>
-      <x>430</x>
+      <x>440</x>
       <y>10</y>
       <width>101</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <bold>true</bold>
+     </font>
     </property>
     <property name="text">
      <string>Выбрать объект</string>
@@ -286,14 +281,17 @@
       <x>20</x>
       <y>370</y>
       <width>291</width>
-      <height>31</height>
+      <height>101</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="ui_notification">
+     <property name="sizeConstraint">
+      <enum>QLayout::SetMaximumSize</enum>
+     </property>
      <item>
-      <widget class="QLabel" name="label_6">
+      <widget class="QRadioButton" name="radioButton">
        <property name="text">
-        <string>TextLabel</string>
+        <string>RadioButton</string>
        </property>
       </widget>
      </item>
@@ -426,7 +424,7 @@
    <widget class="QLabel" name="ui_l_create">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>480</x>
       <y>330</y>
       <width>49</width>
       <height>16</height>
@@ -564,6 +562,9 @@
     </property>
    </widget>
    <widget class="QRadioButton" name="r_connect">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>570</x>
@@ -574,6 +575,29 @@
     </property>
     <property name="text">
      <string/>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b_notepad">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>260</y>
+      <width>101</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Блокнот</string>
+    </property>
+   </widget>
+   <widget class="QComboBox" name="cb_builds">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>30</y>
+      <width>101</width>
+      <height>22</height>
+     </rect>
     </property>
    </widget>
   </widget>
