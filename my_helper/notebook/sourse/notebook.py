@@ -7,8 +7,9 @@ import threading
 import webbrowser
 import os
 import sys
-import mainwindow
+# import mainwindow
 from threading import Thread
+
 
 # команда App
 app_connect_to_ser = 1

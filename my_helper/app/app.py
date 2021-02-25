@@ -42,6 +42,7 @@ red = [1, 0, 0, 1]
 green = [0, 1, 0, 1]
 blue = [0, 0, 1, 1]
 purple = [1, 0, 1, 1]
+white = [1, 1, 1, 1]
 
 
 class HBoxLayoutExample(App):
@@ -49,29 +50,35 @@ class HBoxLayoutExample(App):
         self.sock = socket.socket()
         logging.basicConfig(filename="log_file.log", level=logging.INFO)
         self.is_connect_to_pc = False
-        layout = BoxLayout(padding=10)
 
-        btn_test = Button(text="Тест", color=red, size_hint=(.5, .5),  pos_hint ={'center_x': .5, 'center_y': .5})
-        btn_conn = Button(text="Подклюючиться к серверу", color=red, size_hint=(.5, .5), pos_hint={'center_x': .5, 'center_y': .5})
-        btn_on_music = Button(text="Включить музыку", color=red, size_hint=(.5, .5), pos_hint={'center_x': .5, 'center_y': .5})
-        btn_open_scan = Button(text="Отправить сканер", color=red, size_hint=(.5, .5), pos_hint={'center_x': .5, 'center_y': .5})
+        hor_layout = BoxLayout(padding=0, orientation="horizontal")
+        vert_layout = BoxLayout(orientation="vertical")
+        vert_layout2 = BoxLayout(orientation="vertical")
+
+        btn_test = Button(text="Тест", color=white, size_hint=(1, 1),  pos_hint ={'center_x': .5, 'center_y': .5})
+        btn_conn = Button(text="Подклюючиться к серверу", color=white, size_hint=(1, 1), pos_hint={'center_x': .5, 'center_y': .5})
+        btn_on_music = Button(text="Включить музыку", color=white, size_hint=(1, 1), pos_hint={'center_x': .5, 'center_y': .5})
+        btn_open_scan = Button(text="Отправить сканер", color=white, size_hint=(1, 1), pos_hint={'center_x': .5, 'center_y': .5})
 
         btn_test.bind(on_press=self.btn_test_cmd)
         btn_conn.bind(on_press=self.btn_connect_cmd)
         btn_on_music.bind(on_press=self.btn_on_music)
         btn_open_scan.bind(on_press=self.btn_open_scan)
 
-        layout.add_widget(btn_conn)
-        layout.add_widget(btn_test)
-        layout.add_widget(btn_on_music)
-        layout.add_widget(btn_open_scan)
+        vert_layout.add_widget(btn_conn)
+        vert_layout.add_widget(btn_test)
+        vert_layout2.add_widget(btn_on_music)
+        vert_layout2.add_widget(btn_open_scan)
+
+        hor_layout.add_widget(vert_layout)
+        hor_layout.add_widget(vert_layout2)
 
         self.config = configparser.ConfigParser()
         self.config.read('../config.ini')
         self.size_next_mess = int(self.config.get("server", "size_first_mes"))
         self.handler = threading.Thread(target=self.listen_server)
 
-        return layout
+        return hor_layout
 
     def btn_test_cmd(self, instance):
         self.send_message(app_test_cmd)
