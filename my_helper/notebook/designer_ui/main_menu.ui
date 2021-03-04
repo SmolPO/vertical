@@ -102,7 +102,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Новый объект</string>
+     <string>Новый договор</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_new_person">
@@ -288,13 +288,6 @@
      <property name="sizeConstraint">
       <enum>QLayout::SetMaximumSize</enum>
      </property>
-     <item>
-      <widget class="QRadioButton" name="radioButton">
-       <property name="text">
-        <string>RadioButton</string>
-       </property>
-      </widget>
-     </item>
     </layout>
    </widget>
    <widget class="QPushButton" name="b_pass_unlock">

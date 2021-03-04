@@ -16,7 +16,7 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>120</x>
+     <x>140</x>
      <y>20</y>
      <width>141</width>
      <height>16</height>
@@ -35,7 +35,7 @@
     <number>0</number>
    </property>
    <property name="text">
-    <string>Важные люди</string>
+    <string>Новый босс</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_2">
@@ -51,7 +51,7 @@
     <string>Должность</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_post">
+  <widget class="QLineEdit" name="post">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -74,7 +74,7 @@
     <string>ФИО</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_name">
+  <widget class="QLineEdit" name="name">
    <property name="geometry">
     <rect>
      <x>190</x>

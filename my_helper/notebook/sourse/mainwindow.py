@@ -12,10 +12,10 @@ from add_worker import AddWorker
 from pdf_module import check_file, create_covid
 from new_contract import NewContact
 from email_module import send_post
+from boss_post import BossPost
 from my_tools import Notepad
 import inserts as ins
 import config as conf
-from notebook import Notebook
 from PyPDF2 import PdfFileMerger as pypdf
 
 
@@ -23,7 +23,7 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         uic.loadUi('../designer_ui/main_menu.ui', self)
-        # pass
+        print("pass")
         self.b_pass_week.clicked.connect(self.ev_pass_week)
         self.b_pass_month.clicked.connect(self.ev_pass_month)
         self.b_pass_auto.clicked.connect(self.ev_pass_auto)
@@ -51,27 +51,32 @@ class MainWindow(QMainWindow):
         self.b_invoice.clicked.connect(self.ev_invoice)
 
         self.b_notepad.clicked.connect(self.ev_notepad)
+        self.cb_builds.activated[str].connect(self.change_build)
 
         self.get_param_from_widget = None
-        self.current_build = "(Объект)"
+        self.current_build = "Объект"
         self.company = 'ООО "Вертикаль"'
         self.new_worker = None
         self.new_boss = None
         self.new_contract = None
-        self.ui_l_company.text = self.company
-        self.ui_l_build.text = self.current_build
+        self.post_boss = None
+        self.ui_l_company.setText(self.company)
+        self.ui_l_build.setText(self.current_build)
         self.config = configparser.ConfigParser()
-
         self.init_notif()
 
         # Database
         self.connect_to_database()
         builds = self.database_cur.execute(ins.get_builds())
-        for item in builds:
-            self.cb_builds.addItems(item)
+        if not builds:
+            self.cb_builds.addItems(["Галерея", "Аммиак"])
+        else:
+            for item in builds:
+                self.cb_builds.addItems(item)
 
-        self.handle = Notebook()
-        self.handle.start()
+    def change_build(self, text):
+        self.ui_l_cur_build.setText(text)
+        self.ui_l_cur_build.adjustSize()
 
     def ev_pass_week(self):
         # TODO: выбор нескольких дней по календарю или из формы
@@ -99,7 +104,8 @@ class MainWindow(QMainWindow):
             return False
 
         # запрос в БД
-        self.current_build = self.cb_builds.text
+        # self.current_build = self.cb_builds.value
+        self.current_build = "Галерея"
         # workers = self.database_cur.execute(ins.pass_week(self.current_build))
         workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
 
@@ -109,7 +115,7 @@ class MainWindow(QMainWindow):
 
         for person in workers:
             self.add_new_row_to_excel(person)
-        self.set_numder_and_date()
+        self.set_number_and_date()
         self.set_week_days(days)
         self.wb.save(conf.path_for_print + "/week_print.xlsx")
         self.wb.close()
@@ -128,12 +134,13 @@ class MainWindow(QMainWindow):
         направить на печать
         """
         # БД
-        workers = self.database_cur.execute(ins.full_workers_data)
+        # workers = self.database_cur.execute(ins.full_workers_data)
+        workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
 
         # xlsx
         if not self.open_wb("month"):
             return
-        self.set_numder_and_date()
+        self.set_number_and_date()
         self.set_month_date()
         for person in workers:
             self.add_new_row_to_excel(person)
@@ -154,12 +161,13 @@ class MainWindow(QMainWindow):
         печать
         """
         # БД
-        cars = self.database_cur.execute(ins.auto)
+        # cars = self.database_cur.execute(ins.auto)
+        cars = [["reno", "67gvj6567", "раои", "jgjhk", "jhhk", "kyjgjh", "hhgfgjh"]]
 
         # xlsx
         if not self.open_wb("auto"):
             return
-        self.set_numder_and_date()
+        self.set_number_and_date()
         for auto in cars:
             self.add_next_auto(auto)
         self.wb.save(conf.path_for_print + "/auto_print.xlsx")
@@ -182,10 +190,11 @@ class MainWindow(QMainWindow):
         """
         # БД
         workers = self.database_cur.execute(ins.workers_with_adr)
+        workers = [["KalenSDFSDFSt", "IvaSDFSDFn", "SemonovSDFSDFDich", "монтажникDSFSDFSD", "01.08.1996FDSDFDSFF"]]
         items = []
         for person in workers:
             items.append(person[0] + " " + ".".join((person[1][0], person[2][0])))
-        family, ok = QInputDialog.getItem(self, "Выберите сотрудника", items, 0, "Список")
+        family, ok = QInputDialog.getItem(self, "Выберите сотрудника", "Название", items, 0, False)
         if not ok:
             return
 
@@ -193,15 +202,16 @@ class MainWindow(QMainWindow):
         if not self.open_wb("recovery"):
             return
         # БД
-        people = self.database_cur.execute(ins.get_person(family))
+        # people = self.database_cur.execute(ins.get_person(family))
+        people = workers[0]
         worker = list()  # TODO проверить сборку данных
-        worker.append(" ".join(*people[:2]))
+        worker.append(" ".join([people[0], people[1], people[2]]))
         worker.append(people[3])
         worker.append(" ".join(people[4:9]))  # паспорт, адрес
-        worker.append(people[10])  # адрес
+        worker.append(people[1])  # адрес
 
         # xlsx
-        self.set_numder_and_date()
+        self.set_number_and_date()
         self.add_new_row_to_excel(worker)
         self.wb.save(conf.path_for_print + "/recovery_print.xlsx")
         self.wb.close()
@@ -220,11 +230,11 @@ class MainWindow(QMainWindow):
         добавление в БД
         TODO: передача между формами
         """
-        wnd = AddWorker()
+        wnd = AddWorker(self)
         wnd.exec_()
         if not self.new_worker:
             return
-        self.database_cur.execute(ins.add_worker(self.new_worker))
+        # self.database_cur.execute(ins.add_worker(self.new_worker))
         self.new_worker = None
         print("pass issue")
         # TODO: отправить сообщение на сервер для уведомления в приложение
@@ -236,23 +246,34 @@ class MainWindow(QMainWindow):
         cформировать документ
         печать
         """
-        workers = self.database_cur.execute(ins.workers_with_adr)
+        # workers = self.database_cur.execute(ins.workers_with_adr)
+        workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
+
         # выбор сотрудника
         people = list()
         for person in workers:
             people.append(person[0])
-        family, ok = QInputDialog.getItem(self, "Выберите работника", people, 0, "список")
+        items = tuple(people)
+        family, ok = QInputDialog.getItem(self, "Выберите работника", "Название", items, 0, False)
         if not ok:
             return
         bad_people = list()
         for one in workers:
-            if family == one:
+            if family == one[0]:
                 bad_people = one
 
         # узнать сколько дней в месяце
-        start_date = ".".join(str(x) for x in (dt.now().day, dt.now().month, dt.now().year))
+        if dt.now().month < 10:
+            month = "0" + str(dt.now().month)
+        else:
+            month = str(dt.now().day)
+        if dt.now().day < 10:
+            day = "0" + str(dt.now().day)
+        else:
+            day = str(dt.now().day)
+        start_date = ".".join(str(x) for x in (day, month, dt.now().year))
         num_days = [31, 28 if dt.now().year / 4 else 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        max_day = num_days[dt.now().month]
+        max_day = num_days[dt.now().month-1]
         end_date = ".".join(str(x) for x in (max_day, dt.now().month, dt.now().year))
         title = "Прошу вас разблокировать электронный пропуск {post} организации " \
                 "{company} {family} {name} {surname} c {start_date} по {end_month}".format(post=bad_people[3],
@@ -266,7 +287,7 @@ class MainWindow(QMainWindow):
         # xlsx
         if not self.open_wb("unlock"):
             return
-        self.set_numder_and_date()
+        self.set_number_and_date()
         self.set_title(title)
         self.wb.save(conf.path_for_print + "/unlock_print.xlsx")
         self.wb.close()
@@ -282,16 +303,20 @@ class MainWindow(QMainWindow):
         заполнение данных
         добавление в БД
         """
-        wnd = NewBoss()
+        wnd = NewBoss(self)
         wnd.exec_()
         if not self.new_boss:
             return
-        self.database_cur.execute(ins.add_boss(self.new_boss))
+        # self.database_cur.execute(ins.add_boss(self.new_boss))
         self.new_boss = None
         print("new boss")
 
     def ev_new_bill(self):
-        os.startfile(conf.path + "/scan.exe")
+        try:
+            os.startfile(conf.path + "/scan.exe")
+        except:
+            print("не могу запустить сканер")
+            return
         date, price, number = check_file()
         os.replace("", conf.path_OCR + "/bills/{0}.jpg".format(".".join((str(x) for x in (dt.now().day,
                                                                                          dt.now().month,
@@ -327,11 +352,11 @@ class MainWindow(QMainWindow):
         заполнить данные
         отправить в БД
         """
-        wnd = AddWorker()
+        wnd = AddWorker(self)
         wnd.exec_()
         if not self.new_worker:
             return
-        self.database_cur.execute(ins.add_worker(self.new_worker))
+       # self.database_cur.execute(ins.add_worker(self.new_worker))
         self.new_worker = None
         print("new person")
 
@@ -366,7 +391,7 @@ class MainWindow(QMainWindow):
         try:
             covid = open(conf.path + conf.path_to_covid + "/covid{0}_{1}".format(dt.now().day, dt.now().month))
         except:
-            QMessageBox(self, "Нет файла с ковидом")
+            QMessageBox("Нет файла с ковидом")
             os.startfile(conf.path_scan)
             return
         # отправить письмо
@@ -396,6 +421,12 @@ class MainWindow(QMainWindow):
         ввести данные
         добавить в БД
         """
+        wnd = BossPost(self)
+        wnd.exec_()
+        if not self.post_boss:
+            return
+        # self.database_cur.execute(ins.add_worker(self.new_post)) TODO проверить кому меняем
+        self.post_boss = None
         print("new post of boss")
 
     def ev_journal(self):
@@ -421,7 +452,7 @@ class MainWindow(QMainWindow):
 
     def ev_notepad(self):
         wnd = Notepad()
-        wnd.show()
+        wnd.exec_()
         pass
 
     # работа с Excel
@@ -480,10 +511,10 @@ class MainWindow(QMainWindow):
 
     def set_week_days(self, days):
         if len(days) > 1:
-            title = "Прошу Вас разрешить работы в выходные дни {0} г. и {1}. по ремонту {2} работникам {3}, " \
+            title = "        Прошу Вас разрешить работы в выходные дни {0} г. и {1}. по ремонту {2} работникам {3}, " \
                     "с рабочей сменой с 07-00 до 19-00 часов:".format(days[0], days[1], self.current_build, self.company)
         else:
-            title = "Прошу Вас разрешить работы в выходной день {0} г. по ремонту {1} работникам {2}, " \
+            title = "        Прошу Вас разрешить работы в выходной день {0} г. по ремонту {1} работникам {2}, " \
                     "с рабочей сменой с 07-00 до 19-00 часов:".format(days[0], self.current_build, self.company)
         cell = self.sheet.cell(row=5, column=1)
         cell.value = title
@@ -492,11 +523,15 @@ class MainWindow(QMainWindow):
         if dt.now().month < 10:
             month = "0" + str(dt.now().month)
         else:
-            month = str(dt.now().month)
-        date = ".".join((str(x) for x in (dt.now().day, month, dt.now().year)))
+            month = str(dt.now().day)
+        if dt.now().day < 10:
+            day = "0" + str(dt.now().day)
+        else:
+            day = str(dt.now().day)
+        date = ".".join((str(x) for x in (day, month, dt.now().year)))
         cell_count = self.sheet.cell(row=3, column=1)
         cell_data = self.sheet.cell(row=4, column=1)
-        cell_count.value = "Исх. №" + self.next_number_doc()
+        cell_count.value = "Исх. № " + self.next_number_doc()
         cell_data.value = "от " + date
 
     def set_month_date(self):
@@ -508,7 +543,7 @@ class MainWindow(QMainWindow):
         max_day = num_days[dt.now().month]
         first_date = ".".join((str(x) for x in ("01", next_month, year)))
         end_date = ".".join((str(x) for x in (max_day, next_month, year)))
-        title = "Прошу Вас продлить электронные пропуска для организации и производства работ " \
+        title = "        Прошу Вас продлить электронные пропуска для организации и производства работ " \
                 "на территории ПАО «Дорогобуж» " \
                 "работникам  {0} с {1} г. по {2} г. с рабочей сменой " \
                 "с 07-00 до 19-00 часов:".format(self.company, first_date, end_date)
@@ -538,17 +573,15 @@ class MainWindow(QMainWindow):
         return str(next_number)
 
     def get_new_worker(self, worker):
-        """
-        получаем полный список данных нового работника
-        добавляем в БД
-        """
         self.new_worker = worker
-        print(worker)
 
     def set_new_boss(self, boss):
         self.new_boss = boss
 
-    def on_click_notif(self): # TODO переделать в XML
+    def set_new_post(self, post):
+        self.post_boss = post
+
+    def on_click_notif(self):  # TODO переделать в XML
         # read
         sender = self.sender()
         notif = sender.get_text()
@@ -568,10 +601,12 @@ class MainWindow(QMainWindow):
 
     def init_notif(self):
         f = open(conf.path + "/notif.txt", "r")
+        # layout = QLayout()
         for line in f.readlines():
             if line[1] == '0':
-                self.ui_notification.addItem(QCheckBox(line[5:-4]))
                 print(line[5:-3])
+               # layout.addItem(QCheckBox(line[5:-3]))
+       # self.ui_notification.addItem(layout)
 
     def add_notif(self, message, mode):
         r_butt = QCheckBox(message)

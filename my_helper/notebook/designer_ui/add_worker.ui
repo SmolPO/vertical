@@ -38,7 +38,7 @@
     <string>Данные нового сотрудника</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="ui_OK">
+  <widget class="QPushButton" name="b_OK">
    <property name="geometry">
     <rect>
      <x>580</x>
@@ -51,7 +51,7 @@
     <string>Добавить</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_family">
+  <widget class="QLineEdit" name="family">
    <property name="geometry">
     <rect>
      <x>90</x>
@@ -87,7 +87,7 @@
     <string>Имя</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_name">
+  <widget class="QLineEdit" name="name">
    <property name="geometry">
     <rect>
      <x>210</x>
@@ -110,7 +110,7 @@
     <string>Отчество</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_sername">
+  <widget class="QLineEdit" name="surname">
    <property name="geometry">
     <rect>
      <x>330</x>
@@ -120,7 +120,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_position">
+  <widget class="QLineEdit" name="position">
    <property name="geometry">
     <rect>
      <x>470</x>
@@ -143,7 +143,7 @@
     <string>Должность</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="fld_pasport_post">
+  <widget class="QTextEdit" name="passport_post">
    <property name="geometry">
     <rect>
      <x>220</x>
@@ -166,7 +166,7 @@
     <string>Паспорт выдан</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="fld_adr">
+  <widget class="QTextEdit" name="adr">
    <property name="geometry">
     <rect>
      <x>410</x>
@@ -202,7 +202,7 @@
     <string>Серия</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_series">
+  <widget class="QLineEdit" name="series">
    <property name="geometry">
     <rect>
      <x>90</x>
@@ -228,7 +228,7 @@
     <string>Номер</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_number">
+  <widget class="QLineEdit" name="number">
    <property name="geometry">
     <rect>
      <x>90</x>
@@ -259,7 +259,7 @@
     <string>Паспортные данные</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_PTM">
+  <widget class="QLineEdit" name="PTM">
    <property name="geometry">
     <rect>
      <x>540</x>
@@ -295,7 +295,7 @@
     <string>ОТ</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_ES">
+  <widget class="QLineEdit" name="ES">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -331,7 +331,7 @@
     <string>ПТМ</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_height">
+  <widget class="QLineEdit" name="H_">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -359,7 +359,7 @@
     <string>Удостоверения и протоколы</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_OT">
+  <widget class="QLineEdit" name="OT">
    <property name="geometry">
     <rect>
      <x>410</x>
@@ -408,7 +408,7 @@
     <string>Удостоверение</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_study">
+  <widget class="QLineEdit" name="study">
    <property name="geometry">
     <rect>
      <x>280</x>
@@ -431,7 +431,7 @@
     <string>Номер</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="fld_contract">
+  <widget class="QLineEdit" name="contract">
    <property name="geometry">
     <rect>
      <x>280</x>
@@ -441,7 +441,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QPushButton" name="ui_cancel">
+  <widget class="QPushButton" name="b_cancel">
    <property name="geometry">
     <rect>
      <x>490</x>
@@ -467,7 +467,7 @@
     <string>Дата проверки</string>
    </property>
   </widget>
-  <widget class="QDateEdit" name="ui_d_ES">
+  <widget class="QDateEdit" name="d_ES">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -477,7 +477,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QDateEdit" name="ui_d_H">
+  <widget class="QDateEdit" name="d_H">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -487,7 +487,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QDateEdit" name="ui_d_work">
+  <widget class="QDateEdit" name="d_work">
    <property name="geometry">
     <rect>
      <x>280</x>
@@ -497,7 +497,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QDateEdit" name="ui_d_OT">
+  <widget class="QDateEdit" name="d_OT">
    <property name="geometry">
     <rect>
      <x>410</x>
@@ -507,7 +507,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QDateEdit" name="ui_d_PTM">
+  <widget class="QDateEdit" name="d_PTM">
    <property name="geometry">
     <rect>
      <x>540</x>
@@ -569,7 +569,7 @@
     <string>Дата проверки</string>
    </property>
   </widget>
-  <widget class="QSpinBox" name="spinBox">
+  <widget class="QSpinBox" name="H_group">
    <property name="geometry">
     <rect>
      <x>150</x>
@@ -579,7 +579,7 @@
     </rect>
    </property>
   </widget>
-  <widget class="QSpinBox" name="spinBox_2">
+  <widget class="QSpinBox" name="ES_group">
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -587,6 +587,19 @@
      <width>111</width>
      <height>22</height>
     </rect>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="b_cancel_2">
+   <property name="geometry">
+    <rect>
+     <x>314</x>
+     <y>460</y>
+     <width>161</width>
+     <height>31</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Добавить удостоверение</string>
    </property>
   </widget>
  </widget>

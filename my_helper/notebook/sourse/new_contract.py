@@ -10,7 +10,6 @@ class NewContact(QDialog):
         self.parent = parent
         self.b_OK.clicked.connect(self.ev_OK)
         self.b_cancel.clicked.connect(self.ev_cancel)
-        self.worker = list()
 
     def ev_OK(self):
         # считать все данные из формы
