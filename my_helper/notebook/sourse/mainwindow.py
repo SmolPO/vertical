@@ -318,9 +318,8 @@ class MainWindow(QMainWindow):
             print("не могу запустить сканер")
             return
         date, price, number = check_file()
-        os.replace("", conf.path_OCR + "/bills/{0}.jpg".format(".".join((str(x) for x in (dt.now().day,
-                                                                                         dt.now().month,
-                                                                                         dt.now().year)))))
+        tmp = ".".join((str(x) for x in (dt.now().day, dt.now().month, dt.now().year)))
+        os.replace("", conf.path_OCR + "/bills/{0}.jpg".format(tmp))
         # xlsx
         if not self.open_wb("bill"):
             return
@@ -342,7 +341,8 @@ class MainWindow(QMainWindow):
         wnd.exec_()
         if not self.new_contract:
             return
-        self.database_cur.execute(ins.new_contract(self.new_contract))
+        # self.database_cur.execute(ins.new_contract(self.new_contract))
+        print(self.new_contract)
         self.new_contract = None
         print("new build")
 
@@ -580,6 +580,9 @@ class MainWindow(QMainWindow):
 
     def set_new_post(self, post):
         self.post_boss = post
+
+    def create_new_contract(self, contract):
+        self.new_contract = contract
 
     def on_click_notif(self):  # TODO переделать в XML
         # read
