@@ -9,6 +9,7 @@ import openpyxl
 import psycopg2
 from new_boss import NewBoss
 from add_worker import AddWorker
+from add_company import AddCompany
 from pdf_module import check_file, create_covid
 from new_contract import NewContact
 from email_module import send_post
@@ -16,9 +17,20 @@ from boss_post import BossPost
 from my_tools import Notepad
 import inserts as ins
 import config as conf
-from PyPDF2 import PdfFileMerger as pypdf
-
-
+"""
+План
+1. Добавление в БД сотрудника (изменил форму)
+2. Добавление прорабов
+3. Формирование служебок
+4. модуль сканирование
+5. формирование приказов
+6. блокнот и уведомления
+7. склад, накладные
+8. чеки
+9. отправка писем по почте
+10. деньги на ТК
+Срок к концу недели
+"""
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -35,8 +47,8 @@ class MainWindow(QMainWindow):
         self.b_new_bill.clicked.connect(self.ev_new_bill)
         self.b_new_build.clicked.connect(self.ev_new_build)
         self.b_new_boss.clicked.connect(self.ev_new_boss)
-        self.b_new_boss_post.clicked.connect(self.ev_new_boss_post)
         self.b_new_invoice.clicked.connect(self.ev_new_invoice)
+        self.b_new_company.clicked.connect(self.ev_new_company)
 
         self.b_create_act.clicked.connect(self.ev_create_act)
         self.b_get_material.clicked.connect(self.ev_get_material)
@@ -56,10 +68,12 @@ class MainWindow(QMainWindow):
         self.get_param_from_widget = None
         self.current_build = "Объект"
         self.company = 'ООО "Вертикаль"'
-        self.new_worker = None
+        self.new_worker = []
         self.new_boss = None
         self.new_contract = None
+        self.new_company = None
         self.post_boss = None
+
         self.ui_l_company.setText(self.company)
         self.ui_l_build.setText(self.current_build)
         self.config = configparser.ConfigParser()
@@ -104,13 +118,23 @@ class MainWindow(QMainWindow):
             return False
 
         # запрос в БД
-        # self.current_build = self.cb_builds.value
-        self.current_build = "Галерея"
-        # workers = self.database_cur.execute(ins.pass_week(self.current_build))
-        workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
+        try:
+            self.current_build = self.cb_builds.value
+        except:
+            print("not connect to db")
+            self.current_build = "Галерея"
+        try:
+            workers = self.database_cur.execute(ins.pass_week(self.current_build))
+        except:
+            print("not connect to db")
+            workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
 
         #  добавление в xlsx
         if not self.open_wb("week"):
+            return
+
+        if not workers:
+            print("not data from db")
             return
 
         for person in workers:
@@ -134,8 +158,11 @@ class MainWindow(QMainWindow):
         направить на печать
         """
         # БД
-        # workers = self.database_cur.execute(ins.full_workers_data)
-        workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
+        try:
+            workers = self.database_cur.execute(ins.full_workers_data)
+        except:
+            print("not connect to db")
+            workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
 
         # xlsx
         if not self.open_wb("month"):
@@ -161,8 +188,11 @@ class MainWindow(QMainWindow):
         печать
         """
         # БД
-        # cars = self.database_cur.execute(ins.auto)
-        cars = [["reno", "67gvj6567", "раои", "jgjhk", "jhhk", "kyjgjh", "hhgfgjh"]]
+        try:
+            cars = self.database_cur.execute(ins.auto)
+        except:
+            print("not connect to db")
+            cars = [["reno", "67gvj6567", "раои", "jgjhk", "jhhk", "kyjgjh", "hhgfgjh"]]
 
         # xlsx
         if not self.open_wb("auto"):
@@ -189,8 +219,11 @@ class MainWindow(QMainWindow):
         TODO: передача данных между окнами
         """
         # БД
-        workers = self.database_cur.execute(ins.workers_with_adr)
-        workers = [["KalenSDFSDFSt", "IvaSDFSDFn", "SemonovSDFSDFDich", "монтажникDSFSDFSD", "01.08.1996FDSDFDSFF"]]
+        try:
+            workers = self.database_cur.execute(ins.workers_with_adr)
+        except:
+            print("not connect to db")
+            workers = [["KalenSDFSDFSt", "IvaSDFSDFn", "SemonovSDFSDFDich", "монтажникDSFSDFSD", "01.08.1996FDSDFDSFF"]]
         items = []
         for person in workers:
             items.append(person[0] + " " + ".".join((person[1][0], person[2][0])))
@@ -202,8 +235,11 @@ class MainWindow(QMainWindow):
         if not self.open_wb("recovery"):
             return
         # БД
-        # people = self.database_cur.execute(ins.get_person(family))
-        people = workers[0]
+        try:
+            people = self.database_cur.execute(ins.get_person(family))
+        except:
+            print("not connect to db")
+            people = workers[0]
         worker = list()  # TODO проверить сборку данных
         worker.append(" ".join([people[0], people[1], people[2]]))
         worker.append(people[3])
@@ -234,7 +270,11 @@ class MainWindow(QMainWindow):
         wnd.exec_()
         if not self.new_worker:
             return
-        # self.database_cur.execute(ins.add_worker(self.new_worker))
+        try:
+            self.database_cur.execute(ins.add_worker(self.new_worker))
+        except:
+            print("not connect to db")
+            return
         self.new_worker = None
         print("pass issue")
         # TODO: отправить сообщение на сервер для уведомления в приложение
@@ -246,8 +286,11 @@ class MainWindow(QMainWindow):
         cформировать документ
         печать
         """
-        # workers = self.database_cur.execute(ins.workers_with_adr)
-        workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
+        try:
+            workers = self.database_cur.execute(ins.workers_with_adr)
+        except:
+            print("not connect to db")
+            workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
 
         # выбор сотрудника
         people = list()
@@ -307,7 +350,12 @@ class MainWindow(QMainWindow):
         wnd.exec_()
         if not self.new_boss:
             return
-        # self.database_cur.execute(ins.add_boss(self.new_boss))
+        try:
+            self.database_cur.execute(ins.add_boss(self.new_boss))
+            self.database_conn.commit()
+        except:
+            print("not connect to db")
+            return
         self.new_boss = None
         print("new boss")
 
@@ -330,6 +378,27 @@ class MainWindow(QMainWindow):
         self.wb.close()
         print("new bill")
 
+    def ev_new_company(self):
+        """
+        открыть форму для нового заказчика
+        заполнить данные
+        добавить данные в БД
+        """
+       # try:
+        wnd = AddCompany(self)
+        wnd.exec_()
+        if not self.new_company:
+            return
+        try:
+            self.database_cur.execute(ins.new_company(self.new_company))
+            self.database_conn.commit()
+        except:
+            print("not add company to db")
+            return
+        print(self.new_company)
+        self.new_company = None
+        print("new company")
+
     def ev_new_build(self):
         """
         открыть форму для нового объекта
@@ -341,7 +410,12 @@ class MainWindow(QMainWindow):
         wnd.exec_()
         if not self.new_contract:
             return
-        # self.database_cur.execute(ins.new_contract(self.new_contract))
+        try:
+            self.database_cur.execute(ins.new_contract(self.new_contract))
+            self.database_conn.commit()
+        except:
+            print("not connect to db")
+            return
         print(self.new_contract)
         self.new_contract = None
         print("new build")
@@ -356,13 +430,15 @@ class MainWindow(QMainWindow):
         wnd.exec_()
         if not self.new_worker:
             return
-       # self.database_cur.execute(ins.add_worker(self.new_worker))
+
+        self.database_cur.execute(ins.add_worker(self.new_worker))
+        self.database_conn.commit()
         self.new_worker = None
         print("new person")
 
     def ev_create_act(self):
         pass
-        print("create act")
+        print("pass create act")
 
     def ev_get_material(self):
         """
@@ -371,15 +447,18 @@ class MainWindow(QMainWindow):
         печать
         """
         pass
-        print("get mat")
+        print("pass get mat")
 
     def ev_pdf_check(self):
         """
         открыть директорию
         рассортировать все отсканированные файлы по папкам
         """
-        check_file()
-        print("pdf check")
+        try:
+            check_file()
+            print("pdf check")
+        except:
+            print("not check file")
 
     def ev_send_covid(self):
         """
@@ -391,8 +470,12 @@ class MainWindow(QMainWindow):
         try:
             covid = open(conf.path + conf.path_to_covid + "/covid{0}_{1}".format(dt.now().day, dt.now().month))
         except:
-            QMessageBox("Нет файла с ковидом")
-            os.startfile(conf.path_scan)
+            print("not found file")
+            try:
+                os.startfile(conf.path_scan)
+            except:
+                print("not start scaner")
+                return
             return
         # отправить письмо
         create_covid()
@@ -403,52 +486,56 @@ class MainWindow(QMainWindow):
 
     def ev_connect(self):
         # подключиться к серверу
-        self.handle.connect_to_server()
-        self.r_connect.setChecked(True)
-        print("connect")
+        try:
+            self.handle.connect_to_server()
+            self.r_connect.setChecked(True)
+            print("connect")
+        except:
+            print("not connect")
+            self.r_connect.setChecked(False)
 
     def ev_new_invoice(self):
         """
         открыть сканер
         добавить накладную в папку
         """
-        print("create invoice")
-
-    def ev_new_boss_post(self):
-        """
-        получить весь список боссов
-        открыть окно для нового босса. Боса можно выбрать старого или ввести новые данные.
-        ввести данные
-        добавить в БД
-        """
-        wnd = BossPost(self)
-        wnd.exec_()
-        if not self.post_boss:
-            return
-        # self.database_cur.execute(ins.add_worker(self.new_post)) TODO проверить кому меняем
-        self.post_boss = None
-        print("new post of boss")
+        print("pass create invoice")
 
     def ev_journal(self):
         # печать ковид журнала
-        os.startfile(conf.path_default + "/covid.xlsx", "print")
-        print("journal")
+        try:
+            os.startfile(conf.path_default + "/covid.xlsx", "print")
+            print("journal")
+        except:
+            print("not found file")
 
     def ev_tabel(self):
-        os.startfile(conf.path_default + "/табель.xlsx", "print")
-        print("tabel")
+        try:
+            os.startfile(conf.path_default + "/табель.xlsx", "print")
+            print("tabel")
+        except:
+            print("not found file")
 
     def ev_scan(self):
-        os.startfile(conf.path + "/scan.exe")
-        print("scan")
+        try:
+            os.startfile(conf.path + "/scan.exe")
+            print("scan")
+        except:
+            print("not found app")
 
     def ev_attorney(self):
-        os.startfile(conf.path_default + "/доверенность.xlsx", "print")
-        print("attorney")
+        try:
+            os.startfile(conf.path_default + "/доверенность.xlsx", "print")
+            print("attorney")
+        except:
+            print("not found attorney")
 
     def ev_invoice(self):
-        os.startfile(conf.path_default + "/накладная.xlsx", "print")
-        print("invoice")
+        try:
+            os.startfile(conf.path_default + "/накладная.xlsx", "print")
+            print("invoice")
+        except:
+            print("pass invoice")
 
     def ev_notepad(self):
         wnd = Notepad()
@@ -575,6 +662,9 @@ class MainWindow(QMainWindow):
     def get_new_worker(self, worker):
         self.new_worker = worker
 
+    def get_new_company(self, company):
+        self.new_company = company
+
     def set_new_boss(self, boss):
         self.new_boss = boss
 
@@ -603,13 +693,16 @@ class MainWindow(QMainWindow):
         f.close()
 
     def init_notif(self):
-        f = open(conf.path + "/notif.txt", "r")
-        # layout = QLayout()
-        for line in f.readlines():
-            if line[1] == '0':
-                print(line[5:-3])
-               # layout.addItem(QCheckBox(line[5:-3]))
-       # self.ui_notification.addItem(layout)
+       try:
+            f = open(conf.path + "/notif.txt", "r")
+            # layout = QLayout()
+            for line in f.readlines():
+                if line[1] == '0':
+                    print(line[5:-3])
+                   # layout.addItem(QCheckBox(line[5:-3]))
+           # self.ui_notification.addItem(layout)
+       except:
+           print("not file notif")
 
     def add_notif(self, message, mode):
         r_butt = QCheckBox(message)

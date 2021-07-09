@@ -14,10 +14,16 @@ class Notepad(QDialog):
         self.show()
 
     def get_text(self):
-        file = open(self.file_note, 'r')
-        text = file.read()
-        file.close()
-        return text
+        try:
+            file = open(self.file_note, 'r')
+            text = file.read()
+            file.close()
+            return text
+        except:
+            print("not get text")
+            return None
+
+
 
     def set_text(self):
         text_ui = self.ui_text_area.toPlainText()
@@ -26,8 +32,11 @@ class Notepad(QDialog):
         file.close()
 
     def ev_close(self):
-        if self.ui_check_box.is_checked():
-            self.set_text()
+        try:
+            if self.ui_check_box.is_checked():
+                self.set_text()
+        except:
+            print("error")
         self.close()
 
     def calc_tap_segments(self):

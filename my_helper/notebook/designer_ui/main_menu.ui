@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>599</width>
-    <height>514</height>
+    <height>526</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -92,17 +92,17 @@
      <string>Сканировать</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b_new_build">
+   <widget class="QPushButton" name="b_new_company">
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>380</y>
+      <y>360</y>
       <width>121</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>Новый договор</string>
+     <string>Заказчики</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_new_person">
@@ -115,20 +115,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Новый сотрудник</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b_new_boss_post">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>350</y>
-      <width>121</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Новая почта босса</string>
+     <string>Сотрудники</string>
     </property>
    </widget>
    <widget class="QLabel" name="ui_l_comp">
@@ -261,7 +248,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>350</y>
+      <y>360</y>
       <width>111</width>
       <height>16</height>
      </rect>
@@ -279,7 +266,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>370</y>
+      <y>380</y>
       <width>291</width>
       <height>101</height>
      </rect>
@@ -532,20 +519,20 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>410</y>
+      <y>420</y>
       <width>121</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
-     <string>Новый босс</string>
+     <string>Боссы</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_connect">
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>440</y>
+      <y>450</y>
       <width>121</width>
       <height>24</height>
      </rect>
@@ -561,7 +548,7 @@
     <property name="geometry">
      <rect>
       <x>570</x>
-      <y>440</y>
+      <y>450</y>
       <width>21</width>
       <height>20</height>
      </rect>
@@ -591,6 +578,45 @@
       <width>101</width>
       <height>22</height>
      </rect>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b_new_build">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>390</y>
+      <width>121</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Договоры</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b_new_person_2">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>340</y>
+      <width>181</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Прорабы</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="pushButton">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>290</y>
+      <width>101</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Музыка</string>
     </property>
    </widget>
   </widget>
