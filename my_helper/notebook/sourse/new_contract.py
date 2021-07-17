@@ -1,7 +1,8 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
-
+from PyQt5.QtCore import QRegExp as QRE
+from PyQt5.QtGui import QRegExpValidator as QREVal
 """
 валидация, защита от ввода в табл в разнобой
 """
@@ -20,25 +21,29 @@ class NewContact(QDialog):
         self.b_change.clicked.connect(self.ev_change)
         self.cb_chouse.activated[str].connect(self.ev_select)
         self.but_status("add")
+        self.init_mask()
 
         self.cb_chouse.addItems(["(нет)"])
         self.cb_comp.addItems(["(нет)"])
 
-        contract = self.parent.database_cur.execute('SELECT * FROM ' + self.table)
         comp = self.parent.database_cur.execute('SELECT * FROM company')
-        if not comp:
-            msg = QMessageBox.question("Внимание", "Нельзя добавить договор пока не добавленини одна организация",
-                                       QMessageBox.Ok)
-            if msg == QMessageBox.Ok:
-                self.close()
-
-        for row in contract:
+        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
+        for row in self.parent.database_cur.fetchall():
             self.cb_chouse.addItems([row[0]])
-        for row in comp:
+        self.parent.database_cur.execute('SELECT * FROM company')
+        for row in self.parent.database_cur.fetchall():
             self.cb_comp.addItems([row[0]])
 
+    def init_mask(self):
+        symbols = QREVal(QRE("[а-яА-Я ]{30}"))
+
+        self.name.setValidator(symbols)
+
+        self.number.setValidator(QREVal(QRE("[а-яА-Яa-zA-Z /_-., 0-9]{1000}")))
+        self.part.setValidator(QREVal(QRE("[а-яА-Яa-zA-Z /_-., 0-9]{1000}")))
+
     def ev_OK(self):
-        self.parent.get_new_bosses(self.get_all_text())
+        self.parent.get_new_contract(self.get_data())
         self.close()
 
     def ev_cancel(self):
@@ -50,13 +55,14 @@ class NewContact(QDialog):
         print(self.family.text())
         for row in rows:
             if self.family.text() in row:
-                data = self.get_all_text()
+                data = self.get_data()
                 answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись " + str(data) + "?",
                                      QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
                     self.parent.database_cur.execute("SELECT * FROM {0} WHERE number = '{1}'".format(
                         self.table, self.number.text()))
                     self.parent.database_conn.commit()  # TODO удаление
+                    self.close()
                     return
                 if answer == QMessageBox.Cancel:
                     return
@@ -65,7 +71,7 @@ class NewContact(QDialog):
 
     def ev_select(self, text):
         if text == "(нет)":
-            self.clean_all_text()
+            self.clear()
             self.but_status("add")
             return
         else:
@@ -75,7 +81,7 @@ class NewContact(QDialog):
         rows = self.parent.database_cur.fetchall()
         for row in rows:
             if text in row:
-                self.set_all_text(row)
+                self.set_data(row)
 
     def ev_change(self):
         self.parent.database_cur.execute('SELECT * FROM ' + self.table)
@@ -86,23 +92,28 @@ class NewContact(QDialog):
                 print("update")
         pass
 
-    def clean_all_text(self):
+    def clear(self):
         self.name.setText("")
-        self.cb_cust.setCurrentText("")  # TODO set text
+        self.cb_comp.setCurrentText("")  # TODO set text
         self.number.setText("")
         self.date.setDate(Date.fromString("01.01.2000", "dd.mm.yyyy"))
         self.object.setText("")
         self.work.setText("")
         self.part.setText("")
 
-    def set_all_text(self, data):
+    def set_data(self, data):
         self.name.setText(data[0])
-        self.cb_cust.setCurrentText(data[1])  # TODO set text
+        #  self.cb_cust.setCurrentText(data[1])  # TODO set text
         self.number.setText(data[2])
         self.date.setDate(Date.fromString(data[3], "dd.mm.yyyy"))
         self.object.setText(data[4])
         self.work.setText(data[5])
         self.part.setText(data[6])
+
+    def get_data(self):
+        return list([self.name.text(), self.name.text(), self.number.text(),  # TODO QCOMBOBOX !!!
+                     self.date.text(), self.object.toPlainText(), self.work.toPlainText(),
+                     self.part.text()])
 
     def but_status(self, status):
         if status == "add":

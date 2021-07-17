@@ -1,5 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtCore import QRegExp as QRE
+from PyQt5.QtGui import QRegExpValidator as QREVal
 
 class NewBoss(QDialog):
     def __init__(self, parent):
@@ -21,9 +23,18 @@ class NewBoss(QDialog):
         for row in self.parent.database_cur.fetchall():
             self.cb_chouse.addItems([row[0]])
 
+    def init_mask(self):
+        symbols = QREVal(QRE("[а-яА-Я]{30}"))
+
+        self.family.setValidator(symbols)
+        self.name.setValidator(symbols)
+        self.surname.setValidator(symbols)
+        self.post.setValidator(symbols)
+        self.phone.setValidator(QREVal(QRE("[0-9]{11}")))
+        self.email.QREVal(QRE("[a-zA-Z ._@ 0-9]{30}"))
+
     def ev_OK(self):
-        self.bosses = self.get_all_text()
-        self.parent.get_new_bosses(self.bosses)
+        self.parent.get_new_bosses(self.get_all_text())
         self.close()
 
     def ev_cancel(self):
@@ -78,13 +89,12 @@ class NewBoss(QDialog):
         self.phone.setText(data[5])
 
     def get_all_text(self):
-        data = list([self.name.text(),
-                         self.family.text(),
-                         self.surname.text(),
-                         self.post.text(),
-                         self.email.text(),
-                         self.phone.text()])
-        return data
+        return list([self.name.text(),
+                     self.family.text(),
+                     self.surname.text(),
+                     self.post.text(),
+                     self.email.text(),
+                     self.phone.text()])
 
     def clean_all_text(self):
         self.name.setText("")

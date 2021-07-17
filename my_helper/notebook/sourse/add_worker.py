@@ -1,6 +1,8 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
+from PyQt5.QtCore import QRegExp as QRE
+from PyQt5.QtGui import QRegExpValidator as QREVal
 from inserts import get_workers, get_worker
 
 
@@ -18,11 +20,34 @@ class AddWorker(QDialog):
         self.b_change.clicked.connect(self.ev_change)
         self.cb_chouse.activated[str].connect(self.ev_select)
         self.but_status("add")
+        self.init_mask()
 
         self.cb_chouse.addItems(["(нет)"])
         self.parent.database_cur.execute('SELECT * FROM ' + self.table)
         for row in self.parent.database_cur.fetchall():
             self.cb_chouse.addItems([row[0]])
+
+    def init_mask(self):
+        symbols = QREVal(QRE("[а-яА-Я ]{30}"))
+        number_prot = QREVal(QRE("[А-Яа-я _/- 0-9]{10}"))
+
+        self.family.setValidator(symbols)
+        self.name.setValidator(symbols)
+        self.surname.setValidator(symbols)
+        self.post.setValidator(symbols)
+        self.phone.setValidator(QREVal(QRE("[0-9]{11}")))
+        self.passport.setValidator(QREVal(QRE("[0-9]{10}")))
+        # self.passport_post.append("")
+        # self.adr.append("")
+        # self.live_adr.append("")
+        self.inn.setValidator(QREVal(QRE("[0-9]{8}")))
+        self.snils.setValidator(QREVal(QRE("[0-9]{8}")))
+        self.n_td.setValidator(QREVal(QRE("[0-9]{2}")))
+        self.n_hght.setValidator(number_prot)
+        self.n_study.setValidator(number_prot)
+        self.n_study_card.setValidator(number_prot)
+        self.n_prot.setValidator(number_prot)
+        self.n_card.setValidator(number_prot)
 
     def ev_OK(self):
         self.parent.get_new_worker(self.get_all_text())
@@ -60,9 +85,12 @@ class AddWorker(QDialog):
                 answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись " + str(data) + "?",
                                      QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    self.parent.database_cur.execute("SELECT * FROM {0} WHERE family = '{1}'".format(
+                    print("DELETE FROM {0} WHERE family = '{1}'".format(
+                        self.table, self.family.text()))
+                    self.parent.database_cur.execute("DELETE FROM {0} WHERE family = '{1}'".format(
                         self.table, self.family.text()))
                     self.parent.database_conn.commit()  # TODO удаление
+                    self.close()
                     return
                 if answer == QMessageBox.Cancel:
                     return
@@ -99,7 +127,7 @@ class AddWorker(QDialog):
         self.n_td.setText("")
         self.d_td.setDate(zero)
         self.n_hght.setText("")
-        self.n_group_h.setValue(0)
+        self.n_group_h.setText(str(0))
         self.d_height.setDate(zero)
         self.n_study.setText("")
         self.n_study_card.setText("")
@@ -129,7 +157,7 @@ class AddWorker(QDialog):
         self.n_td.setText(data[12])
         self.d_td.setDate(Date.fromString(data[13], "dd.mm.yyyy"))
         self.n_hght.setText(data[14])
-        self.n_group_h.setValue(int(data[15]))
+        self.n_group_h.setText(str(data[15]))
         self.d_height.setDate(Date.fromString(data[16], "dd.mm.yyyy"))
         self.n_study.setText(data[17])
         self.n_study_card.setText(data[18])

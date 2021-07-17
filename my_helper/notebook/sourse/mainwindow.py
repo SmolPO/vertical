@@ -8,6 +8,7 @@ import configparser
 import openpyxl
 import psycopg2
 from new_boss import NewBoss
+from new_itr import NewITR
 from add_worker import AddWorker
 from add_company import AddCompany
 from pdf_module import check_file, create_covid
@@ -47,6 +48,7 @@ class MainWindow(QMainWindow):
         self.b_new_bill.clicked.connect(self.ev_new_bill)
         self.b_new_build.clicked.connect(self.ev_new_build)
         self.b_new_boss.clicked.connect(self.ev_new_boss)
+        self.b_new_itr.clicked.connect(self.ev_new_itr)
         self.b_new_invoice.clicked.connect(self.ev_new_invoice)
         self.b_new_company.clicked.connect(self.ev_new_company)
 
@@ -70,6 +72,7 @@ class MainWindow(QMainWindow):
         self.company = 'ООО "Вертикаль"'
         self.new_worker = []
         self.new_boss = None
+        self.new_itr = None
         self.new_contract = None
         self.new_company = None
         self.post_boss = None
@@ -359,6 +362,20 @@ class MainWindow(QMainWindow):
         self.new_boss = None
         print("new boss")
 
+    def ev_new_itr(self):
+        wnd = NewITR(self)
+        wnd.exec_()
+        if not self.new_itr:
+            return
+
+        self.database_cur.execute(ins.add_ITR(self.new_itr))
+        self.database_conn.commit()
+
+        print("not connect to db")
+        self.new_boss = None
+        print("new boss")
+        pass
+
     def ev_new_bill(self):
         try:
             os.startfile(conf.path + "/scan.exe")
@@ -406,6 +423,12 @@ class MainWindow(QMainWindow):
         добавить объект в БД
         получить новый список объектов для списка объектов на главном меню
         """
+        comp = self.database_cur.execute('SELECT * FROM company')
+        if not comp:
+            msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
+            if msg == QMessageBox.Ok:
+                pass
+
         wnd = NewContact(self)
         wnd.exec_()
         if not self.new_contract:
@@ -665,11 +688,17 @@ class MainWindow(QMainWindow):
     def get_new_company(self, company):
         self.new_company = company
 
+    def get_new_contract(self, contract):
+        self.new_contract = contract
+
     def set_new_boss(self, boss):
         self.new_boss = boss
 
     def set_new_post(self, post):
         self.post_boss = post
+
+    def get_new_itr(self, itr):
+        self.new_itr = itr
 
     def create_new_contract(self, contract):
         self.new_contract = contract

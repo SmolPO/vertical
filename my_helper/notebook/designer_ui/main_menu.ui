@@ -593,7 +593,7 @@
      <string>Договоры</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b_new_person_2">
+   <widget class="QPushButton" name="b_new_itr">
     <property name="geometry">
      <rect>
       <x>220</x>

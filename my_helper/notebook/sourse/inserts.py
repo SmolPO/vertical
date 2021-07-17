@@ -13,26 +13,24 @@ def new_contract(contract):
 
 
 def new_company(company):
-    result = "('"
-    result += company[0]
-    result += "', '" + company[1]
-    result += "', " + str(company[2])
-    result += ", " + str(company[3])
-    result += ", " + str(company[4])
-    result += ", " + str(company[5])
-    result += ", " + str(company[6])
-    result += ", " + str(company[7])
-    result += ", '" + company[8]
-    result += "', '" + company[9]
-    result += "', '" + company[10]
-    result += "', '" + company[11]
-    result += "', '" + company[12]
-    result += "', '" + company[13]
-    result += "', '" + company[14] + "')"
+    result = "('" + "', '".join(company) + "')"
     names_colomn = "(company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, family, " \
                    "name, surname, post, count_dovr, date_dovr)"
     print("INSERT INTO company {0} VALUES {1}".format(names_colomn, result))
     return "INSERT INTO company {0} VALUES {1}".format(names_colomn, result)
+
+def add_ITR(itr):
+    result = "('" + "', '".join(itr) + "')"
+    names_tables = "(family, name, surname, post, passport, passport_date, passport_got, adr, live_adr, auto, inn, " \
+                   "snils, n_td, td_date, " \
+                   "ot_prot, ot_date, ot_card, " \
+                   "PTM_prot, PTM_date, PTM_card, " \
+                   "es_prot, es_group, es_card, es_date, "\
+                   "h_prot, h_date, h_group, h_card, " \
+                   "promsave, " \
+                   "st_prot, st_card, st_date, birthday)"
+    print("INSERT INTO itr {0} VALUES {1}".format(names_tables, result))
+    return "INSERT INTO itr {0} VALUES {1}".format(names_tables, result)
 
 
 def add_worker(worker):
