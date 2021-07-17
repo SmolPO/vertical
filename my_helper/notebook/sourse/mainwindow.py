@@ -477,11 +477,9 @@ class MainWindow(QMainWindow):
         открыть директорию
         рассортировать все отсканированные файлы по папкам
         """
-        try:
-            check_file()
-            print("pdf check")
-        except:
-            print("not check file")
+        check_file()
+        print("pdf check")
+        print("not check file")
 
     def ev_send_covid(self):
         """

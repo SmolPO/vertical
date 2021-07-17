@@ -5,28 +5,48 @@ from datetime import datetime as dt
 from PyPDF2 import PdfFileMerger
 import config as conf
 import cv2
+import img2pdf
 
 
-folder = "D:\scan_folder"
+folder = "B:\my_helper\scan"
+pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
+
+"""
+Продление 
+Разблокировка
+Работа в вых
+Выдать
+чек
+Ковид
+накладная
+"""
 
 
 def check_file():
     files = os.listdir(folder)
+    count_files = len(files)
     for file in files:
-        text = str(((pytesseract.image_to_string(Image.open(file), lang='rus'))))
+        text = str(((pytesseract.image_to_string(Image.open("B:\my_helper\scan\scan.jpg"), lang='rus'))))
+        print(text)
+       # os.replace(file, conf.path_OCR + "/covid/" + "covid_" + str(dt.now().date()))
+        go_img2pdf(folder + "/" + file, folder, "covid")
         if "Температура" in text:
-            os.replace(file, conf.path + conf.path_OCR + "/covid/" + "covid_" + str(dt.now().date()))
+            if count_files == 1:
+                """Это утренний ковид журнал. 
+                Переместить в папку Ковид, преобразовать в PDF и отправить по почте. Адрес записан в настройках."""
+                pass
+
         elif "выдать" in text:
             os.replace(file, conf.path + conf.path_OCR + "/выдача_" + str(dt.now().date()))
         elif "разблокировать" in text:
             os.replace(file, conf.path + conf.path_OCR + "/pass" + "/раблокировка_" + str(dt.now().date()))
         elif "продлить " in text:
             os.replace(file, conf.path + conf.path_OCR + "/pass" + "/продление_" + str(dt.now().date()))
+        elif "ИТОГ" in text:
+            date = next_bill(text, "B:\my_helper\scan\scan.jpg")
+            return date
         elif "выходные" or "выходной" in text:
             os.replace(file, conf.path + conf.path_OCR + "/pass" + "/выходные_" + str(dt.now().date()))
-        elif "чек" in text:
-            date, price, number = next_bill(text, file)
-            return date, price, number
 
 
 def create_covid():
@@ -40,11 +60,16 @@ def create_covid():
 
 
 def next_bill(text, file):
-    ind_price = text.rindex("ИТОГ")
-    ind_number = text.rindex("ЧЕК")
-    year = dt.now().year
-    ind_date = text.rindex(str(year))
-    date = text[ind_date-6:ind_date]
-    price = text[ind_price+3:ind_price+13]
-    number = text[ind_number+5:ind_number+15]
-    return date, price, number
+    img = cv2.imread(file)
+    detector = cv2.QRCodeDetector()
+    data, bbox, tmp = detector.detectAndDecode(img)
+    return data
+
+
+def go_img2pdf(file, to_folder, new_name):
+    a4_page_size = [img2pdf.in_to_pt(8.3), img2pdf.in_to_pt(11.7)]
+    layout_function = img2pdf.get_layout_fun(a4_page_size)
+    pdf = img2pdf.convert(file, layout_fun=layout_function)
+    with open(to_folder + "/" + new_name, 'wb') as f:
+        f.write(pdf)
+
