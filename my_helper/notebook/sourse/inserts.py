@@ -12,12 +12,17 @@ def new_contract(contract):
     return "INSERT INTO contract {0} VALUES {1}".format(names_colomn, result)
 
 
+def get_names_objects():
+    return "SELECT name FROM contract"
+
+
 def new_company(company):
     result = "('" + "', '".join(company) + "')"
     names_colomn = "(company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, family, " \
                    "name, surname, post, count_dovr, date_dovr)"
     print("INSERT INTO company {0} VALUES {1}".format(names_colomn, result))
     return "INSERT INTO company {0} VALUES {1}".format(names_colomn, result)
+
 
 def add_ITR(itr):
     result = "('" + "', '".join(itr) + "')"
@@ -45,6 +50,10 @@ def add_worker(worker):
 
 def get_workers():
     return "SELECT family FROM workers"
+
+
+def get_bosses():
+    return "SELECT family FROM bosses"
 
 
 def get_worker(family):

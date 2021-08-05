@@ -34,7 +34,7 @@ class NewBoss(QDialog):
         self.email.QREVal(QRE("[a-zA-Z ._@ 0-9]{30}"))
 
     def ev_OK(self):
-        self.parent.get_new_bosses(self.get_all_text())
+        self.parent.get_new_bosses(self.get_data())
         self.close()
 
     def ev_cancel(self):
@@ -42,7 +42,7 @@ class NewBoss(QDialog):
 
     def ev_select(self, text):
         if text == "(нет)":
-            self.clean_all_text()
+            self.clean_data()
             self.but_status("add")
             return
         else:
@@ -52,7 +52,7 @@ class NewBoss(QDialog):
         rows = self.parent.database_cur.fetchall()
         for row in rows:
             if text in row:
-                self.set_all_text(row)
+                self.set_data(row)
 
     def ev_change(self):
         self.parent.database_cur.execute('SELECT * FROM ' + self.table)
@@ -68,7 +68,7 @@ class NewBoss(QDialog):
         rows = self.parent.database_cur.fetchall()
         for row in rows:
             if self.family.text() in row:
-                data = self.get_all_text()
+                data = self.get_data()
                 answer = QMessageBox.question(self, "Удаление записи",
                                               "Вы действительно хотите удалить запись " + str(data) + "?",
                                               QMessageBox.Ok | QMessageBox.Cancel)
@@ -80,7 +80,7 @@ class NewBoss(QDialog):
                 if answer == QMessageBox.Cancel:
                     return
 
-    def set_all_text(self, data):
+    def set_data(self, data):
         self.name.setText(data[0])
         self.family.setText(data[1])
         self.surname.setText(data[2])
@@ -88,7 +88,7 @@ class NewBoss(QDialog):
         self.email.setText(data[4])
         self.phone.setText(data[5])
 
-    def get_all_text(self):
+    def get_data(self):
         return list([self.name.text(),
                      self.family.text(),
                      self.surname.text(),
@@ -96,7 +96,7 @@ class NewBoss(QDialog):
                      self.email.text(),
                      self.phone.text()])
 
-    def clean_all_text(self):
+    def clean_data(self):
         self.name.setText("")
         self.family.setText("")
         self.surname.setText("")

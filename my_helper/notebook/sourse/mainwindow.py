@@ -14,6 +14,7 @@ from add_company import AddCompany
 from pdf_module import check_file, create_covid
 from new_contract import NewContact
 from email_module import send_post
+from pass_week import WeekPass
 from boss_post import BossPost
 from my_tools import Notepad
 import inserts as ins
@@ -76,6 +77,7 @@ class MainWindow(QMainWindow):
         self.new_contract = None
         self.new_company = None
         self.post_boss = None
+        self.new_pass_week = None
 
         self.ui_l_company.setText(self.company)
         self.ui_l_build.setText(self.current_build)
@@ -97,30 +99,15 @@ class MainWindow(QMainWindow):
 
     def ev_pass_week(self):
         # TODO: выбор нескольких дней по календарю или из формы
-        # открыть диалоговое окно для выбора дней. Открыть календарь.
-        items = ("сб", "сб и вск", "вск", "другой день")
-        chose, ok = QInputDialog.getItem(self, "Пропуск на выходные", "Выберите день", items)
-        days = list()
-        weekday = dt.now().weekday()
-        day_now = dt.now().day
-        if ok:
-            if "сб" in chose:
-                rest_day = ".".join((str(x) for x in (5 - weekday + dt.now().day, dt.now().month, dt.now().year)))
-                days.append(rest_day)
-            if "вск" in chose:
-                rest_day = ".".join((str(x) for x in (6 - weekday + dt.now().day, dt.now().month, dt.now().year)))
-                days.append(rest_day)
-            if "другой день" in chose:
-                chose, ok = QInputDialog.getInt(self, "Выберите день", "День:", day_now, day_now, 31, 1)
-                if ok:
-                    rest_day = ".".join((str(x) for x in (chose, dt.now().month, dt.now().year)))
-                    days.append(rest_day)
-                else:
-                    return False
-        else:
-            return False
+        # Открыть форму
+        # Заполнить форму
+        # получить данные
+        # выполнить все действия согласно данным
 
-        # запрос в БД
+        wnd = WeekPass(self)
+        wnd.exec_()
+        if not self.new_worker:
+            return
         try:
             self.current_build = self.cb_builds.value
         except:
@@ -139,14 +126,6 @@ class MainWindow(QMainWindow):
         if not workers:
             print("not data from db")
             return
-
-        for person in workers:
-            self.add_new_row_to_excel(person)
-        self.set_number_and_date()
-        self.set_week_days(days)
-        self.wb.save(conf.path_for_print + "/week_print.xlsx")
-        self.wb.close()
-        os.startfile(conf.path_for_print + "/week_print.xlsx")
 
         # уведомление
         self.add_notif("Отправить на согласование выходные", 0)
@@ -617,6 +596,9 @@ class MainWindow(QMainWindow):
             cell = self.sheet.cell(row=count, column=next(i)+1)
             cell.value = item
 
+    def get_next_number(self):
+        pass
+
     def set_week_days(self, days):
         if len(days) > 1:
             title = "        Прошу Вас разрешить работы в выходные дни {0} г. и {1}. по ремонту {2} работникам {3}, " \
@@ -682,6 +664,9 @@ class MainWindow(QMainWindow):
 
     def get_new_worker(self, worker):
         self.new_worker = worker
+
+    def get_new_week_pass(self, data):
+        self.new_pass_week = data
 
     def get_new_company(self, company):
         self.new_company = company
