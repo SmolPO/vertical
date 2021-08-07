@@ -9,11 +9,11 @@ import openpyxl
 import psycopg2
 from new_boss import NewBoss
 from new_itr import NewITR
-from add_worker import AddWorker
-from add_company import AddCompany
+from new_worker import AddWorker
+from new_company import AddCompany
 from pdf_module import check_file, create_covid
 from new_contract import NewContact
-from email_module import send_post
+from my_email import send_post
 from pass_week import WeekPass
 from boss_post import BossPost
 from my_tools import Notepad

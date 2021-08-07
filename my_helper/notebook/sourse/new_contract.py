@@ -59,7 +59,7 @@ class NewContact(QDialog):
                 answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись " + str(data) + "?",
                                      QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    self.parent.database_cur.execute("SELECT * FROM {0} WHERE number = '{1}'".format(
+                    self.parent.database_cur.execute("DELETE FROM {0} WHERE number = '{1}'".format(
                         self.table, self.number.text()))
                     self.parent.database_conn.commit()  # TODO удаление
                     self.close()
