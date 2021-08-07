@@ -100,7 +100,7 @@ class AddWorker(QDialog):
         rows = self.parent.database_cur.fetchall()
         for row in rows:
             if self.family.text() in row and self.name.text() in row:
-                self.update()
+                self.my_update()
                 print("update")
         pass
 
@@ -201,9 +201,10 @@ class AddWorker(QDialog):
             self.b_change.setEnabled(True)
             self.b_del.setEnabled(True)
 
-    def update(self):
+    def my_update(self):
         # удаляем старую запись
         self.ev_kill()
         # добавляем новую запись
         self.parent.get_new_worker(self.get_data())
+        self.close()
         pass

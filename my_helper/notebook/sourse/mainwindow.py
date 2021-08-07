@@ -10,7 +10,7 @@ import psycopg2
 from new_boss import NewBoss
 from new_itr import NewITR
 from new_worker import AddWorker
-from new_company import AddCompany
+from nw_company import AddCompany
 from pdf_module import check_file, create_covid
 from new_contract import NewContact
 from my_email import send_post
@@ -402,8 +402,9 @@ class MainWindow(QMainWindow):
         добавить объект в БД
         получить новый список объектов для списка объектов на главном меню
         """
-        comp = self.database_cur.execute('SELECT * FROM company')
-        if not comp:
+        self.database_cur.execute('SELECT * FROM company')
+        rows = self.database_cur.fetchall()
+        if not rows:
             msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
             if msg == QMessageBox.Ok:
                 pass

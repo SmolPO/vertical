@@ -61,7 +61,7 @@ class NewBoss(QDialog):
         rows = self.parent.database_cur.fetchall()
         for row in rows:
             if self.family.text() in row and self.name.text() in row:
-                self.update()
+                self.my_update()
                 print("update")
         pass
 
@@ -118,8 +118,9 @@ class NewBoss(QDialog):
             self.b_change.setEnabled(True)
             self.b_del.setEnabled(True)
 
-    def update(self):
+    def my_update(self):
         self.ev_kill()
         self.parent.get_new_bosses(self.get_data())
+        self.close()
         pass
 

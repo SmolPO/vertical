@@ -1,4 +1,5 @@
 from PyQt5 import uic
+from PyQt5 import QtCore
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
@@ -9,12 +10,11 @@ fields = ["family", "name", "surname", "post",
           "adr", "live_adr",
           "auto", "inn", "snils",
           "n_td", "td_date",
-          "OT_prot", "OT_date", "OT_card",
-          "PTM_prot", "PTM_date", "PTM_card",
+          "OT_prot", "OT_card", "OT_date",
+          "PTM_prot", "PTM_card", "PTM_date",
           "ES_prot", "ES_group", "ES_card", "ES_date",
-          "H_prot", "H_date", "H_group", "H_card",
-          "promsave",
-          "ST_prot", "ST_card", "ST_date"]
+          "H_prot", "H_group", "H_card", "H_date",
+          "ST_prot", "ST_card", "ST_date", "promsave", "birthday"]
 
 class NewITR(QDialog):
     def __init__(self, parent):
@@ -32,9 +32,9 @@ class NewITR(QDialog):
         self.but_status("add")
         self.init_mask()
         self.cb_chouse.addItems(["(нет)"])
-        # self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        # for row in self.parent.database_cur.fetchall():
-        #    self.cb_chouse.addItems([row[0]])
+        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
+        for row in self.parent.database_cur.fetchall():
+            self.cb_chouse.addItems([row[0]])
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я]{30}"))
@@ -96,7 +96,7 @@ class NewITR(QDialog):
         rows = self.parent.database_cur.fetchall()
         for row in rows:
             if self.family.text() in row and self.name.text() in row:
-                self.update()
+                self.my_update()
                 print("update")
         pass
 
@@ -113,6 +113,7 @@ class NewITR(QDialog):
                     self.parent.database_cur.execute("DELETE FROM {0} WHERE family = '{1}'".format(
                         self.table, self.family.text()))
                     self.parent.database_conn.commit()  # TODO удаление
+                    self.close()
                     return
                 if answer == QMessageBox.Cancel:
                     return
@@ -123,7 +124,7 @@ class NewITR(QDialog):
         self.surname.setText("")
         self.post.setText("")
         self.bday.setDate(Date.fromString("01.01.2000", "dd.mm.yyyy"))
-        self.auto_1.setText("")
+        self.my_auto.setText("")
         self.passport.setText("")
         self.passport_got.clear()
         self.passport_date.setDate(Date.fromString("01.01.2000", "dd.mm.yyyy"))
@@ -168,56 +169,59 @@ class NewITR(QDialog):
         self.name.setText(data[fields.index("name")])
         self.surname.setText(data[fields.index("surname")])
         self.post.setText(data[fields.index("post")])
-        self.bday.setDate(Date.fromString(data[fields.index("birthday")]), "dd.mm.yyyy")
-        self.auto.setText(data[fields.index("post")])
+        date_str = data[fields.index("birthday")]
+        qdate = QtCore.QDate.fromString(date_str, "dd.mm.yyyy")
+        self.bday.setDisplayFormat("dd.mm.yyyy")
+        self.bday.setDate(qdate)
+        self.my_auto.setText(data[fields.index("auto")])
         self.promsave.append(data[fields.index("promsave")])
-        self.adr.clear(data[fields.index("adr")])
-        self.live_adr.clear(data[fields.index("live_adr")])
-        self.passport_got.clear(data[fields.index("passport_got")])
+        self.adr.append(data[fields.index("adr")])
+        self.live_adr.append(data[fields.index("live_adr")])
+        self.passport_got.append(data[fields.index("passport_got")])
 
         self.passport.setText((data[fields.index("passport")]))
-        self.passport_date.setDate(Date.fromString((data[fields.index("post")]), "dd.mm.yyyy"))
+        self.passport_date.setDate(Date.fromString(data[fields.index("post")]))
 
         self.inn.setText((data[fields.index("inn")]))
         self.snils.setText((data[fields.index("snils")]))
         self.n_td.setText((data[fields.index("n_td")]))
-        self.d_td.setText((data[fields.index("td_date")]))
+        self.d_td.setDate(Date.fromString(data[fields.index("td_date")]))
 
         self.n_OT_p.setText((data[fields.index("OT_prot")]))
         self.n_OT_c.setText((data[fields.index("OT_card")]))
-        self.d_OT.setDate(Date.fromString((data[fields.index("OT_date")]), "dd.mm.yyyy"))
+        self.d_OT.setDate(Date.fromString((data[fields.index("OT_date")])))
 
         self.n_PTM_p.setText((data[fields.index("PTM_prot")]))
         self.n_PTM_c.setText((data[fields.index("PTM_card")]))
-        self.d_PTN.setDate(Date.fromString((data[fields.index("PTM_date")]), "dd.mm.yyyy"))
+        self.d_PTM.setDate(Date.fromString((data[fields.index("PTM_date")])))
 
         self.n_ES_p.setText((data[fields.index("ES_prot")]))
         self.n_ES_c.setText((data[fields.index("ES_card")]))
         self.n_ES_g.setText((data[fields.index("ES_group")]))
-        self.d_ES.setDate(Date.fromString((data[fields.index("ES_date")]), "dd.mm.yyyy"))
+        self.d_ES.setDate(Date.fromString((data[fields.index("ES_date")])))
 
         self.n_H_p.setText((data[fields.index("H_prot")]))
         self.n_H_c.setText((data[fields.index("H_card")]))
         self.n_H_g.setText((data[fields.index("H_group")]))
-        self.d_H.setDate(Date.fromString((data[fields.index("H_group")])), "dd.mm.yyyy")
+        self.d_H.setDate(Date.fromString((data[fields.index("H_group")])))
 
         self.n_ST_p.setText((data[fields.index("ST_prot")]))
         self.n_ST_c.setText((data[fields.index("ST_card")]))
-        self.d_ST.setDate(Date.fromString((data[fields.index("ST_card")]), "dd.mm.yyyy"))
+        self.d_ST.setDate(Date.fromString((data[fields.index("ST_card")])))
 
     def get_data(self):
         names_tables = "(family, name, surname, post, passport, passport_date, passport_got, adr, live_adr, auto, inn, " \
                        "snils, n_td, td_date, " \
-                       "ot_prot, ot_date, ot_card, " \
-                       "PTM_prot, PTM_date, PTM_card, " \
+                       "ot_prot, ot_card, ot_date, " \
+                       "PTM_prot, PTM_card, PTM_date, " \
                        "es_prot, es_group, es_card, es_date, " \
-                       "h_prot, h_date, h_group, h_card, " \
+                       "h_prot, h_group, h_card, h_date, " \
                        "promsave, " \
                        "st_prot, st_card, st_date, birthday)"
-        return list([self.family.text(), self.name.text(), self.surname.text(),
+        data = list([self.family.text(), self.name.text(), self.surname.text(),
                     self.post.text(), self.passport.text(), self.passport_date.text(),
                     self.passport_got.toPlainText(), self.adr.toPlainText(),
-                    self.live_adr.toPlainText(), self.auto_1.text(),
+                    self.live_adr.toPlainText(), self.my_auto.text(),
                     self.inn.text(), self.snils.text(),
                     self.n_td.text(), self.d_td.text(),
 
@@ -231,7 +235,10 @@ class NewITR(QDialog):
 
                     self.n_ST_p.text(), self.n_ST_c.text(), self.d_ST.text(),
 
-                    self.promsave.toPlainText(), self.bday.text()])
+                    self.promsave.toPlainText(),
+
+                    self.bday.text()])
+        return data
 
     def but_status(self, status):
         if status == "add":
@@ -243,7 +250,9 @@ class NewITR(QDialog):
             self.b_change.setEnabled(True)
             self.b_del.setEnabled(True)
 
-    def update(self):
-
+    def my_update(self):
+        self.ev_kill()
+        self.parent.get_new_itr(self.get_data())
+        self.close()
         pass
 

@@ -52,9 +52,9 @@ class NewContact(QDialog):
     def ev_kill(self):
         self.parent.database_cur.execute('SELECT * FROM ' + self.table)
         rows = self.parent.database_cur.fetchall()
-        print(self.family.text())
+        print(self.name.text())
         for row in rows:
-            if self.family.text() in row:
+            if self.name.text() in row:
                 data = self.get_data()
                 answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись " + str(data) + "?",
                                      QMessageBox.Ok | QMessageBox.Cancel)
@@ -88,7 +88,7 @@ class NewContact(QDialog):
         rows = self.parent.database_cur.fetchall()
         for row in rows:
             if self.number.text() in row:
-                self.update()
+                self.my_update()
                 print("update")
         pass
 
@@ -125,6 +125,8 @@ class NewContact(QDialog):
             self.b_change.setEnabled(True)
             self.b_del.setEnabled(True)
 
-    def update(self):
-
+    def my_update(self):
+        self.ev_kill()
+        self.parent.get_new_contract(self.get_data())
+        self.close()
         pass
