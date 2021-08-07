@@ -55,14 +55,16 @@ class AddCompany(QDialog):
         self.parent.database_cur.execute('SELECT * FROM ' + self.table)
         rows = self.parent.database_cur.fetchall()
         for row in rows:
-            if self.family.text() in row:
+            if self.company.text() in row:
                 data = self.get_data()
                 answer = QMessageBox.question(self, "Удаление записи",
                                               "Вы действительно хотите удалить запись " + str(data) + "?",
                                               QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    self.parent.database_cur.execute("SELECT * FROM {0} WHERE family = '{1}'".format(
-                        self.table, self.family.text()))
+                    print("DELETE FROM {0} WHERE company = '{1}'".format(
+                        self.table, self.company.text()))
+                    self.parent.database_cur.execute("DELETE FROM {0} WHERE company = '{1}'".format(
+                        self.table, self.company.text()))
                     self.parent.database_conn.commit()  # TODO удаление
                     self.close()
                     return
@@ -153,5 +155,5 @@ class AddCompany(QDialog):
             self.b_del.setEnabled(True)
 
     def update(self):
-
-        pass
+        self.ev_kill()
+        self.parent.get_new_company(self.get_data())

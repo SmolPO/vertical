@@ -34,6 +34,8 @@ class NewBoss(QDialog):
         self.email.QREVal(QRE("[a-zA-Z ._@ 0-9]{30}"))
 
     def ev_OK(self):
+        if '' in self.get_data():
+            return
         self.parent.get_new_bosses(self.get_data())
         self.close()
 
@@ -73,9 +75,10 @@ class NewBoss(QDialog):
                                               "Вы действительно хотите удалить запись " + str(data) + "?",
                                               QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    self.parent.database_cur.execute("SELECT * FROM {0} WHERE family = '{1}'".format(
+                    self.parent.database_cur.execute("DELETE FROM {0} WHERE family = '{1}'".format(
                         self.table, self.family.text()))
-                    self.parent.database_conn.commit()  # TODO удаление
+                    self.parent.database_conn.commit()
+                    self.close()
                     return
                 if answer == QMessageBox.Cancel:
                     return
@@ -83,6 +86,7 @@ class NewBoss(QDialog):
     def set_data(self, data):
         self.name.setText(data[0])
         self.family.setText(data[1])
+        self.family.enabled = False
         self.surname.setText(data[2])
         self.post.setText(data[3])
         self.email.setText(data[4])
@@ -115,6 +119,7 @@ class NewBoss(QDialog):
             self.b_del.setEnabled(True)
 
     def update(self):
-
+        self.ev_kill()
+        self.parent.get_new_bosses(self.get_data())
         pass
 

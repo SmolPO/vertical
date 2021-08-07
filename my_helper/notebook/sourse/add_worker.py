@@ -25,7 +25,7 @@ class AddWorker(QDialog):
         self.cb_chouse.addItems(["(нет)"])
         self.parent.database_cur.execute('SELECT * FROM ' + self.table)
         for row in self.parent.database_cur.fetchall():
-            self.cb_chouse.addItems([row[0]])
+            self.cb_chouse.addItems([row[1]])
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я ]{30}"))
@@ -50,7 +50,7 @@ class AddWorker(QDialog):
         self.n_card.setValidator(number_prot)
 
     def ev_OK(self):
-        self.parent.get_new_worker(self.get_all_text())
+        self.parent.get_new_worker(self.get_data())
         self.close()
 
     def ev_cancel(self):
@@ -58,7 +58,7 @@ class AddWorker(QDialog):
 
     def ev_select(self, text):
         if text == "(нет)":
-            self.clean_all_text()
+            self.clean_data()
             self.but_status("add")
             return
         else:
@@ -68,7 +68,7 @@ class AddWorker(QDialog):
         rows = self.parent.database_cur.fetchall()
         for row in rows:
             if text in row:
-                self.set_all_text(row)
+                self.set_data(row)
 
     def ev_kill(self):
         """
@@ -81,14 +81,12 @@ class AddWorker(QDialog):
         print(self.family.text())
         for row in rows:
             if self.family.text() in row:
-                data = self.get_all_text()
+                data = self.get_data()
                 answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись " + str(data) + "?",
                                      QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    print("DELETE FROM {0} WHERE family = '{1}'".format(
-                        self.table, self.family.text()))
-                    self.parent.database_cur.execute("DELETE FROM {0} WHERE family = '{1}'".format(
-                        self.table, self.family.text()))
+                    self.parent.database_cur.execute("DELETE FROM {0} WHERE family = '{1}'".format(self.table,
+                        self.family.text()))
                     self.parent.database_conn.commit()  # TODO удаление
                     self.close()
                     return
@@ -106,7 +104,7 @@ class AddWorker(QDialog):
                 print("update")
         pass
 
-    def clean_all_text(self):
+    def clean_data(self):
         zero = Date.fromString("01.01.2000", "dd.mm.yyyy")
         self.passport_post.clear()
         self.adr.clear()
@@ -137,13 +135,14 @@ class AddWorker(QDialog):
         self.d_prot.setDate(zero)
         pass
 
-    def set_all_text(self, data):
+    def set_data(self, data):
         self.passport_post.clear()
         self.adr.clear()
         self.live_adr.clear()
 
-        self.family.setText(data[0])
-        self.name.setText(data[1])
+        self.family.setText(data[1])
+        self.family.enabled = False
+        self.name.setText(data[0])
         self.surname.setText(data[2])
         self.bday.setDate(Date.fromString(data[3], "dd.mm.yyyy"))
         self.post.setText(data[4])
@@ -166,7 +165,7 @@ class AddWorker(QDialog):
         self.n_card.setText(data[21])
         self.d_prot.setDate(Date.fromString(data[22], "dd.mm.yyyy"))
 
-    def get_all_text(self):
+    def get_data(self):
         data = list([self.family.text(),
                     self.name.text(),
                     self.surname.text(),
@@ -203,5 +202,8 @@ class AddWorker(QDialog):
             self.b_del.setEnabled(True)
 
     def update(self):
-
+        # удаляем старую запись
+        self.ev_kill()
+        # добавляем новую запись
+        self.parent.get_new_worker(self.get_data())
         pass

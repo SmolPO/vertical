@@ -4,7 +4,7 @@ import sys
 import os
 import logging
 from datetime import datetime as dt
-import configparser
+from configparser import ConfigParser
 import openpyxl
 import psycopg2
 from new_boss import NewBoss
@@ -81,7 +81,7 @@ class MainWindow(QMainWindow):
 
         self.ui_l_company.setText(self.company)
         self.ui_l_build.setText(self.current_build)
-        self.config = configparser.ConfigParser()
+        self.config = ConfigParser()
         self.init_notif()
 
         # Database
@@ -597,7 +597,17 @@ class MainWindow(QMainWindow):
             cell.value = item
 
     def get_next_number(self):
-        pass
+        # init
+        config = ConfigParser()
+        config.read('config.ini')
+        # read
+        number_note = config.get('config', 'number')
+        # write
+        next_number = int(number_note) + 1
+        config.set('config', 'number', str(next_number))
+        with open('config.ini', 'w') as configfile:
+            config.write(configfile)
+        return int(number_note)
 
     def set_week_days(self, days):
         if len(days) > 1:
@@ -673,6 +683,9 @@ class MainWindow(QMainWindow):
 
     def get_new_contract(self, contract):
         self.new_contract = contract
+
+    def get_new_bosses(self, boss):
+        self.new_boss = boss
 
     def set_new_boss(self, boss):
         self.new_boss = boss

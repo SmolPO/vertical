@@ -1,5 +1,6 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtCore import Qt
 import inserts
 import datetime as dt
 import xml.etree.ElementTree as ET
@@ -21,48 +22,55 @@ class WeekPass(QDialog):
         self.b_kill.clicked.connect(self.kill_pattern)
         self.b_open.clicked.connect(self.open_file)
 
-        self.cb_other.clicked.connect(self.status)
+        self.cb_other.stateChanged.connect(self.other_days)
+        self.cb_sun.stateChanged.connect(self.week_days)
+        self.cb_sub.stateChanged.connect(self.week_days)
+        self.d_from.enabled = False
+        self.d_to.enabled = False
+        self.cb_sun.enabled = True
+        self.cb_sub.enabled = True
 
         self.d_note.setDate(dt.datetime.now().date())
-        self.parent.get_next_number()
+        self.number.setValue(self.parent.get_next_number())
 
         self.get_my_object()
         self.get_who()
         self.get_workers()
         #  self.get_example()
 
-        self.status()
-
-    def status(self):
-        if self.cb_other.isChecked():
-         #   self.d_from.enable(True)
-         #   self.d_to.enable(True)
-            self.sub.enable(False)
-            self.sun.enable(False)
+    def other_days(self, state):
+        if state == Qt.Checked:
+            self.d_from.enabled = True
+            self.d_to.enabled = True
+            self.cb_sun.enabled = False
+            self.cb_sub.enabled = False
         else:
-          #  self.d_from.enable(False)
-          # self.d_to.enable(False)
-          #   self.sub.enable(True)
-          #  self.sun.enable(True)
-            pass
+            self.d_from.enabled = False
+            self.d_to.enabled = False
+            self.cb_sun.enabled = True
+            self.cb_sub.enabled = True
+
+    def week_days(self, state):
+        if state == Qt.Checked:
+            self.cb_other.enabled = False
+        elif not self.cb_sun.is_Checked() and not \
+                self.cb_sub.is_Checked():
+            self.cb_other.enabled = True
 
     def get_my_object(self):
         objects = self.parent.database_cur.execute(inserts.get_names_objects())
-        objects = ["kjbjhb", "klbkbjj"]
         self.cb_object.addItem("(нет)")
         for name in objects:
             self.cb_object.addItem(name)
 
     def get_who(self):
         who = self.parent.database_cur.execute(inserts.get_bosses())
-        who = ["who 1", "who 2"]
         self.cb_who.addItem("(нет)")
-        for name in who:
-            self.cb_who.addItem(name)
+        for post in who:
+            self.cb_who.addItem(post)
 
     def get_workers(self):
-        workers = self.parent.database_cur.execute(inserts.get_workers())
-        workers = ["w 1", "w 2"]
+        workers = self.parent.database_cur.execute(inserts.get_workers("Ф И.О."))
         for item in self.list_workers:
             item.addItem("(нет)")
         for name in workers:
@@ -150,3 +158,4 @@ class WeekPass(QDialog):
     def open_file(self):
         print("open file")
         pass
+

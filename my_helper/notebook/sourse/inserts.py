@@ -48,12 +48,14 @@ def add_worker(worker):
     return "INSERT INTO workers {0} VALUES {1}".format(names_tables, result)
 
 
-def get_workers():
+def get_workers(full=None):
+    if full == "Ф И.О.":
+        return "SELECT family, name, surname FROM workers"
     return "SELECT family FROM workers"
 
 
 def get_bosses():
-    return "SELECT family FROM bosses"
+    return "SELECT post FROM bosses"
 
 
 def get_worker(family):
