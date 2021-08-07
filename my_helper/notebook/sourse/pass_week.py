@@ -20,62 +20,65 @@ class WeekPass(QDialog):
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_save.clicked.connect(self.save_pattern)
         self.b_kill.clicked.connect(self.kill_pattern)
-        self.b_open.clicked.connect(self.open_file)
+        self.b_open.clicked.connect(self.my_open_file)
 
         self.cb_other.stateChanged.connect(self.other_days)
         self.cb_sun.stateChanged.connect(self.week_days)
         self.cb_sub.stateChanged.connect(self.week_days)
-        self.d_from.enabled = False
-        self.d_to.enabled = False
-        self.cb_sun.enabled = True
-        self.cb_sub.enabled = True
+        self.d_from.setEnabled(False)
+        self.d_to.setEnabled(False)
 
         self.d_note.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
 
         self.get_my_object()
-        self.get_who()
+        self.get_recipient()
         self.get_workers()
         #  self.get_example()
 
     def other_days(self, state):
         if state == Qt.Checked:
-            self.d_from.enabled = True
-            self.d_to.enabled = True
-            self.cb_sun.enabled = False
-            self.cb_sub.enabled = False
+            self.cb_sun.setEnabled(False)
+            self.cb_sub.setEnabled(False)
+            self.d_from.setEnabled(True)
+            self.d_to.setEnabled(True)
         else:
-            self.d_from.enabled = False
-            self.d_to.enabled = False
-            self.cb_sun.enabled = True
-            self.cb_sub.enabled = True
+            self.cb_sun.setEnabled(True)
+            self.cb_sub.setEnabled(True)
+            self.d_from.setEnabled(False)
+            self.d_to.setEnabled(False)
 
     def week_days(self, state):
         if state == Qt.Checked:
-            self.cb_other.enabled = False
-        elif not self.cb_sun.is_Checked() and not \
-                self.cb_sub.is_Checked():
-            self.cb_other.enabled = True
+            self.cb_other.setEnabled(False)
+            self.d_from.setEnabled(False)
+            self.d_to.setEnabled(False)
+        elif not self.cb_sun.isChecked() and not self.cb_sub.isChecked():
+            self.cb_other.setEnabled(True)
 
     def get_my_object(self):
-        objects = self.parent.database_cur.execute(inserts.get_names_objects())
         self.cb_object.addItem("(нет)")
-        for name in objects:
-            self.cb_object.addItem(name)
+        self.parent.database_cur.execute(inserts.get_names_objects())
+        rows = self.parent.database_cur.fetchall()
+        for row in rows:
+            self.cb_object.addItem(row[0])
 
-    def get_who(self):
-        who = self.parent.database_cur.execute(inserts.get_bosses())
+    def get_recipient(self):
+        self.parent.database_cur.execute(inserts.get_bosses())
+        rows = self.parent.database_cur.fetchall()
         self.cb_who.addItem("(нет)")
-        for post in who:
-            self.cb_who.addItem(post)
+        for post in rows:
+            self.cb_who.addItem(post[0])
 
     def get_workers(self):
-        workers = self.parent.database_cur.execute(inserts.get_workers("Ф И.О."))
+        self.parent.database_cur.execute(inserts.get_workers("Ф И.О."))
+        rows = self.parent.database_cur.fetchall()
         for item in self.list_workers:
             item.addItem("(нет)")
-        for name in workers:
+        for name in rows:
+            family = name[0] + " " + ".".join([name[1][0], name[2][0]])
             for item in self.list_workers:
-                item.addItem(name)
+                item.addItem(family)
 
     def get_example(self, ):
         root_node = ET.parse('sample.xml').getroot() 
@@ -143,19 +146,19 @@ class WeekPass(QDialog):
 
     def get_days(self):
         data = []
-        now_weeday = dt.datetime.now().weekday()
+        now_weekday = dt.datetime.now().weekday()
         if self.cb_other.is_checked:
             data.append([self.d_from.text(), self.d_to.text()])
             return data
         if self.cb_sun.is_checked:
-            sub_day = dt.datetime.now() + dt.timedelta(5 - now_weeday)
+            sub_day = dt.datetime.now() + dt.timedelta(5 - now_weekday)
             data.append(sub_day)
         if self.cb_sub.is_checked:
-            sun_day = dt.datetime.now() + dt.timedelta(6 - now_weeday)
+            sun_day = dt.datetime.now() + dt.timedelta(6 - now_weekday)
             data.append(sun_day)
         return data
 
-    def open_file(self):
+    def my_open_file(self):
         print("open file")
         pass
 

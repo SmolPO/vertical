@@ -86,12 +86,11 @@ class MainWindow(QMainWindow):
 
         # Database
         self.connect_to_database()
-        builds = self.database_cur.execute(ins.get_builds())
-        if not builds:
-            self.cb_builds.addItems(["Галерея", "Аммиак"])
-        else:
-            for item in builds:
-                self.cb_builds.addItems(item)
+        self.database_cur.execute(ins.get_builds())
+        rows = self.database_cur.fetchall()
+        for row in rows:
+            self.cb_builds.addItems(row)
+        self.ui_l_cur_build.setText(rows[-1][0])
 
     def change_build(self, text):
         self.ui_l_cur_build.setText(text)
@@ -667,11 +666,15 @@ class MainWindow(QMainWindow):
         return True
 
     # Прочее
-    def next_number_doc(self):
+    def get_number_doc(self):
+        self.config.read(conf.path_conf_ini)
+        next_number = int(self.config.get("conf", "next_number"))
+        return str(next_number)
+
+    def set_next_number_doc(self):
         self.config.read(conf.path_conf_ini)
         next_number = int(self.config.get("conf", "next_number"))
         self.config.set("conf", "next_number", str(int(next_number)+1))
-        return str(next_number)
 
     def get_new_worker(self, worker):
         self.new_worker = worker
@@ -719,16 +722,7 @@ class MainWindow(QMainWindow):
         f.close()
 
     def init_notif(self):
-       try:
-            f = open(conf.path + "/notif.txt", "r")
-            # layout = QLayout()
-            for line in f.readlines():
-                if line[1] == '0':
-                    print(line[5:-3])
-                   # layout.addItem(QCheckBox(line[5:-3]))
-           # self.ui_notification.addItem(layout)
-       except:
-           print("not file notif")
+        pass
 
     def add_notif(self, message, mode):
         r_butt = QCheckBox(message)
