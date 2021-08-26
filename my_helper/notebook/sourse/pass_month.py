@@ -8,78 +8,29 @@ import docx
 #  сделать мессаджбоксы на Сохранить
 
 
-class WeekPass(QDialog):
+class MonthPass(QDialog):
     def __init__(self, parent):
-        super(WeekPass, self).__init__()
-        uic.loadUi('../designer_ui/week_work.ui', self)
+        super(MonthPass, self).__init__()
+        uic.loadUi('../designer_ui/pass_month.ui', self)
         # pass
         self.parent = parent
         self.workers = [self.worker_1, self.worker_2, self.worker_3,
                    self.worker_4, self.worker_5, self.worker_6,
                    self.worker_7, self.worker_8, self.worker_9]
-        self.table = "contract"
         self.b_ok.clicked.connect(self.ev_OK)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_save.clicked.connect(self.save_pattern)
         self.b_kill.clicked.connect(self.kill_pattern)
         self.b_open.clicked.connect(self.my_open_file)
 
-        self.cb_other.stateChanged.connect(self.other_days)
-        self.cb_sun.stateChanged.connect(self.week_days)
-        self.cb_sub.stateChanged.connect(self.week_days)
-        self.d_from.setEnabled(False)
-        self.d_to.setEnabled(False)
+        self.cb_all.stateChanged.connect(self.week_days)
 
         self.d_note.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
 
-        self.get_my_object()
         self.get_recipient()
         self.get_workers()
         #  self.get_example()
-
-    # выбор дня
-    def other_days(self, state):
-        if state == Qt.Checked:
-            self.cb_sun.setEnabled(False)
-            self.cb_sub.setEnabled(False)
-            self.d_from.setEnabled(True)
-            self.d_to.setEnabled(True)
-        else:
-            self.cb_sun.setEnabled(True)
-            self.cb_sub.setEnabled(True)
-            self.d_from.setEnabled(False)
-            self.d_to.setEnabled(False)
-
-    def week_days(self, state):
-        if state == Qt.Checked:
-            self.cb_other.setEnabled(False)
-            self.d_from.setEnabled(False)
-            self.d_to.setEnabled(False)
-        elif not self.cb_sun.isChecked() and not self.cb_sub.isChecked():
-            self.cb_other.setEnabled(True)
-
-    # заполнение список
-    def get_days(self):
-        data = []
-        now_weekday = dt.datetime.now().weekday()
-        if self.cb_other.isChecked():
-            data.append([self.d_from.text(), self.d_to.text()])
-            return data
-        if self.cb_sun.isChecked():
-            sub_day = dt.datetime.now() + dt.timedelta(5 - now_weekday)
-            data.append(sub_day)
-        if self.cb_sub.isChecked():
-            sun_day = dt.datetime.now() + dt.timedelta(6 - now_weekday)
-            data.append(sun_day)
-        return data
-
-    def get_my_object(self):
-        self.cb_object.addItem("(нет)")
-        self.parent.database_cur.execute(inserts.get_names_objects())
-        rows = self.parent.database_cur.fetchall()
-        for row in rows:
-            self.cb_object.addItem(row[0])
 
     def get_recipient(self):
         self.parent.database_cur.execute(inserts.get_bosses())
@@ -88,19 +39,9 @@ class WeekPass(QDialog):
         for post in rows:
             self.cb_who.addItem(post[0])
 
-    def get_workers(self):
-        self.parent.database_cur.execute(inserts.get_workers("Ф И.О."))
-        rows = self.parent.database_cur.fetchall()
-        for item in self.workers:
-            item.addItem("(нет)")
-        for name in rows:
-            family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
-            for item in self.workers:
-                item.addItem(family)
-
     # шаблоны
     def get_example(self, ):
-        root_node = ET.parse('sample.xml').getroot() 
+        root_node = ET.parse('sample.xml').getroot()
         for tag in root_node.findall('pattern/name'):
             name = tag.get("name")
             if name == "pattern":
@@ -139,17 +80,10 @@ class WeekPass(QDialog):
     def ev_OK(self):
         doc = docx.Document("B:/my_helper/week.docx")
         # номер исх
-        doc.tables[0].style = "Light Shading - Accent 2"
         doc.tables[0].rows[0].cells[0].text = "Исх. № " + self.number.text()
         # дата
         doc.tables[0].rows[1].cells[0].text = "от. " + self.d_note.text()
         # Просим Ваc
-        data = "0000"
-        about_object = self.get_contract(self.cb_object.currentText())
-        if not about_object:
-            self.close()
-            return
-        contract, object_name, part, type_work = about_object[:4]
         company = self.parent.company
         if self.cb_other.isChecked():
             data = "в выходные дни с " + self.d_from.text() + " до " + self.d_to.text()
@@ -159,8 +93,8 @@ class WeekPass(QDialog):
             else:
                 data = "в выходной день " + str(self.get_days()[0])
         doc.paragraphs[6].add_run(
-            "Прошу Вас разрешить работы {0} по договору {1} {2} {3} {4}"
-            "с рабочей сменой с 07-00 до 19-00 часов:".format(data, contract, type_work, part, company))
+            "Прошу Вас продлить электронный пропуск с {0} по {1} "
+            "с рабочей сменой с 07-00 до 19-00 часов:".format(data[0], data[1]))
         # Заполнить таблицу
         list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5, self.worker_6,
                    self.worker_7, self.worker_8, self.worker_9)
@@ -176,7 +110,7 @@ class WeekPass(QDialog):
                 doc.tables[1].rows[1].cells[4].text = " ".join(people[4:6])
                 doc.tables[1].rows[1].cells[5].text = people[7]
                 doc.tables[1].rows[1].cells[6].text = people[8]
-        doc.save("B:/my_helper/to_print/week.docx")
+        doc.save("B:/my_helper/to_print/month.docx")
         self.close()
 
     def ev_cancel(self):
@@ -197,22 +131,11 @@ class WeekPass(QDialog):
     def kill_pattern(self):
         pass
 
-    def get_contract(self, name):
-        # получить номер договора по короткому имени
-        self.parent.database_cur.execute(inserts.get_contracts())
-        rows = self.parent.database_cur.fetchall()
-        for row in rows:
-            if name in row:
-                return row
-
     def get_worker(self, family):
         # получить номер договора по короткому имени
         self.parent.database_cur.execute(inserts.pass_week())
         rows = self.parent.database_cur.fetchall()
         for row in rows:
-            print(family[:-4])
-            print(row)
-            print(row[0])
             if family[:-4] == row[0]:
                 return row
             return row
