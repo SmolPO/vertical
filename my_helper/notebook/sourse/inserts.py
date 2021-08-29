@@ -57,10 +57,14 @@ def get_workers(full=None):
         return "SELECT * FROM workers"
 
 
-def get_bosses(family=None):
+def get_bosses(family="post"):
     if family == "all":
         return "SELECT * FROM bosses"
-    return "SELECT post FROM bosses"
+    if family == "family":
+        return "SELECT family, name, surname, post FROM bosses"
+    if family == "post":
+        return "SELECT post FROM bosses"
+    return None
 
 
 def add_boss(boss):

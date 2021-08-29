@@ -3,16 +3,18 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import Qt
 import inserts
 import datetime as dt
-import xml.etree.ElementTree as ET
+import os
 import docx
 import docxtpl
 #  сделать мессаджбоксы на Сохранить
-
+main_file = "B:/my_helper/week_1.docx"
+print_file = "B:/my_helper/to_print/week.docx"
+designer_file = '../designer_ui/week_work.ui'
 
 class WeekPass(QDialog):
     def __init__(self, parent):
         super(WeekPass, self).__init__()
-        uic.loadUi('../designer_ui/week_work.ui', self)
+        uic.loadUi(designer_file, self)
         # pass
         self.parent = parent
         self.workers = [self.worker_1, self.worker_2, self.worker_3,
@@ -33,13 +35,13 @@ class WeekPass(QDialog):
 
         self.d_note.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
-        self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
-                     "post": "", "family": "", "name": "", "surname": "", "adr": "",
-                     "number": "", "data": "", "str_1": "", "str_2": "", "str_3": ""}
+        self.data = {"number": "", "data": "",  "str_1": "", "str_2": "", "str_3": "", "title": "",
+                     "week_day": "", "contract": "", "type_work": "", "part": "", "company": "",
+                     "customer": "", "post_boss": "", "boss_part": ""}
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4,
                         self.worker_5, self.worker_6, self.worker_7, self.worker_8, self.worker_9)
         self.init_object()
-        self.init_recipient()
+        self.init_boss()
         self.init_workers()
 
     # выбор дня
@@ -85,21 +87,24 @@ class WeekPass(QDialog):
         for row in rows:
             self.cb_object.addItem(row[0])
 
-    def init_recipient(self):
-        self.parent.database_cur.execute(inserts.get_bosses())
+    def init_boss(self):
+        self.parent.database_cur.execute(inserts.get_bosses("family"))
         rows = self.parent.database_cur.fetchall()
-        self.cb_who.addItem("(нет)")
-        for post in rows:
-            self.cb_who.addItem(post[0])
+        for people in rows:
+            family = people[0] + " " + people[1][0] + ". " + people[2][0] + "."
+            self.cb_boss_part.addItem(family)       # брать из БД
 
     def init_workers(self):
-        self.parent.database_cur.execute(inserts.get_workers("Ф И.О."))
+        self.parent.database_cur.execute(inserts.pass_workers())
         rows = self.parent.database_cur.fetchall()
-        for item in self.workers:
+        for item in self.list_ui:
             item.addItem("(нет)")
+            item.activated[str].connect(self.new_worker)
+            item.setEnabled(False)
+        self.list_ui[0].setEnabled(True)
         for name in rows:
             family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
-            for item in self.workers:
+            for item in self.list_ui:
                 item.addItem(family)
 
     # обработчики кнопок
@@ -108,21 +113,17 @@ class WeekPass(QDialog):
         self.data["company"] = self.parent.company
         self.data["number"] = "Исх. № " + self.number.text()
         self.data["data"] = "от. " + self.d_note.text()
-
-        # номер исх
+        self.data["boss_part"] = self.cb_boss_part.currentText()
+        self.data["post_boss"] = "Начальник цеха"
         self.get_contract(self.cb_object.currentText())
-        if self.cb_other.isChecked():
-            self.data["week_day"] = "в выходные дни с " + self.d_from.text() + " до " + self.d_to.text()
-        else:
-            if len(self.get_days()) > 1:
-                self.data["week_day"] = "в выходные дни с " + str(self.get_days()[0]) + " до " + str(self.get_days()[1])
-            else:
-                self.data["week_day"] = "в выходной день " + str(self.get_days()[0])
-        doc = docxtpl.DocxTemplate("B:/my_helper/week_1.docx")
+        self.get_week_days()
+
+        doc = docxtpl.DocxTemplate(main_file)
         doc.render(self.data)
-        doc.save("B:/my_helper/to_print/week.docx")
+        doc.save(print_file)
+
         # Заполнить таблицу
-        doc = docx.Document("B:/my_helper/week_1.docx")
+        doc = docx.Document(print_file)
         for elem in self.list_ui:
             family = elem.currentText()
             if family != "(нет)":
@@ -135,15 +136,23 @@ class WeekPass(QDialog):
                 doc.tables[1].rows[1].cells[4].text = " ".join(people[4:6])
                 doc.tables[1].rows[1].cells[5].text = people[7]
                 doc.tables[1].rows[1].cells[6].text = people[8]
-        doc.save("B:/my_helper/to_print/week.docx")
+        doc.save(print_file)
         self.close()
 
     def ev_cancel(self):
         self.close()
 
+    def new_worker(self):
+        flag = True
+        for item in self.list_ui:
+            if item.currentText() != "(нет)":
+                item.setEnabled(True)
+            else:
+                item.setEnabled(flag)
+                flag = False
+
     def my_open_file(self):
-        print("open file")
-        pass
+        os.startfile(print_file)
 
     def get_contract(self, name):
         # получить номер договора по короткому имени
@@ -165,5 +174,17 @@ class WeekPass(QDialog):
                 return row
             return row
 
+    def get_week_days(self):
+        if self.cb_other.isChecked():
+            self.data["week_day"] = "в выходные дни с " + self.d_from.text() + " до " + self.d_to.text()
+        else:
+            if len(self.get_days()) > 1:
+                self.data["week_day"] = "в выходные дни с " + str(self.get_days()[0]) + " до " + str(self.get_days()[1])
+            else:
+                self.data["week_day"] = "в выходной день " + str(self.get_days()[0])
 
+    def save_pattern(self):
+        pass
 
+    def kill_pattern(self):
+        pass

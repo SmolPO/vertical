@@ -6,12 +6,14 @@ import os
 import docx
 import docxtpl
 #  сделать мессаджбоксы на Сохранить
-
+main_file = "B:/my_helper/unlock.docx"
+print_file = "B:/my_helper/to_print/unlock.docx"
+designer_file = '../designer_ui/pass_unlock.ui'
 
 class UnlockPass(QDialog):
     def __init__(self, parent):
         super(UnlockPass, self).__init__()
-        uic.loadUi('../designer_ui/pass_unlock.ui', self)
+        uic.loadUi(designer_file, self)
         # pass
         self.parent = parent
         self.b_ok.clicked.connect(self.ev_OK)
@@ -36,16 +38,26 @@ class UnlockPass(QDialog):
         worker["number"] = "Исх. № " + self.number.text()
         worker["data"] = "от. " + self.d_note.text()
 
-        doc = docxtpl.DocxTemplate("B:/my_helper/unlock.docx")
+        doc = docxtpl.DocxTemplate(main_file)
         doc.render(worker)
-        doc.save("B:/my_helper/to_print/unlock.docx")
+        doc.save(print_file)
+        os.startfile(print_file, "print")
         self.close()
 
     def ev_cancel(self):
         self.close()
 
+    def new_worker(self):
+        flag = True
+        for item in self.list_ui:
+            if item.currentText() != "(нет)":
+                item.setEnabled(True)
+            else:
+                item.setEnabled(flag)
+                flag = False
+
     def my_open_file(self):
-        os.startfile("B:/my_helper/unlock.docx")
+        os.startfile(main_file)
         pass
 
     def get_worker(self, family):
