@@ -49,20 +49,18 @@ def add_worker(worker):
 
 
 def get_workers(full=None):
-    if full == "Ф И.О.":
+    if full == "ФИО":
         return "SELECT family, name, surname FROM workers"
-    if not full:
+    if full == "family":
         return "SELECT family FROM workers"
-    if full:
-        pass
+    if not full:
+        return "SELECT * FROM workers"
 
 
-def get_bosses():
+def get_bosses(family=None):
+    if family == "all":
+        return "SELECT * FROM bosses"
     return "SELECT post FROM bosses"
-
-
-def get_worker():
-    return "SELECT * FROM workers"
 
 
 def add_boss(boss):
@@ -85,7 +83,7 @@ def get_builds():
     return "SELECT name FROM contract"
 
 
-def pass_week():
+def pass_workers():
     return "SELECT family, name, surname, post, passport, passport_got, birthday, adr,  live_adr FROM workers"
 
 def get_contracts():

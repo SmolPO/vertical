@@ -15,6 +15,8 @@ from pdf_module import check_file, create_covid
 from new_contract import NewContact
 from my_email import send_post
 from pass_week import WeekPass
+from pass_unlock import UnlockPass
+from pass_month import MonthPass
 from boss_post import BossPost
 from my_tools import Notepad
 import inserts as ins
@@ -71,6 +73,7 @@ class MainWindow(QMainWindow):
         self.get_param_from_widget = None
         self.current_build = "Объект"
         self.company = 'ООО "Вертикаль"'
+        self.customer = 'ПАО "Дорогобуж"'
         self.new_worker = []
         self.new_boss = None
         self.new_itr = None
@@ -97,70 +100,17 @@ class MainWindow(QMainWindow):
         self.ui_l_cur_build.adjustSize()
 
     def ev_pass_week(self):
-        # TODO: выбор нескольких дней по календарю или из формы
-        # Открыть форму
-        # Заполнить форму
-        # получить данные
-        # выполнить все действия согласно данным
-
         wnd = WeekPass(self)
         wnd.exec_()
-        if not self.new_worker:
-            return
-        try:
-            self.current_build = self.cb_builds.value
-        except:
-            print("not connect to db")
-            self.current_build = "Галерея"
-        try:
-            workers = self.database_cur.execute(ins.pass_week(self.current_build))
-        except:
-            print("not connect to db")
-            workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
-
-        #  добавление в xlsx
-        if not self.open_wb("week"):
-            return
-
-        if not workers:
-            print("not data from db")
-            return
-
-        # уведомление
         self.add_notif("Отправить на согласование выходные", 0)
-
-        # TODO: отправить сообщение на сервер для уведомления в приложение
         print("pass week")
 
     def ev_pass_month(self):
-        """
-        получить из БД список сотрудников, дата рождения, паспортные, место жительства
-        сформировать документ
-        направить на печать
-        """
-        # БД
-        try:
-            workers = self.database_cur.execute(ins.full_workers_data)
-        except:
-            print("not connect to db")
-            workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
-
-        # xlsx
-        if not self.open_wb("month"):
-            return
-        self.set_number_and_date()
-        self.set_month_date()
-        for person in workers:
-            self.add_new_row_to_excel(person)
-        self.wb.save(conf.path_for_print + "/month_print.xlsx")
-        self.wb.close()
-        os.startfile(conf.path_for_print + "/month_print.xlsx")
-
-        # уведомения
-        self.add_notif("Отправить на согласование месяц", 0)
-
-        # TODO: отправить сообщение на сервер для уведомления в приложение
-        print("pass month")
+        wnd = MonthPass(self)
+        wnd.exec_()
+        # уведомление
+        self.add_notif("Отправить на согласование выходные", 0)
+        print("pass week")
 
     def ev_pass_auto(self):
         """
@@ -261,63 +211,8 @@ class MainWindow(QMainWindow):
         # TODO: отправить сообщение на сервер для уведомления в приложение
 
     def ev_pass_unlock(self):
-        """
-        получить список работников
-        открыть диалоговое окно с выбором сотрудника
-        cформировать документ
-        печать
-        """
-        try:
-            workers = self.database_cur.execute(ins.workers_with_adr)
-        except:
-            print("not connect to db")
-            workers = [["Kalent", "Ivan", "Semonovich", "монтажник", "01.08.1996"]]
-
-        # выбор сотрудника
-        people = list()
-        for person in workers:
-            people.append(person[0])
-        items = tuple(people)
-        family, ok = QInputDialog.getItem(self, "Выберите работника", "Название", items, 0, False)
-        if not ok:
-            return
-        bad_people = list()
-        for one in workers:
-            if family == one[0]:
-                bad_people = one
-
-        # узнать сколько дней в месяце
-        if dt.now().month < 10:
-            month = "0" + str(dt.now().month)
-        else:
-            month = str(dt.now().day)
-        if dt.now().day < 10:
-            day = "0" + str(dt.now().day)
-        else:
-            day = str(dt.now().day)
-        start_date = ".".join(str(x) for x in (day, month, dt.now().year))
-        num_days = [31, 28 if dt.now().year / 4 else 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        max_day = num_days[dt.now().month-1]
-        end_date = ".".join(str(x) for x in (max_day, dt.now().month, dt.now().year))
-        title = "Прошу вас разблокировать электронный пропуск {post} организации " \
-                "{company} {family} {name} {surname} c {start_date} по {end_month}".format(post=bad_people[3],
-                                                                                           company=self.company,
-                                                                                           family=bad_people[1],
-                                                                                           name=bad_people[0],
-                                                                                           surname=bad_people[2],
-                                                                                           start_date=start_date,
-                                                                                           end_month=end_date)
-
-        # xlsx
-        if not self.open_wb("unlock"):
-            return
-        self.set_number_and_date()
-        self.set_title(title)
-        self.wb.save(conf.path_for_print + "/unlock_print.xlsx")
-        self.wb.close()
-        os.startfile(conf.path_for_print + "/unlock_print.xlsx")
-
-        # уведомление
+        wnd = UnlockPass(self)
+        wnd.exec_()
         self.add_notif("Отправить на согласование разблокировку", 0)
         print("pass unlock")
 

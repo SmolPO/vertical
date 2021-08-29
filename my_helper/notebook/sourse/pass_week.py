@@ -5,6 +5,7 @@ import inserts
 import datetime as dt
 import xml.etree.ElementTree as ET
 import docx
+import docxtpl
 #  сделать мессаджбоксы на Сохранить
 
 
@@ -32,11 +33,14 @@ class WeekPass(QDialog):
 
         self.d_note.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
-
-        self.get_my_object()
-        self.get_recipient()
-        self.get_workers()
-        #  self.get_example()
+        self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
+                     "post": "", "family": "", "name": "", "surname": "", "adr": "",
+                     "number": "", "data": "", "str_1": "", "str_2": "", "str_3": ""}
+        self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4,
+                        self.worker_5, self.worker_6, self.worker_7, self.worker_8, self.worker_9)
+        self.init_object()
+        self.init_recipient()
+        self.init_workers()
 
     # выбор дня
     def other_days(self, state):
@@ -74,21 +78,21 @@ class WeekPass(QDialog):
             data.append(sun_day)
         return data
 
-    def get_my_object(self):
+    def init_object(self):
         self.cb_object.addItem("(нет)")
         self.parent.database_cur.execute(inserts.get_names_objects())
         rows = self.parent.database_cur.fetchall()
         for row in rows:
             self.cb_object.addItem(row[0])
 
-    def get_recipient(self):
+    def init_recipient(self):
         self.parent.database_cur.execute(inserts.get_bosses())
         rows = self.parent.database_cur.fetchall()
         self.cb_who.addItem("(нет)")
         for post in rows:
             self.cb_who.addItem(post[0])
 
-    def get_workers(self):
+    def init_workers(self):
         self.parent.database_cur.execute(inserts.get_workers("Ф И.О."))
         rows = self.parent.database_cur.fetchall()
         for item in self.workers:
@@ -98,73 +102,28 @@ class WeekPass(QDialog):
             for item in self.workers:
                 item.addItem(family)
 
-    # шаблоны
-    def get_example(self, ):
-        root_node = ET.parse('sample.xml').getroot() 
-        for tag in root_node.findall('pattern/name'):
-            name = tag.get("name")
-            if name == "pattern":
-                item_name = tag.get("object_name")
-                item_who = tag.get("who")
-                item_list = tag.get("list_workers")
-                return item_name, item_who, item_list
-
-    def zip_pattern(self, pattern):
-        tree = ET.parse("xml_test.xml")
-        glob_root = tree.getroot()
-        new_pattern = ET.SubElement(glob_root, "pattern")
-        patter_name = ET.SubElement(new_pattern, "name")
-        patter_name.text = pattern["name"]
-
-        item_name = ET.SubElement(new_pattern, "object_name")
-        item_who = ET.SubElement(new_pattern, "who")
-        item_list = ET.SubElement(new_pattern, "list_workers")
-        item_name.text = pattern["object_name"]
-        item_who.text = pattern["who"]
-        for item in pattern["list_workers"]:
-            el = ET.SubElement(item_list, "worker")
-            el.text = item
-        tree.write("xml_test.xml")
-
-    def get_data(self):
-        days = self.get_days()
-        date = self.d_note.text()
-        number = self.number.text()
-        who = self.cb_who.currentText()
-        name_ob = self.cb_object.text()
-        workers = self.get_list()
-        return list([number, date, who, name_ob, days, workers])
-
     # обработчики кнопок
     def ev_OK(self):
-        doc = docx.Document("B:/my_helper/week.docx")
+        self.data["customer"] = self.parent.customer
+        self.data["company"] = self.parent.company
+        self.data["number"] = "Исх. № " + self.number.text()
+        self.data["data"] = "от. " + self.d_note.text()
+
         # номер исх
-        doc.tables[0].style = "Light Shading - Accent 2"
-        doc.tables[0].rows[0].cells[0].text = "Исх. № " + self.number.text()
-        # дата
-        doc.tables[0].rows[1].cells[0].text = "от. " + self.d_note.text()
-        # Просим Ваc
-        data = "0000"
-        about_object = self.get_contract(self.cb_object.currentText())
-        if not about_object:
-            self.close()
-            return
-        contract, object_name, part, type_work = about_object[:4]
-        company = self.parent.company
+        self.get_contract(self.cb_object.currentText())
         if self.cb_other.isChecked():
-            data = "в выходные дни с " + self.d_from.text() + " до " + self.d_to.text()
+            self.data["week_day"] = "в выходные дни с " + self.d_from.text() + " до " + self.d_to.text()
         else:
             if len(self.get_days()) > 1:
-                data = "в выходные дни с " + str(self.get_days()[0]) + " до " + str(self.get_days()[1])
+                self.data["week_day"] = "в выходные дни с " + str(self.get_days()[0]) + " до " + str(self.get_days()[1])
             else:
-                data = "в выходной день " + str(self.get_days()[0])
-        doc.paragraphs[6].add_run(
-            "Прошу Вас разрешить работы {0} по договору {1} {2} {3} {4}"
-            "с рабочей сменой с 07-00 до 19-00 часов:".format(data, contract, type_work, part, company))
+                self.data["week_day"] = "в выходной день " + str(self.get_days()[0])
+        doc = docxtpl.DocxTemplate("B:/my_helper/week_1.docx")
+        doc.render(self.data)
+        doc.save("B:/my_helper/to_print/week.docx")
         # Заполнить таблицу
-        list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5, self.worker_6,
-                   self.worker_7, self.worker_8, self.worker_9)
-        for elem in list_ui:
+        doc = docx.Document("B:/my_helper/week_1.docx")
+        for elem in self.list_ui:
             family = elem.currentText()
             if family != "(нет)":
                 doc.tables[1].add_row()
@@ -182,19 +141,8 @@ class WeekPass(QDialog):
     def ev_cancel(self):
         self.close()
 
-    def save_pattern(self):
-        data = {"who": self.cb_who.text(),
-                "object_name": self.cb_object.text(),
-                "workers": self.get_list()}
-        self.zip_pattern(data)
-        # запоковать в словарь
-        # сохранить в файл
-
     def my_open_file(self):
         print("open file")
-        pass
-
-    def kill_pattern(self):
         pass
 
     def get_contract(self, name):
@@ -203,25 +151,19 @@ class WeekPass(QDialog):
         rows = self.parent.database_cur.fetchall()
         for row in rows:
             if name in row:
-                return row
+                self.data["contract"] = row[0]
+                self.data["object_name"] = row[1]
+                self.data["part"] = row[2]
+                self.data["type_work"] = row[3]
 
     def get_worker(self, family):
         # получить номер договора по короткому имени
-        self.parent.database_cur.execute(inserts.pass_week())
+        self.parent.database_cur.execute(inserts.pass_workers())
         rows = self.parent.database_cur.fetchall()
         for row in rows:
-            print(family[:-4])
-            print(row)
-            print(row[0])
-            if family[:-4] == row[0]:
+            if family[:-5] == row[0]:
                 return row
             return row
-
-    # Заполнение служебки
-    def create_note(self, data):
-        doc = docx.Document("B:/my_helper/week.docx")
-        pass
-
 
 
 

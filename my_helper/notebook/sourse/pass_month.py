@@ -3,9 +3,10 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import Qt
 import inserts
 import datetime as dt
-import xml.etree.ElementTree as ET
 import docx
+import docxtpl
 #  сделать мессаджбоксы на Сохранить
+count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 
 class MonthPass(QDialog):
@@ -14,102 +15,147 @@ class MonthPass(QDialog):
         uic.loadUi('../designer_ui/pass_month.ui', self)
         # pass
         self.parent = parent
-        self.workers = [self.worker_1, self.worker_2, self.worker_3,
-                   self.worker_4, self.worker_5, self.worker_6,
-                   self.worker_7, self.worker_8, self.worker_9]
         self.b_ok.clicked.connect(self.ev_OK)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_save.clicked.connect(self.save_pattern)
         self.b_kill.clicked.connect(self.kill_pattern)
         self.b_open.clicked.connect(self.my_open_file)
 
-        self.cb_all.stateChanged.connect(self.week_days)
+        self.cb_all.stateChanged.connect(self.set_enabled_workers)
 
         self.d_note.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
 
-        self.get_recipient()
-        self.get_workers()
-        #  self.get_example()
+        self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5, self.worker_6,
+                   self.worker_7, self.worker_8, self.worker_9)
+        self.list_month = ["январь", "февраль", "март", "апрель",
+                           "май", "июнь", "июль", "август", "сентябрь",
+                           "октябрь", "ноябрь", "декабрь"]
+        self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
+                "post": "", "family": "", "name": "", "surname": "", "adr": "",
+                "number": "", "data": "", "str_1": "", "str_2": "", "str_3": ""}
+        self.init_recipient()
+        self.init_workers()
+        self.init_cb_month()
 
-    def get_recipient(self):
+    # инициализация
+    def init_cb_month(self):
+        for elem in self.list_month:
+            self.cb_month.addItem(elem)
+
+    def init_recipient(self):
         self.parent.database_cur.execute(inserts.get_bosses())
         rows = self.parent.database_cur.fetchall()
-        self.cb_who.addItem("(нет)")
+        self.cb_boss.addItem("(нет)")
         for post in rows:
-            self.cb_who.addItem(post[0])
+            self.cb_boss.addItem(post[0])
 
-    # шаблоны
-    def get_example(self, ):
-        root_node = ET.parse('sample.xml').getroot()
-        for tag in root_node.findall('pattern/name'):
-            name = tag.get("name")
-            if name == "pattern":
-                item_name = tag.get("object_name")
-                item_who = tag.get("who")
-                item_list = tag.get("list_workers")
-                return item_name, item_who, item_list
+    def init_workers(self):
+        self.parent.database_cur.execute(inserts.pass_workers())
+        rows = self.parent.database_cur.fetchall()
+        for item in self.list_ui:
+            item.addItem("(нет)")
+        for name in rows:
+            family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
+            for item in self.list_ui:
+                item.addItem(family)
 
-    def zip_pattern(self, pattern):
-        tree = ET.parse("xml_test.xml")
-        glob_root = tree.getroot()
-        new_pattern = ET.SubElement(glob_root, "pattern")
-        patter_name = ET.SubElement(new_pattern, "name")
-        patter_name.text = pattern["name"]
+    # флаг на выбор всех
+    def set_enabled_workers(self, state):
+        for elem in self.list_ui:
+            elem.setEnabled(state != Qt.Checked)
 
-        item_name = ET.SubElement(new_pattern, "object_name")
-        item_who = ET.SubElement(new_pattern, "who")
-        item_list = ET.SubElement(new_pattern, "list_workers")
-        item_name.text = pattern["object_name"]
-        item_who.text = pattern["who"]
-        for item in pattern["list_workers"]:
-            el = ET.SubElement(item_list, "worker")
-            el.text = item
-        tree.write("xml_test.xml")
-
+    # получить данные
+    # для заполнения текста
     def get_data(self):
-        days = self.get_days()
-        date = self.d_note.text()
-        number = self.number.text()
-        who = self.cb_who.currentText()
-        name_ob = self.cb_object.text()
-        workers = self.get_list()
-        return list([number, date, who, name_ob, days, workers])
+        next_month = self.list_month.index(self.cb_month.currentText()) + 1
+        print("month: ", self.cb_month.currentText(), " index:", next_month)
+        # если конец года: увеличить год и месяц в 1
+        if next_month == 13:
+            next_day = "09"
+            next_month = "01"  # MessageBox для ввода первого дня
+            next_year = str(dt.datetime.now().year + 1)
+        else:
+            next_day = "01"
+            next_month = str(next_month)
+            if int(next_month) < 10:
+                next_month = "0" + next_month
+            next_year = str(dt.datetime.now().year)
+
+        if int(next_year) / 4 == 0:
+            end_next_month = str(count_days[12])
+        else:
+            end_next_month = str(count_days[int(next_month)])
+
+        self.data["customer"] = self.parent.customer
+        self.data["company"] = self.parent.company
+        self.data["start_date"] = ".".join((next_day, next_month, next_year))
+        self.data["end_date"] = ".".join((end_next_month, next_month, next_year))
+
+    # получить босса
+    def get_boss(self):
+        boss = []
+        self.parent.database_cur.execute(inserts.get_bosses("all"))
+        bosses = self.parent.database_cur.fetchall()
+        for item in bosses:
+            if self.cb_boss.currentText() == item[3]:
+                boss = item  # фамилия, имя, отчество, должность, пол
+                break
+        short_name = str(boss[1] + " " + ".".join((boss[0][0], boss[2][0])) + ".")  # склонение!!!!
+        post_split = boss[3].split(" ")
+        i = []
+        if len(post_split) <= 4:
+            i = [0, 2, 4]
+        elif len(post_split) <= 6:
+            i = [0, 2, 6]
+        elif len(post_split) <= 8:
+            i = [0, 4, 8]
+        self.data["str_1"] = " ".join(post_split[i[0]:i[1]])
+        self.data["str_2"] = " ".join(post_split[i[1]:i[2]])
+        self.data["str_2" if self.data["str_2"] == "" else "str_3"] = short_name
+        title = "Уважаемая " if boss[4] == "Ж" else "Уважаемый "
+        self.data["title"] = title + boss[0] + " " + boss[2] + "!"
+
+    def get_worker(self, family):
+        self.parent.database_cur.execute(inserts.pass_workers())
+        rows = self.parent.database_cur.fetchall()
+        if family == "all":
+            return rows
+        for row in rows:
+            if family[:-5] == row[0]:  # на форме фамилия в виде Фамилия И.О.
+                return row
 
     # обработчики кнопок
     def ev_OK(self):
-        doc = docx.Document("B:/my_helper/week.docx")
-        # номер исх
-        doc.tables[0].rows[0].cells[0].text = "Исх. № " + self.number.text()
-        # дата
-        doc.tables[0].rows[1].cells[0].text = "от. " + self.d_note.text()
-        # Просим Ваc
-        company = self.parent.company
-        if self.cb_other.isChecked():
-            data = "в выходные дни с " + self.d_from.text() + " до " + self.d_to.text()
-        else:
-            if len(self.get_days()) > 1:
-                data = "в выходные дни с " + str(self.get_days()[0]) + " до " + str(self.get_days()[1])
-            else:
-                data = "в выходной день " + str(self.get_days()[0])
-        doc.paragraphs[6].add_run(
-            "Прошу Вас продлить электронный пропуск с {0} по {1} "
-            "с рабочей сменой с 07-00 до 19-00 часов:".format(data[0], data[1]))
+        self.date["number"] = "Исх. № " + self.number.text(),
+        self.data["data"] = "от. " + self.d_note.text()
+
+        self.get_data()
+        self.get_boss()
+        doc = docxtpl.DocxTemplate("B:/my_helper/month.docx")
+        doc.render(self.data)
+
+        doc.save("B:/my_helper/to_print/month.docx")
+        doc = docx.Document("B:/my_helper/month.docx")
         # Заполнить таблицу
-        list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5, self.worker_6,
-                   self.worker_7, self.worker_8, self.worker_9)
-        for elem in list_ui:
-            family = elem.currentText()
-            if family != "(нет)":
-                doc.tables[1].add_row()
-                people = self.get_worker(family)
-                doc.tables[1].rows[1].cells[0].text = "1"
-                doc.tables[1].rows[1].cells[1].text = " ".join(people[0:2])
-                doc.tables[1].rows[1].cells[2].text = people[3]
-                doc.tables[1].rows[1].cells[3].text = people[6]
-                doc.tables[1].rows[1].cells[4].text = " ".join(people[4:6])
-                doc.tables[1].rows[1].cells[5].text = people[7]
-                doc.tables[1].rows[1].cells[6].text = people[8]
+        workers = []
+        if self.cb_all.isChecked():
+            workers = self.get_worker("all")
+        else:
+            for elem in self.list_ui:
+                if elem.currentText() != "(нет)":
+                    workers.append(self.get_worker(elem.currentText()))
+        i = 1
+        for people in workers:
+            doc.tables[1].add_row()
+            doc.tables[1].rows[i].cells[0].text = str(i)
+            doc.tables[1].rows[i].cells[1].text = " ".join(people[0:2])
+            doc.tables[1].rows[i].cells[2].text = people[3]
+            doc.tables[1].rows[i].cells[3].text = people[6]
+            doc.tables[1].rows[i].cells[4].text = " ".join(people[4:6])
+            doc.tables[1].rows[i].cells[5].text = people[7]
+            doc.tables[1].rows[i].cells[6].text = people[8]
+            i += 1
         doc.save("B:/my_helper/to_print/month.docx")
         self.close()
 
@@ -131,19 +177,7 @@ class MonthPass(QDialog):
     def kill_pattern(self):
         pass
 
-    def get_worker(self, family):
-        # получить номер договора по короткому имени
-        self.parent.database_cur.execute(inserts.pass_week())
-        rows = self.parent.database_cur.fetchall()
-        for row in rows:
-            if family[:-4] == row[0]:
-                return row
-            return row
 
-    # Заполнение служебки
-    def create_note(self, data):
-        doc = docx.Document("B:/my_helper/week.docx")
-        pass
 
 
 

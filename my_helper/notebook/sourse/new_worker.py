@@ -3,7 +3,6 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from inserts import get_workers, get_worker
 
 
 class AddWorker(QDialog):

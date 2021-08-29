@@ -251,6 +251,39 @@
     <string>Удалить</string>
    </property>
   </widget>
+  <widget class="QComboBox" name="cb_sex">
+   <property name="geometry">
+    <rect>
+     <x>200</x>
+     <y>70</y>
+     <width>41</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>М</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>Ж</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="label_9">
+   <property name="geometry">
+    <rect>
+     <x>170</x>
+     <y>70</y>
+     <width>49</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Пол</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
