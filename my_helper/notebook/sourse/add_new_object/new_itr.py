@@ -15,11 +15,13 @@ fields = ["family", "name", "surname", "post",
           "ES_prot", "ES_group", "ES_card", "ES_date",
           "H_prot", "H_group", "H_card", "H_date",
           "ST_prot", "ST_card", "ST_date", "promsave", "birthday"]
+designer_file = '../../designer_ui/new_itr.ui'
+
 
 class NewITR(QDialog):
     def __init__(self, parent):
         super(NewITR, self).__init__()
-        uic.loadUi('../designer_ui/new_itr.ui', self)
+        uic.loadUi(designer_file, self)
         # pass
         self.parent = parent
         self.itr = []
@@ -32,8 +34,8 @@ class NewITR(QDialog):
         self.but_status("add")
         self.init_mask()
         self.cb_chouse.addItems(["(нет)"])
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.database_cur.fetchall():
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        for row in self.parent.db.fetchall():
             self.cb_chouse.addItems([row[0]])
 
     def init_mask(self):
@@ -85,15 +87,15 @@ class NewITR(QDialog):
         else:
             self.but_status("change")
 
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if text in row:
                 self.set_data(row)
 
     def ev_change(self):
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if self.family.text() in row and self.name.text() in row:
                 self.my_update()
@@ -101,8 +103,8 @@ class NewITR(QDialog):
         pass
 
     def ev_kill(self):
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if self.family.text() in row:
                 data = self.get_data()
@@ -110,7 +112,7 @@ class NewITR(QDialog):
                                               "Вы действительно хотите удалить запись " + str(data) + "?",
                                               QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    self.parent.database_cur.execute("DELETE FROM {0} WHERE family = '{1}'".format(
+                    self.parent.db.execute("DELETE FROM {0} WHERE family = '{1}'".format(
                         self.table, self.family.text()))
                     self.parent.database_conn.commit()  # TODO удаление
                     self.close()

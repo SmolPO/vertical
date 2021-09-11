@@ -3,12 +3,13 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
+designer_file = "../../designer_ui/add_company.ui"
 
 
-class AddCompany(QDialog):
+class NewCompany(QDialog):
     def __init__(self, parent=None):
-        super(AddCompany, self).__init__(parent)
-        uic.loadUi('../designer_ui/add_company.ui', self)
+        super(NewCompany, self).__init__(parent)
+        uic.loadUi(designer_file, self)
         # pass
         self.parent = parent
         self.new_company = []
@@ -22,8 +23,8 @@ class AddCompany(QDialog):
         self.init_mask()
 
         self.cb_chouse.addItems(["(нет)"])
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.database_cur.fetchall():
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        for row in self.parent.db.fetchall():
             self.cb_chouse.addItems([row[0]])
 
     def init_mask(self):
@@ -52,8 +53,8 @@ class AddCompany(QDialog):
         self.close()
 
     def ev_kill(self):
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if self.company.text() in row:
                 data = self.get_data()
@@ -63,7 +64,7 @@ class AddCompany(QDialog):
                 if answer == QMessageBox.Ok:
                     print("DELETE FROM {0} WHERE company = '{1}'".format(
                         self.table, self.company.text()))
-                    self.parent.database_cur.execute("DELETE FROM {0} WHERE company = '{1}'".format(
+                    self.parent.db.execute("DELETE FROM {0} WHERE company = '{1}'".format(
                         self.table, self.company.text()))
                     self.parent.database_conn.commit()  # TODO удаление
                     self.close()
@@ -72,8 +73,8 @@ class AddCompany(QDialog):
                     return
 
     def ev_change(self):
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if self.family.text() in row and self.name.text() in row:
                 self.my_update()
@@ -88,8 +89,8 @@ class AddCompany(QDialog):
         else:
             self.but_status("change")
 
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.database_cur.fetchall():
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        for row in self.parent.db.fetchall():
             if text in row:
                 self.set_data(row)
 

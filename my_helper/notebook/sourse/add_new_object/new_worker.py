@@ -3,12 +3,13 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
+designer_file = '../../designer_ui/new_worker.ui'
 
 
-class AddWorker(QDialog):
+class NewWorker(QDialog):
     def __init__(self, parent=None):
-        super(AddWorker, self).__init__(parent)
-        uic.loadUi('../designer_ui/add_worker.ui', self)
+        super(NewWorker, self).__init__(parent)
+        uic.loadUi(designer_file, self)
         # pass
         self.parent = parent
         self.worker = []
@@ -22,8 +23,8 @@ class AddWorker(QDialog):
         self.init_mask()
 
         self.cb_chouse.addItems(["(нет)"])
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.database_cur.fetchall():
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        for row in self.parent.db.fetchall():
             self.cb_chouse.addItems([row[1]])
 
     def init_mask(self):
@@ -63,8 +64,8 @@ class AddWorker(QDialog):
         else:
             self.but_status("change")
 
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if text in row:
                 self.set_data(row)
@@ -75,8 +76,8 @@ class AddWorker(QDialog):
         удалить запись
         :return:
         """
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         print(self.family.text())
         for row in rows:
             if self.family.text() in row:
@@ -84,7 +85,7 @@ class AddWorker(QDialog):
                 answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись " + str(data) + "?",
                                      QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    self.parent.database_cur.execute("DELETE FROM {0} WHERE family = '{1}'".format(self.table,
+                    self.parent.db.execute("DELETE FROM {0} WHERE family = '{1}'".format(self.table,
                         self.family.text()))
                     self.parent.database_conn.commit()  # TODO удаление
                     self.close()
@@ -95,8 +96,8 @@ class AddWorker(QDialog):
         pass
 
     def ev_change(self):
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if self.family.text() in row and self.name.text() in row:
                 self.my_update()

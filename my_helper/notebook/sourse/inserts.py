@@ -1,94 +1,31 @@
-workers_with_adr = "SELECT family, name, surname, post, address, post FROM workers"
-full_workers_data = "SELECT name, family, surname, post, birthdate, passport_series, passport_number, address, live_address " + \
-                 "FROM workers"
-workers = "SELECT family, name, surname FROM workers"
-auto = "SELECT model, number, family, name, surname, passport_series, passport_number, address " + \
-                 "FROM auto"
-
-
-def new_contract(contract):
-    result = "('" + "', '".join(contract) + "')"
-    names_colomn = "(name, customer, number, date, object, work, part)"
-    return "INSERT INTO contract {0} VALUES {1}".format(names_colomn, result)
-
-
-def get_names_objects():
-    return "SELECT name FROM contract"
-
-
-def new_company(company):
-    result = "('" + "', '".join(company) + "')"
-    names_colomn = "(company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, family, " \
-                   "name, surname, post, count_dovr, date_dovr)"
-    print("INSERT INTO company {0} VALUES {1}".format(names_colomn, result))
-    return "INSERT INTO company {0} VALUES {1}".format(names_colomn, result)
-
-
-def add_ITR(itr):
-    result = "('" + "', '".join(itr) + "')"
-    names_tables = "(family, name, surname, post, passport, passport_date, passport_got, adr, live_adr, auto, inn, " \
-                   "snils, n_td, td_date, " \
-                   "ot_prot, ot_date, ot_card, " \
-                   "PTM_prot, PTM_date, PTM_card, " \
-                   "es_prot, es_group, es_card, es_date, "\
-                   "h_prot, h_date, h_group, h_card, " \
-                   "promsave, " \
-                   "st_prot, st_card, st_date, birthday)"
-    print("INSERT INTO itr {0} VALUES {1}".format(names_tables, result))
-    return "INSERT INTO itr {0} VALUES {1}".format(names_tables, result)
-
-
-def add_worker(worker):
-    result = "('" + "', '".join(worker) + "')"
-
-    names_tables = "(family, name, surname, bithday, post, phone, pasport, pasport_got, adr, live_adr, inn, snils" \
-                   ", numb_contract, date_contract, numb_h, numb_group_h, date_h, numb_study, numb_study_card, " \
-                   "d_study, numb_prot, numb_card, d_prot)"
-    print("INSERT INTO workers {0} VALUES {1}".format(names_tables, result))
-    return "INSERT INTO workers {0} VALUES {1}".format(names_tables, result)
-
-
-def get_workers(full=None):
-    if full == "ФИО":
-        return "SELECT family, name, surname FROM workers"
-    if full == "family":
-        return "SELECT family FROM workers"
-    if not full:
-        return "SELECT * FROM workers"
-
-
-def get_bosses(family="post"):
-    if family == "all":
-        return "SELECT * FROM bosses"
-    if family == "family":
-        return "SELECT family, name, surname, post FROM bosses"
-    if family == "post":
-        return "SELECT post FROM bosses"
-    return None
-
-
-def add_boss(boss):
-    result = "('"
-    result += boss[0] + "', '"
-    result += boss[1] + "', '"
-    result += boss[2] + "', '"
-    result += boss[3] + "', '"
-    result += boss[4] + "', '"
-    result += boss[5] + "')"
-    names_colomn = "(name, family, surname, post, email, phone)"
-    return "INSERT INTO bosses {0} VALUES {1}".format(names_colomn, result)
+db_keys = {"auto": "(model, brand, gov_number, track_number)",
+          "drivers": "(family, name, surname, birthday, passport, adr)",
+          "workers": "(family, name, surname, bithday, post, phone, pasport, pasport_got, adr, live_adr, inn, snils"
+                   ", numb_contract, date_contract, numb_h, numb_group_h, date_h, numb_study, numb_study_card, "
+                   "d_study, numb_prot, numb_card, d_prot)",
+          "itr": "(family, name, surname, post, passport, passport_date, passport_got, adr, live_adr, auto, inn, "
+                   "snils, n_td, td_date, "
+                   "ot_prot, ot_date, ot_card, "
+                   "PTM_prot, PTM_date, PTM_card, "
+                   "es_prot, es_group, es_card, es_date, "
+                   "h_prot, h_date, h_group, h_card, "
+                   "promsave, "
+                   "st_prot, st_card, st_date, birthday)",
+          "contract": "(name, customer, number, date, object, work, part)",
+          "company": "(company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, family, "
+                   "name, surname, post, count_dovr, date_dovr)"}
 
 
 def get_person(person):
     return "SELECT * FROM workers WHERE family={0}".format(person)
 
 
-def get_builds():
-    return "SELECT name FROM contract"
+def get_from_db(fields, db):
+    insert = "SELECT " + fields + " FROM " + db
+    return insert
 
 
-def pass_workers():
-    return "SELECT family, name, surname, post, passport, passport_got, birthday, adr,  live_adr FROM workers"
-
-def get_contracts():
-    return "SELECT number, object, part, work, name FROM contract"
+def add_to_db(data, table):
+    result = "('" + "', '".join(data) + "')"
+    names_colomn = db_keys[table]
+    return "INSERT INTO {0} {1} VALUES {2}".format(table, names_colomn, result)

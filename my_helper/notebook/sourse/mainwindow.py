@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QInputDialog, QCheckBox, QVBoxLayout, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QCheckBox, QMessageBox
 import sys
 import os
 import logging
@@ -7,17 +7,20 @@ from datetime import datetime as dt
 from configparser import ConfigParser
 import openpyxl
 import psycopg2
-from new_boss import NewBoss
-from new_itr import NewITR
-from new_worker import AddWorker
-from nw_company import AddCompany
+from my_helper.notebook.sourse.add_new_object.new_boss import NewBoss
+from my_helper.notebook.sourse.add_new_object.new_itr import NewITR
+from my_helper.notebook.sourse.add_new_object.new_worker import NewWorker
+from my_helper.notebook.sourse.add_new_object.nw_company import NewCompany
+from my_helper.notebook.sourse.add_new_object.new_auto import NewAuto
+from my_helper.notebook.sourse.add_new_object.new_driver import NewDriver
 from pdf_module import check_file, create_covid
-from new_contract import NewContact
+from my_helper.notebook.sourse.add_new_object.new_contract import NewContact
 from my_email import send_post
-from pass_week import WeekPass
-from pass_unlock import UnlockPass
-from pass_month import MonthPass
-from boss_post import BossPost
+from my_helper.notebook.sourse.create_pass.pass_week import WeekPass
+from my_helper.notebook.sourse.create_pass.pass_unlock import UnlockPass
+from my_helper.notebook.sourse.create_pass.pass_month import MonthPass
+from my_helper.notebook.sourse.create_pass.pass_get import GetPass
+from my_helper.notebook.sourse.create_pass.pass_drive import DrivePass
 from my_tools import Notepad
 import inserts as ins
 import config as conf
@@ -40,20 +43,21 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         uic.loadUi('../designer_ui/main_menu.ui', self)
         print("pass")
-        self.b_pass_week.clicked.connect(self.ev_pass_week)
-        self.b_pass_month.clicked.connect(self.ev_pass_month)
-        self.b_pass_auto.clicked.connect(self.ev_pass_auto)
-        self.b_pass_recover.clicked.connect(self.ev_pass_recover)
-        self.b_pass_unlock.clicked.connect(self.ev_pass_unlock)
-        self.b_pass_issue.clicked.connect(self.ev_pass_issue)
+        self.b_pass_week.clicked.connect(self.ev_btn_create_pass)
+        self.b_pass_month.clicked.connect(self.ev_btn_create_pass)
+        self.b_pass_auto.clicked.connect(self.ev_btn_create_pass)
+        self.b_pass_drive.clicked.connect(self.ev_btn_create_pass)
+        self.b_pass_unlock.clicked.connect(self.ev_btn_create_pass)
+        self.b_pass_issue.clicked.connect(self.ev_btn_create_pass)
         # create
-        self.b_new_person.clicked.connect(self.ev_new_person)
+        self.b_new_person.clicked.connect(self.ev_btn_add_to_db)
         self.b_new_bill.clicked.connect(self.ev_new_bill)
-        self.b_new_build.clicked.connect(self.ev_new_build)
-        self.b_new_boss.clicked.connect(self.ev_new_boss)
-        self.b_new_itr.clicked.connect(self.ev_new_itr)
-        self.b_new_invoice.clicked.connect(self.ev_new_invoice)
-        self.b_new_company.clicked.connect(self.ev_new_company)
+        self.b_new_build.clicked.connect(self.ev_btn_add_to_db)
+        self.b_new_boss.clicked.connect(self.ev_btn_add_to_db)
+        self.b_new_itr.clicked.connect(self.ev_btn_add_to_db)
+        self.b_new_invoice.clicked.connect(self.ev_btn_start_file)
+        self.b_new_company.clicked.connect(self.ev_btn_add_to_db)
+        self.b_new_auto.clicked.connect(self.ev_btn_add_to_db)
 
         self.b_create_act.clicked.connect(self.ev_create_act)
         self.b_get_material.clicked.connect(self.ev_get_material)
@@ -61,13 +65,13 @@ class MainWindow(QMainWindow):
         self.b_send_covid.clicked.connect(self.ev_send_covid)
         self.b_connect.clicked.connect(self.ev_connect)
 
-        self.b_journal.clicked.connect(self.ev_journal)
-        self.b_tabel.clicked.connect(self.ev_tabel)
-        self.b_scan.clicked.connect(self.ev_scan)
-        self.b_attorney.clicked.connect(self.ev_attorney)
-        self.b_invoice.clicked.connect(self.ev_invoice)
+        self.b_journal.clicked.connect(self.ev_btn_start_file)
+        self.b_tabel.clicked.connect(self.ev_btn_start_file)
+        self.b_scan.clicked.connect(self.ev_btn_start_file)
+        self.b_attorney.clicked.connect(self.ev_btn_start_file)
+        self.b_invoice.clicked.connect(self.ev_btn_start_file)
 
-        self.b_notepad.clicked.connect(self.ev_notepad)
+        self.b_notepad.clicked.connect(self.ev_btn_start_file)
         self.cb_builds.activated[str].connect(self.change_build)
 
         self.get_param_from_widget = None
@@ -75,12 +79,7 @@ class MainWindow(QMainWindow):
         self.company = 'ООО "Вертикаль"'
         self.customer = 'ПАО "Дорогобуж"'
         self.new_worker = []
-        self.new_boss = None
-        self.new_itr = None
-        self.new_contract = None
-        self.new_company = None
-        self.post_boss = None
-        self.new_pass_week = None
+        self.data_to_db = None
 
         self.ui_l_company.setText(self.company)
         self.ui_l_build.setText(self.current_build)
@@ -88,9 +87,9 @@ class MainWindow(QMainWindow):
         self.init_notif()
 
         # Database
-        self.connect_to_database()
-        self.database_cur.execute(ins.get_builds())
-        rows = self.database_cur.fetchall()
+        self.connect_to_db()
+        self.db.execute(ins.get_from_db("name", "contract"))
+        rows = self.db.fetchall()
         for row in rows:
             self.cb_builds.addItems(row)
         self.ui_l_cur_build.setText(rows[-1][0])
@@ -99,155 +98,76 @@ class MainWindow(QMainWindow):
         self.ui_l_cur_build.setText(text)
         self.ui_l_cur_build.adjustSize()
 
-    def ev_pass_week(self):
-        wnd = WeekPass(self)
+    def ev_btn_create_pass(self):
+        name = self.sender().text()
+        wnd = None
+        if name == "Продление на месяц":
+            wnd = MonthPass(self)
+        if name == "Пропуск на выходные":
+            wnd = WeekPass(self)
+        if name == "Разблокировка пропуска":
+            wnd = UnlockPass(self)
+        if name == "Выдать пропуск":
+            wnd = GetPass(self)
+        if name == "Продление на машину":
+            wnd = None  # AutoPass(self)
+        if name == "Разовый пропуск на машину":
+            wnd = None  # SinglePass(self)
         wnd.exec_()
-        self.add_notif("Отправить на согласование выходные", 0)
-        print("pass week")
 
-    def ev_pass_month(self):
-        wnd = MonthPass(self)
-        wnd.exec_()
-        # уведомление
-        self.add_notif("Отправить на согласование выходные", 0)
-        print("pass week")
-
-    def ev_pass_auto(self):
-        """
-        получить из БД список машин, номер, владельцы
-        сформировать документ
-        печать
-        """
-        # БД
-        try:
-            cars = self.database_cur.execute(ins.auto)
-        except:
-            print("not connect to db")
-            cars = [["reno", "67gvj6567", "раои", "jgjhk", "jhhk", "kyjgjh", "hhgfgjh"]]
-
-        # xlsx
-        if not self.open_wb("auto"):
-            return
-        self.set_number_and_date()
-        for auto in cars:
-            self.add_next_auto(auto)
-        self.wb.save(conf.path_for_print + "/auto_print.xlsx")
-        self.wb.close()
-        os.startfile(conf.path_for_print + "/auto_print.xlsx")
-
-        # увведомление
-        self.add_notif("Отправить на согласование авто", 0)
-
-        # TODO: отправить сообщение на сервер для уведомления в приложение
-        print("pass auto")
-
-    def ev_pass_recover(self):
-        """
-        получить список работников
-        открыть диалоговое окно с выбором сотрудника
-        cформировать документ
-        печать
-        TODO: передача данных между окнами
-        """
-        # БД
-        try:
-            workers = self.database_cur.execute(ins.workers_with_adr)
-        except:
-            print("not connect to db")
-            workers = [["KalenSDFSDFSt", "IvaSDFSDFn", "SemonovSDFSDFDich", "монтажникDSFSDFSD", "01.08.1996FDSDFDSFF"]]
-        items = []
-        for person in workers:
-            items.append(person[0] + " " + ".".join((person[1][0], person[2][0])))
-        family, ok = QInputDialog.getItem(self, "Выберите сотрудника", "Название", items, 0, False)
-        if not ok:
-            return
-
-        # xlsx
-        if not self.open_wb("recovery"):
-            return
-        # БД
-        try:
-            people = self.database_cur.execute(ins.get_person(family))
-        except:
-            print("not connect to db")
-            people = workers[0]
-        worker = list()  # TODO проверить сборку данных
-        worker.append(" ".join([people[0], people[1], people[2]]))
-        worker.append(people[3])
-        worker.append(" ".join(people[4:9]))  # паспорт, адрес
-        worker.append(people[1])  # адрес
-
-        # xlsx
-        self.set_number_and_date()
-        self.add_new_row_to_excel(worker)
-        self.wb.save(conf.path_for_print + "/recovery_print.xlsx")
-        self.wb.close()
-        os.startfile(conf.path_for_print + "/recovery_print.xlsx")
-
-        # уведомление
-        self.add_notif("Отправить на согласование восстановление", 0)
-        self.add_notif("Написать ковид журнал на работника", 0)
-        # TODO: отправить сообщение на сервер для уведомления в приложение
-        print("pass rec")
-
-    def ev_pass_issue(self):
-        """
-        диалоговое окно с вводом нового сотрудника
-        ввод данных
-        добавление в БД
-        TODO: передача между формами
-        """
-        wnd = AddWorker(self)
-        wnd.exec_()
-        if not self.new_worker:
-            return
-        try:
-            self.database_cur.execute(ins.add_worker(self.new_worker))
-        except:
-            print("not connect to db")
-            return
-        self.new_worker = None
-        print("pass issue")
-        # TODO: отправить сообщение на сервер для уведомления в приложение
-
-    def ev_pass_unlock(self):
-        wnd = UnlockPass(self)
-        wnd.exec_()
-        self.add_notif("Отправить на согласование разблокировку", 0)
-        print("pass unlock")
-
-    def ev_new_boss(self):
-        """
-        диалоговое окно с формой для нового босса
-        заполнение данных
-        добавление в БД
-        """
-        wnd = NewBoss(self)
-        wnd.exec_()
-        if not self.new_boss:
-            return
-        try:
-            self.database_cur.execute(ins.add_boss(self.new_boss))
-            self.database_conn.commit()
-        except:
-            print("not connect to db")
-            return
-        self.new_boss = None
-        print("new boss")
-
-    def ev_new_itr(self):
-        wnd = NewITR(self)
-        wnd.exec_()
-        if not self.new_itr:
-            return
-
-        self.database_cur.execute(ins.add_ITR(self.new_itr))
-        self.database_conn.commit()
-
-        print("not connect to db")
-        self.new_boss = None
-        print("new boss")
+    def ev_btn_start_file(self):
+        name = self.sender().text()
+        if name == "Доверенность":
+            os.startfile(conf.path_default + "/доверенность.xlsx", "print")
+        if name == "Сканировать":
+            os.startfile(conf.path + "/scan.exe")
+        elif name == "Накладная":
+            os.startfile(conf.path_default + "/накладная.xlsx", "print")
+        elif name == "Журнал-ковид":
+            os.startfile(conf.path_default + "/covid.xlsx")
+        elif name == "Табель":
+            os.startfile(conf.path_default + "/табель.xlsx")
+        elif name == "Блокнот":
+            wnd = Notepad()
+            wnd.exec_()
+        elif name == "Музыка":
+            pass
         pass
+
+    def ev_btn_add_to_db(self):
+        name = self.sender().text()
+        wnd = None
+        table = None
+        if name == "Автомобиль":
+            wnd, table = NewAuto(self), "auto"
+        elif name == "Водитель":
+            wnd, table = NewDriver(self), "drivers"
+        elif name == "Босс":
+            wnd, table = NewBoss(self), "bosses"
+        elif name == "Договор":
+            self.db.execute('SELECT * FROM company')
+            rows = self.db.fetchall()
+            if not rows:
+                msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
+                if msg == QMessageBox.Ok:
+                    return
+            wnd, table = NewContact(self), "contracts"
+        elif name == "Заказчик":
+            wnd, table = NewCompany(self), "company"
+        elif name == "Сотрудник":
+            wnd, table = NewWorker(self), "workers"
+        elif name == "Прораб":
+            wnd, table = NewITR(self), "itr"
+        wnd.exec_()
+        self.commit(ins.add_to_db(self.data_to_db, table))
+
+    def commit(self, query):
+        if self.data_to_db:
+            print(self.data_to_db)
+            self.db.execute(query)
+            self.db_conn.commit()
+            self.data_to_db = None
+            print("OK")
 
     def ev_new_bill(self):
         try:
@@ -267,71 +187,6 @@ class MainWindow(QMainWindow):
         self.wb.save(conf.path_OCR + "/bills.xlsx")
         self.wb.close()
         print("new bill")
-
-    def ev_new_company(self):
-        """
-        открыть форму для нового заказчика
-        заполнить данные
-        добавить данные в БД
-        """
-       # try:
-        wnd = AddCompany(self)
-        wnd.exec_()
-        if not self.new_company:
-            return
-        try:
-            self.database_cur.execute(ins.new_company(self.new_company))
-            self.database_conn.commit()
-        except:
-            print("not add company to db")
-            return
-        print(self.new_company)
-        self.new_company = None
-        print("new company")
-
-    def ev_new_build(self):
-        """
-        открыть форму для нового объекта
-        заполнить данные
-        добавить объект в БД
-        получить новый список объектов для списка объектов на главном меню
-        """
-        self.database_cur.execute('SELECT * FROM company')
-        rows = self.database_cur.fetchall()
-        if not rows:
-            msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
-            if msg == QMessageBox.Ok:
-                pass
-
-        wnd = NewContact(self)
-        wnd.exec_()
-        if not self.new_contract:
-            return
-        try:
-            self.database_cur.execute(ins.new_contract(self.new_contract))
-            self.database_conn.commit()
-        except:
-            print("not connect to db")
-            return
-        print(self.new_contract)
-        self.new_contract = None
-        print("new build")
-
-    def ev_new_person(self):
-        """
-        открыть окно для нового сотрудника
-        заполнить данные
-        отправить в БД
-        """
-        wnd = AddWorker(self)
-        wnd.exec_()
-        if not self.new_worker:
-            return
-
-        self.database_cur.execute(ins.add_worker(self.new_worker))
-        self.database_conn.commit()
-        self.new_worker = None
-        print("new person")
 
     def ev_create_act(self):
         pass
@@ -389,53 +244,7 @@ class MainWindow(QMainWindow):
             print("not connect")
             self.r_connect.setChecked(False)
 
-    def ev_new_invoice(self):
-        """
-        открыть сканер
-        добавить накладную в папку
-        """
-        print("pass create invoice")
-
-    def ev_journal(self):
-        # печать ковид журнала
-        try:
-            os.startfile(conf.path_default + "/covid.xlsx", "print")
-            print("journal")
-        except:
-            print("not found file")
-
-    def ev_tabel(self):
-        try:
-            os.startfile(conf.path_default + "/табель.xlsx", "print")
-            print("tabel")
-        except:
-            print("not found file")
-
-    def ev_scan(self):
-        try:
-            os.startfile(conf.path + "/scan.exe")
-            print("scan")
-        except:
-            print("not found app")
-
-    def ev_attorney(self):
-        try:
-            os.startfile(conf.path_default + "/доверенность.xlsx", "print")
-            print("attorney")
-        except:
-            print("not found attorney")
-
-    def ev_invoice(self):
-        try:
-            os.startfile(conf.path_default + "/накладная.xlsx", "print")
-            print("invoice")
-        except:
-            print("pass invoice")
-
-    def ev_notepad(self):
-        wnd = Notepad()
-        wnd.exec_()
-        pass
+    """____________________________________"""
 
     # работа с Excel
     def open_wb(self, sheet):
@@ -550,13 +359,13 @@ class MainWindow(QMainWindow):
         cell_title.value = title
 
     # database
-    def connect_to_database(self):
-        self.database_conn = psycopg2.connect(dbname='Company',
-                                              user='postgres',
-                                              password='pol_ool_123',
-                                              host='localhost')
-        self.database_cur = self.database_conn.cursor()
-        if not self.database_conn:
+    def connect_to_db(self):
+        self.db_conn = psycopg2.connect(dbname='Company',
+                                        user='postgres',
+                                        password='pol_ool_123',
+                                        host='localhost')
+        self.db = self.db_conn.cursor()
+        if not self.db_conn:
             return False
         return True
 
@@ -594,6 +403,9 @@ class MainWindow(QMainWindow):
 
     def get_new_itr(self, itr):
         self.new_itr = itr
+
+    def get_new_auto(self, auto):
+        self.new_auto = auto
 
     def create_new_contract(self, contract):
         self.new_contract = contract

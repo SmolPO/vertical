@@ -6,10 +6,13 @@ from PyQt5.QtGui import QRegExpValidator as QREVal
 """
 валидация, защита от ввода в табл в разнобой
 """
+designer_file = '../../designer_ui/new_contract.ui'
+
+
 class NewContact(QDialog):
     def __init__(self, parent=None):
         super(NewContact, self).__init__(parent)
-        uic.loadUi('../designer_ui/new_contract.ui', self)
+        uic.loadUi(designer_file, self)
         # pass
         self.parent = parent
         self.table = "contract"
@@ -26,12 +29,12 @@ class NewContact(QDialog):
         self.cb_chouse.addItems(["(нет)"])
         self.cb_comp.addItems(["(нет)"])
 
-        comp = self.parent.database_cur.execute('SELECT * FROM company')
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.database_cur.fetchall():
+        comp = self.parent.db.execute('SELECT * FROM company')
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        for row in self.parent.db.fetchall():
             self.cb_chouse.addItems([row[0]])
-        self.parent.database_cur.execute('SELECT * FROM company')
-        for row in self.parent.database_cur.fetchall():
+        self.parent.db.execute('SELECT * FROM company')
+        for row in self.parent.db.fetchall():
             self.cb_comp.addItems([row[0]])
 
     def init_mask(self):
@@ -50,8 +53,8 @@ class NewContact(QDialog):
         self.close()
 
     def ev_kill(self):
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         print(self.name.text())
         for row in rows:
             if self.name.text() in row:
@@ -59,7 +62,7 @@ class NewContact(QDialog):
                 answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись " + str(data) + "?",
                                      QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    self.parent.database_cur.execute("DELETE FROM {0} WHERE number = '{1}'".format(
+                    self.parent.db.execute("DELETE FROM {0} WHERE number = '{1}'".format(
                         self.table, self.number.text()))
                     self.parent.database_conn.commit()  # TODO удаление
                     self.close()
@@ -77,15 +80,15 @@ class NewContact(QDialog):
         else:
             self.but_status("change")
 
-        self.parent.database_cur.execute('SELECT * FROM contract')
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM contract')
+        rows = self.parent.db.fetchall()
         for row in rows:
             if text in row:
                 self.set_data(row)
 
     def ev_change(self):
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if self.number.text() in row:
                 self.my_update()

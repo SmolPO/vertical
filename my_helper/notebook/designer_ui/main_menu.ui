@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>599</width>
-    <height>526</height>
+    <height>584</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <rect>
       <x>440</x>
       <y>230</y>
-      <width>101</width>
+      <width>121</width>
       <height>21</height>
      </rect>
     </property>
@@ -32,7 +32,7 @@
      <rect>
       <x>440</x>
       <y>140</y>
-      <width>101</width>
+      <width>121</width>
       <height>21</height>
      </rect>
     </property>
@@ -45,7 +45,7 @@
      <rect>
       <x>440</x>
       <y>200</y>
-      <width>101</width>
+      <width>121</width>
       <height>21</height>
      </rect>
     </property>
@@ -58,7 +58,7 @@
      <rect>
       <x>440</x>
       <y>170</y>
-      <width>101</width>
+      <width>121</width>
       <height>21</height>
      </rect>
     </property>
@@ -84,7 +84,7 @@
      <rect>
       <x>440</x>
       <y>110</y>
-      <width>101</width>
+      <width>121</width>
       <height>21</height>
      </rect>
     </property>
@@ -102,7 +102,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Заказчики</string>
+     <string>Заказчик</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_new_person">
@@ -115,7 +115,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Сотрудники</string>
+     <string>Сотрудник</string>
     </property>
    </widget>
    <widget class="QLabel" name="ui_l_comp">
@@ -267,8 +267,8 @@
      <rect>
       <x>20</x>
       <y>380</y>
-      <width>291</width>
-      <height>101</height>
+      <width>391</width>
+      <height>161</height>
      </rect>
     </property>
     <layout class="QVBoxLayout" name="ui_notification">
@@ -331,7 +331,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Пропуска</string>
+     <string>Служебки</string>
     </property>
    </widget>
    <widget class="QLabel" name="ui_l_ohter">
@@ -404,9 +404,9 @@
    <widget class="QLabel" name="ui_l_create">
     <property name="geometry">
      <rect>
-      <x>480</x>
-      <y>330</y>
-      <width>49</width>
+      <x>470</x>
+      <y>340</y>
+      <width>61</width>
       <height>16</height>
      </rect>
     </property>
@@ -416,7 +416,7 @@
      </font>
     </property>
     <property name="text">
-     <string>Создать</string>
+     <string>Добавить</string>
     </property>
    </widget>
    <widget class="QLabel" name="ui_l_SP">
@@ -450,7 +450,7 @@
      <string>Отправить ковид</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b_pass_recover">
+   <widget class="QPushButton" name="b_pass_drive">
     <property name="geometry">
      <rect>
       <x>20</x>
@@ -460,7 +460,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Восстановить пропуск</string>
+     <string>Разовый пропуск на машину</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_pass_issue">
@@ -486,7 +486,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Отсканировал</string>
+     <string>Я отсканировал</string>
     </property>
    </widget>
    <widget class="QLabel" name="ui_l_company">
@@ -525,7 +525,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Боссы</string>
+     <string>Босс</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_connect">
@@ -562,7 +562,7 @@
      <rect>
       <x>440</x>
       <y>260</y>
-      <width>101</width>
+      <width>121</width>
       <height>24</height>
      </rect>
     </property>
@@ -590,7 +590,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Договоры</string>
+     <string>Договор</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_new_itr">
@@ -603,20 +603,46 @@
      </rect>
     </property>
     <property name="text">
-     <string>Прорабы</string>
+     <string>Прораб</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="pushButton">
+   <widget class="QPushButton" name="b_music">
     <property name="geometry">
      <rect>
       <x>440</x>
       <y>290</y>
-      <width>101</width>
+      <width>121</width>
       <height>24</height>
      </rect>
     </property>
     <property name="text">
      <string>Музыка</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b_new_auto">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>480</y>
+      <width>121</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Автомобиль</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b_driver">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>510</y>
+      <width>121</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Водитель</string>
     </property>
    </widget>
   </widget>
@@ -634,6 +660,7 @@
     <property name="title">
      <string>Настройки</string>
     </property>
+    <addaction name="action_2"/>
    </widget>
    <widget class="QMenu" name="ui_about">
     <property name="title">
@@ -691,6 +718,11 @@
   <action name="action_8">
    <property name="text">
     <string>Включить уведомления</string>
+   </property>
+  </action>
+  <action name="action_2">
+   <property name="text">
+    <string>Добавить машину</string>
    </property>
   </action>
  </widget>

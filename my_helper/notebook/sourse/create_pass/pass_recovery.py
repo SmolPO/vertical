@@ -1,20 +1,21 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import Qt
-import inserts
+from ..inserts import get_from_db
 import datetime as dt
 import os
 import docx
 import docxtpl
 #  сделать мессаджбоксы на Сохранить
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-main_file = "B:/my_helper/month.docx"
-print_file = "B:/my_helper/to_print/month.docx.docx"
-designer_file = '../designer_ui/pass_month.ui.ui'
+main_file = "B:/my_helper/pass_drive.docx"
+print_file = "B:/my_helper/to_print/pass_drive.docx"
+designer_file = '../../designer_ui/pass_drive.ui'
 
-class MonthPass(QDialog):
+
+class DrivePass(QDialog):
     def __init__(self, parent):
-        super(MonthPass, self).__init__()
+        super(DrivePass, self).__init__()
         uic.loadUi(designer_file, self)
         # pass
         self.parent = parent
@@ -46,8 +47,9 @@ class MonthPass(QDialog):
             self.cb_month.addItem(elem)
 
     def init_workers(self):
-        self.parent.database_cur.execute(inserts.pass_workers())
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute(get_from_db("family, name, surname, post, passport, "
+                                                     "passport_got, birthday, adr,  live_adr", "workers"))
+        rows = self.parent.db.fetchall()
         for item in self.list_ui:
             item.addItem("(нет)")
             item.activated[str].connect(self.new_worker)
@@ -91,8 +93,9 @@ class MonthPass(QDialog):
         self.data["end_date"] = ".".join((end_next_month, next_month, next_year))
 
     def get_worker(self, family):
-        self.parent.database_cur.execute(inserts.pass_workers())
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute(get_from_db("family, name, surname, post, passport, "
+                                                     "passport_got, birthday, adr,  live_adr", "workers"))
+        rows = self.parent.db.fetchall()
         if family == "all":
             return rows
         for row in rows:
@@ -101,7 +104,7 @@ class MonthPass(QDialog):
 
     # обработчики кнопок
     def ev_OK(self):
-        self.data["number"] = "Исх. № " + self.number.text(),
+        self.data["number"] = "Исх. № " + self.number.text()
         self.data["data"] = "от. " + self.d_note.text()
 
         self.get_data()

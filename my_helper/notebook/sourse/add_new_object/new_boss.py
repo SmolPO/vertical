@@ -2,11 +2,13 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
+designer_file = '../../designer_ui/new_boss.ui'
+
 
 class NewBoss(QDialog):
     def __init__(self, parent):
         super(NewBoss, self).__init__()
-        uic.loadUi('../designer_ui/new_boss.ui', self)
+        uic.loadUi(designer_file, self)
         # pass
         self.parent = parent
         self.bosses = []
@@ -19,8 +21,8 @@ class NewBoss(QDialog):
         self.but_status("add")
 
         self.cb_chouse.addItems(["(нет)"])
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.database_cur.fetchall():
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        for row in self.parent.db.fetchall():
             self.cb_chouse.addItems([row[0]])
 
     def init_mask(self):
@@ -50,15 +52,15 @@ class NewBoss(QDialog):
         else:
             self.but_status("change")
 
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if text in row:
                 self.set_data(row)
 
     def ev_change(self):
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if self.family.text() in row and self.name.text() in row:
                 self.my_update()
@@ -66,8 +68,8 @@ class NewBoss(QDialog):
         pass
 
     def ev_kill(self):
-        self.parent.database_cur.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute('SELECT * FROM ' + self.table)
+        rows = self.parent.db.fetchall()
         for row in rows:
             if self.family.text() in row:
                 data = self.get_data()
@@ -75,7 +77,7 @@ class NewBoss(QDialog):
                                               "Вы действительно хотите удалить запись " + str(data) + "?",
                                               QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    self.parent.database_cur.execute("DELETE FROM {0} WHERE family = '{1}'".format(
+                    self.parent.db.execute("DELETE FROM {0} WHERE family = '{1}'".format(
                         self.table, self.family.text()))
                     self.parent.database_conn.commit()
                     self.close()

@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import Qt
-import inserts
+from ..inserts import get_from_db
 import datetime as dt
 import os
 import docx
@@ -9,7 +9,8 @@ import docxtpl
 #  сделать мессаджбоксы на Сохранить
 main_file = "B:/my_helper/week_1.docx"
 print_file = "B:/my_helper/to_print/week.docx"
-designer_file = '../designer_ui/week_work.ui'
+designer_file = "../../designer_ui/pass_week.ui"
+
 
 class WeekPass(QDialog):
     def __init__(self, parent):
@@ -82,21 +83,22 @@ class WeekPass(QDialog):
 
     def init_object(self):
         self.cb_object.addItem("(нет)")
-        self.parent.database_cur.execute(inserts.get_names_objects())
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute(get_from_db("name", "contract"))
+        rows = self.parent.db.fetchall()
         for row in rows:
             self.cb_object.addItem(row[0])
 
     def init_boss(self):
-        self.parent.database_cur.execute(inserts.get_bosses("family"))
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute(get_from_db("family, name, surname, post", "bosses"))
+        rows = self.parent.db.fetchall()
         for people in rows:
             family = people[0] + " " + people[1][0] + ". " + people[2][0] + "."
             self.cb_boss_part.addItem(family)       # брать из БД
 
     def init_workers(self):
-        self.parent.database_cur.execute(inserts.pass_workers())
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute(get_from_db("family, name, surname, post, passport, "
+                                                     "passport_got, birthday, adr,  live_adr", "workers"))
+        rows = self.parent.db.fetchall()
         for item in self.list_ui:
             item.addItem("(нет)")
             item.activated[str].connect(self.new_worker)
@@ -156,8 +158,8 @@ class WeekPass(QDialog):
 
     def get_contract(self, name):
         # получить номер договора по короткому имени
-        self.parent.database_cur.execute(inserts.get_contracts())
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute(get_from_db("number, date", "contract"))
+        rows = self.parent.db.fetchall()
         for row in rows:
             if name in row:
                 self.data["contract"] = row[0]
@@ -167,8 +169,9 @@ class WeekPass(QDialog):
 
     def get_worker(self, family):
         # получить номер договора по короткому имени
-        self.parent.database_cur.execute(inserts.pass_workers())
-        rows = self.parent.database_cur.fetchall()
+        self.parent.db.execute(get_from_db("family, name, surname, post, passport, passport_got, "
+                                                     "birthday, adr,  live_adr", "workers"))
+        rows = self.parent.db.fetchall()
         for row in rows:
             if family[:-5] == row[0]:
                 return row
