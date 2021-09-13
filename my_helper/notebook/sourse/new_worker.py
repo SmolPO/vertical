@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-designer_file = '../../designer_ui/new_worker.ui'
+from my_helper.notebook.sourse.inserts import get_from_db
+designer_file = '../designer_ui/new_worker.ui'
 
 
 class NewWorker(QDialog):
@@ -14,17 +15,16 @@ class NewWorker(QDialog):
         self.parent = parent
         self.worker = []
         self.table = "workers"
-        self.b_ok.clicked.connect(self.ev_OK)
+        self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_del.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
         self.cb_chouse.activated[str].connect(self.ev_select)
         self.but_status("add")
         self.init_mask()
-
+        self.rows_from_db = self.from_db("*", self.table)
         self.cb_chouse.addItems(["(нет)"])
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.db.fetchall():
+        for row in self.rows_from_db:
             self.cb_chouse.addItems([row[1]])
 
     def init_mask(self):
@@ -49,8 +49,11 @@ class NewWorker(QDialog):
         self.n_prot.setValidator(number_prot)
         self.n_card.setValidator(number_prot)
 
-    def ev_OK(self):
-        self.parent.get_new_worker(self.get_data())
+    def ev_ok(self):
+        data = self.get_data()
+        if not data:
+            return
+        self.parent.get_new_data(data)
         self.close()
 
     def ev_cancel(self):
@@ -64,9 +67,7 @@ class NewWorker(QDialog):
         else:
             self.but_status("change")
 
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if text in row:
                 self.set_data(row)
 
@@ -76,10 +77,7 @@ class NewWorker(QDialog):
         удалить запись
         :return:
         """
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        print(self.family.text())
-        for row in rows:
+        for row in self.rows_from_db:
             if self.family.text() in row:
                 data = self.get_data()
                 answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись " + str(data) + "?",
@@ -87,7 +85,7 @@ class NewWorker(QDialog):
                 if answer == QMessageBox.Ok:
                     self.parent.db.execute("DELETE FROM {0} WHERE family = '{1}'".format(self.table,
                         self.family.text()))
-                    self.parent.database_conn.commit()  # TODO удаление
+                    self.parent.db_conn.commit()  # TODO удаление
                     self.close()
                     return
                 if answer == QMessageBox.Cancel:
@@ -96,9 +94,7 @@ class NewWorker(QDialog):
         pass
 
     def ev_change(self):
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if self.family.text() in row and self.name.text() in row:
                 self.my_update()
                 print("update")
@@ -205,6 +201,10 @@ class NewWorker(QDialog):
         # удаляем старую запись
         self.ev_kill()
         # добавляем новую запись
-        self.parent.get_new_worker(self.get_data())
+        self.parent.get_new_data(self.get_data())
         self.close()
         pass
+
+    def from_db(self, fields, table):
+        self.parent.db.execute(get_from_db(fields, table))
+        return self.parent.db.fetchall()

@@ -7,20 +7,22 @@ from datetime import datetime as dt
 from configparser import ConfigParser
 import openpyxl
 import psycopg2
-from my_helper.notebook.sourse.add_new_object.new_boss import NewBoss
-from my_helper.notebook.sourse.add_new_object.new_itr import NewITR
-from my_helper.notebook.sourse.add_new_object.new_worker import NewWorker
-from my_helper.notebook.sourse.add_new_object.nw_company import NewCompany
-from my_helper.notebook.sourse.add_new_object.new_auto import NewAuto
-from my_helper.notebook.sourse.add_new_object.new_driver import NewDriver
+from my_helper.notebook.sourse.new_boss import NewBoss
+from my_helper.notebook.sourse.new_itr import NewITR
+from my_helper.notebook.sourse.new_worker import NewWorker
+from my_helper.notebook.sourse.nw_company import NewCompany
+from my_helper.notebook.sourse.new_auto import NewAuto
+from my_helper.notebook.sourse.new_driver import NewDriver
 from pdf_module import check_file, create_covid
-from my_helper.notebook.sourse.add_new_object.new_contract import NewContact
+from my_helper.notebook.sourse.new_contract import NewContact
+from my_helper.notebook.sourse.material import NewMaterial
 from my_email import send_post
-from my_helper.notebook.sourse.create_pass.pass_week import WeekPass
-from my_helper.notebook.sourse.create_pass.pass_unlock import UnlockPass
-from my_helper.notebook.sourse.create_pass.pass_month import MonthPass
-from my_helper.notebook.sourse.create_pass.pass_get import GetPass
-from my_helper.notebook.sourse.create_pass.pass_drive import DrivePass
+from my_helper.notebook.sourse.pass_week import WeekPass
+from my_helper.notebook.sourse.pass_unlock import UnlockPass
+from my_helper.notebook.sourse.pass_month import MonthPass
+from my_helper.notebook.sourse.pass_get import GetPass
+from my_helper.notebook.sourse.pass_auto import AutoPass
+from my_helper.notebook.sourse.pass_drive import DrivePass
 from my_tools import Notepad
 import inserts as ins
 import config as conf
@@ -38,6 +40,8 @@ import config as conf
 10. деньги на ТК
 Срок к концу недели
 """
+
+
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
@@ -58,9 +62,10 @@ class MainWindow(QMainWindow):
         self.b_new_invoice.clicked.connect(self.ev_btn_start_file)
         self.b_new_company.clicked.connect(self.ev_btn_add_to_db)
         self.b_new_auto.clicked.connect(self.ev_btn_add_to_db)
+        self.b_new_driver.clicked.connect(self.ev_btn_add_to_db)
+        self.b_new_material.clicked.connect(self.ev_btn_add_to_db)
 
         self.b_create_act.clicked.connect(self.ev_create_act)
-        self.b_get_material.clicked.connect(self.ev_get_material)
         self.b_pdf_check.clicked.connect(self.ev_pdf_check)
         self.b_send_covid.clicked.connect(self.ev_send_covid)
         self.b_connect.clicked.connect(self.ev_connect)
@@ -90,9 +95,10 @@ class MainWindow(QMainWindow):
         self.connect_to_db()
         self.db.execute(ins.get_from_db("name", "contract"))
         rows = self.db.fetchall()
+        self.cb_builds.addItems(["(нет)"])
         for row in rows:
-            self.cb_builds.addItems(row)
-        self.ui_l_cur_build.setText(rows[-1][0])
+            self.cb_builds.addItems([row[0]])
+        self.ui_l_cur_build.setText(self.cb_builds.currentText())
 
     def change_build(self, text):
         self.ui_l_cur_build.setText(text)
@@ -103,30 +109,45 @@ class MainWindow(QMainWindow):
         wnd = None
         if name == "Продление на месяц":
             wnd = MonthPass(self)
-        if name == "Пропуск на выходные":
+        elif name == "Пропуск на выходные":
             wnd = WeekPass(self)
-        if name == "Разблокировка пропуска":
+        elif name == "Разблокировка пропуска":
             wnd = UnlockPass(self)
-        if name == "Выдать пропуск":
+        elif name == "Выдать пропуск":
             wnd = GetPass(self)
-        if name == "Продление на машину":
-            wnd = None  # AutoPass(self)
-        if name == "Разовый пропуск на машину":
-            wnd = None  # SinglePass(self)
+        elif name == "Продление на машину":
+            wnd = AutoPass(self)
+        elif name == "Разовый пропуск на машину":
+            wnd = DrivePass(self)
         wnd.exec_()
 
     def ev_btn_start_file(self):
         name = self.sender().text()
         if name == "Доверенность":
-            os.startfile(conf.path_default + "/доверенность.xlsx", "print")
+            try:
+                os.startfile(conf.path_default + "/доверенность.xlsx", "print")
+            except:
+                print("Not found")
         if name == "Сканировать":
-            os.startfile(conf.path + "/scan.exe")
+            try:
+                os.startfile(conf.path + "/scan.exe")
+            except:
+                print("Not found")
         elif name == "Накладная":
-            os.startfile(conf.path_default + "/накладная.xlsx", "print")
+            try:
+                os.startfile(conf.path_default + "/накладная.xlsx", "print")
+            except:
+                print("Not found")
         elif name == "Журнал-ковид":
-            os.startfile(conf.path_default + "/covid.xlsx")
+            try:
+                os.startfile(conf.path_default + "/covid.xlsx")
+            except:
+                print("Not found")
         elif name == "Табель":
-            os.startfile(conf.path_default + "/табель.xlsx")
+            try:
+                os.startfile(conf.path_default + "/табель.xlsx")
+            except:
+                print("Not found")
         elif name == "Блокнот":
             wnd = Notepad()
             wnd.exec_()
@@ -151,15 +172,18 @@ class MainWindow(QMainWindow):
                 msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
                 if msg == QMessageBox.Ok:
                     return
-            wnd, table = NewContact(self), "contracts"
+            wnd, table = NewContact(self), "contract"
         elif name == "Заказчик":
             wnd, table = NewCompany(self), "company"
         elif name == "Сотрудник":
             wnd, table = NewWorker(self), "workers"
         elif name == "Прораб":
             wnd, table = NewITR(self), "itr"
+        elif name == "Ввоз материалов":
+            wnd, table = NewMaterial(self), "materials"
         wnd.exec_()
-        self.commit(ins.add_to_db(self.data_to_db, table))
+        if self.data_to_db:
+            self.commit(ins.add_to_db(self.data_to_db, table))
 
     def commit(self, query):
         if self.data_to_db:
@@ -369,6 +393,9 @@ class MainWindow(QMainWindow):
             return False
         return True
 
+    def get_new_data(self, data):
+        self.data_to_db = data
+
     # Прочее
     def get_number_doc(self):
         self.config.read(conf.path_conf_ini)
@@ -380,32 +407,7 @@ class MainWindow(QMainWindow):
         next_number = int(self.config.get("conf", "next_number"))
         self.config.set("conf", "next_number", str(int(next_number)+1))
 
-    def get_new_worker(self, worker):
-        self.new_worker = worker
 
-    def get_new_week_pass(self, data):
-        self.new_pass_week = data
-
-    def get_new_company(self, company):
-        self.new_company = company
-
-    def get_new_contract(self, contract):
-        self.new_contract = contract
-
-    def get_new_bosses(self, boss):
-        self.new_boss = boss
-
-    def set_new_boss(self, boss):
-        self.new_boss = boss
-
-    def set_new_post(self, post):
-        self.post_boss = post
-
-    def get_new_itr(self, itr):
-        self.new_itr = itr
-
-    def get_new_auto(self, auto):
-        self.new_auto = auto
 
     def create_new_contract(self, contract):
         self.new_contract = contract

@@ -246,7 +246,7 @@ p, li { white-space: pre-wrap; }
     </rect>
    </property>
   </widget>
-  <widget class="QComboBox" name="comboBox_2">
+  <widget class="QComboBox" name="cb_drivers">
    <property name="geometry">
     <rect>
      <x>120</x>

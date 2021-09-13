@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from ..inserts import get_from_db
+from my_helper.notebook.sourse.inserts import get_from_db
 import datetime as dt
 import os
 import docx
@@ -10,7 +10,7 @@ import docxtpl
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 main_file = "B:/my_helper/pass_drive.docx"
 print_file = "B:/my_helper/to_print/pass_drive.docx"
-designer_file = '../../designer_ui/pass_drive.ui'
+designer_file = '../designer_ui/pass_drive.ui'
 
 
 class DrivePass(QDialog):
@@ -31,8 +31,8 @@ class DrivePass(QDialog):
         self.d_note.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
 
-        self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5, self.worker_6,
-                   self.worker_7, self.worker_8, self.worker_9, self.worker_10)
+        self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5,
+                        self.worker_6, self.worker_7, self.worker_8, self.worker_9, self.worker_10)
         self.list_month = ["январь", "февраль", "март", "апрель",
                            "май", "июнь", "июль", "август", "сентябрь",
                            "октябрь", "ноябрь", "декабрь"]
@@ -47,9 +47,8 @@ class DrivePass(QDialog):
             self.cb_month.addItem(elem)
 
     def init_workers(self):
-        self.parent.db.execute(get_from_db("family, name, surname, post, passport, "
-                                                     "passport_got, birthday, adr,  live_adr", "workers"))
-        rows = self.parent.db.fetchall()
+        rows = self.from_db("family, name, surname, post, passport, "
+                            "passport_got, birthday, adr,  live_adr", "workers")
         for item in self.list_ui:
             item.addItem("(нет)")
             item.activated[str].connect(self.new_worker)
@@ -93,9 +92,8 @@ class DrivePass(QDialog):
         self.data["end_date"] = ".".join((end_next_month, next_month, next_year))
 
     def get_worker(self, family):
-        self.parent.db.execute(get_from_db("family, name, surname, post, passport, "
-                                                     "passport_got, birthday, adr,  live_adr", "workers"))
-        rows = self.parent.db.fetchall()
+        rows = self.from_db("family, name, surname, post, passport, "
+                            "passport_got, birthday, adr,  live_adr", "workers")
         if family == "all":
             return rows
         for row in rows:
@@ -103,7 +101,7 @@ class DrivePass(QDialog):
                 return row
 
     # обработчики кнопок
-    def ev_OK(self):
+    def ev_ok(self):
         self.data["number"] = "Исх. № " + self.number.text()
         self.data["data"] = "от. " + self.d_note.text()
 
@@ -164,7 +162,9 @@ class DrivePass(QDialog):
     def kill_pattern(self):
         pass
 
-
+    def from_db(self, fields, table):
+        self.parent.db.execute(get_from_db(fields, table))
+        return self.parent.db.fetchall()
 
 
 

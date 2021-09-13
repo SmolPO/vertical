@@ -3,10 +3,11 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
+from my_helper.notebook.sourse.inserts import get_from_db
 """
 валидация, защита от ввода в табл в разнобой
 """
-designer_file = '../../designer_ui/new_contract.ui'
+designer_file = '../designer_ui/new_contract.ui'
 
 
 class NewContact(QDialog):
@@ -18,7 +19,7 @@ class NewContact(QDialog):
         self.table = "contract"
         self.contract = []
         self.comp = []
-        self.b_ok.clicked.connect(self.ev_OK)
+        self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_del.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
@@ -28,13 +29,10 @@ class NewContact(QDialog):
 
         self.cb_chouse.addItems(["(нет)"])
         self.cb_comp.addItems(["(нет)"])
-
-        comp = self.parent.db.execute('SELECT * FROM company')
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.db.fetchall():
+        self.rows_from_db = self.from_db("*", self.table)
+        for row in self.rows_from_db:
             self.cb_chouse.addItems([row[0]])
-        self.parent.db.execute('SELECT * FROM company')
-        for row in self.parent.db.fetchall():
+        for row in self.from_db("*", "company"):
             self.cb_comp.addItems([row[0]])
 
     def init_mask(self):
@@ -45,18 +43,18 @@ class NewContact(QDialog):
         self.number.setValidator(QREVal(QRE("[а-яА-Яa-zA-Z /_-., 0-9]{1000}")))
         self.part.setValidator(QREVal(QRE("[а-яА-Яa-zA-Z /_-., 0-9]{1000}")))
 
-    def ev_OK(self):
-        self.parent.get_new_contract(self.get_data())
+    def ev_ok(self):
+        data = self.get_data()
+        if not data:
+            return
+        self.parent.get_new_data(data)
         self.close()
 
     def ev_cancel(self):
         self.close()
 
     def ev_kill(self):
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        print(self.name.text())
-        for row in rows:
+        for row in self.rows_from_db:
             if self.name.text() in row:
                 data = self.get_data()
                 answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись " + str(data) + "?",
@@ -64,7 +62,7 @@ class NewContact(QDialog):
                 if answer == QMessageBox.Ok:
                     self.parent.db.execute("DELETE FROM {0} WHERE number = '{1}'".format(
                         self.table, self.number.text()))
-                    self.parent.database_conn.commit()  # TODO удаление
+                    self.parent.db_conn.commit()  # TODO удаление
                     self.close()
                     return
                 if answer == QMessageBox.Cancel:
@@ -80,20 +78,15 @@ class NewContact(QDialog):
         else:
             self.but_status("change")
 
-        self.parent.db.execute('SELECT * FROM contract')
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if text in row:
                 self.set_data(row)
 
     def ev_change(self):
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if self.number.text() in row:
                 self.my_update()
                 print("update")
-        pass
 
     def clear(self):
         self.name.setText("")
@@ -130,6 +123,10 @@ class NewContact(QDialog):
 
     def my_update(self):
         self.ev_kill()
-        self.parent.get_new_contract(self.get_data())
+        self.parent.get_new_data(self.get_data())
         self.close()
         pass
+
+    def from_db(self, fields, table):
+        self.parent.db.execute(get_from_db(fields, table))
+        return self.parent.db.fetchall()

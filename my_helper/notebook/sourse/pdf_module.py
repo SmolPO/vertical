@@ -28,7 +28,7 @@ def check_file():
     for file in files:
         text = str(((pytesseract.image_to_string(Image.open("B:\my_helper\scan\scan.jpg"), lang='rus'))))
         print(text)
-       # os.replace(file, conf.path_OCR + "/covid/" + "covid_" + str(dt.now().date()))
+        #  os.replace(file, conf.path_OCR + "/covid/" + "covid_" + str(dt.now().date()))
         go_img2pdf(folder + "/" + file, folder, "covid")
         if "Температура" in text:
             if count_files == 1:

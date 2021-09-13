@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-designer_file = "../../designer_ui/add_company.ui"
+from my_helper.notebook.sourse.inserts import get_from_db
+designer_file = "../designer_ui/add_company.ui"
 
 
 class NewCompany(QDialog):
@@ -14,17 +15,16 @@ class NewCompany(QDialog):
         self.parent = parent
         self.new_company = []
         self.table = "company"
-        self.b_ok.clicked.connect(self.ev_OK)
+        self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_del.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
         self.cb_chouse.activated[str].connect(self.ev_select)
         self.but_status("add")
         self.init_mask()
-
+        self.rows_from_db = self.from_db("*", self.table)
         self.cb_chouse.addItems(["(нет)"])
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.db.fetchall():
+        for row in self.rows_from_db:
             self.cb_chouse.addItems([row[0]])
 
     def init_mask(self):
@@ -45,17 +45,18 @@ class NewCompany(QDialog):
         self.post.setValidator(symbols)
         self.count_dovr.setValidator(number_prot)
 
-    def ev_OK(self):
-        self.parent.get_new_company(self.get_data())
+    def ev_ok(self):
+        data = self.get_data()
+        if not data:
+            return
+        self.parent.get_new_data(data)
         self.close()
 
     def ev_cancel(self):
         self.close()
 
     def ev_kill(self):
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if self.company.text() in row:
                 data = self.get_data()
                 answer = QMessageBox.question(self, "Удаление записи",
@@ -66,16 +67,14 @@ class NewCompany(QDialog):
                         self.table, self.company.text()))
                     self.parent.db.execute("DELETE FROM {0} WHERE company = '{1}'".format(
                         self.table, self.company.text()))
-                    self.parent.database_conn.commit()  # TODO удаление
+                    self.parent.db_conn.commit()  # TODO удаление
                     self.close()
                     return
                 if answer == QMessageBox.Cancel:
                     return
 
     def ev_change(self):
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if self.family.text() in row and self.name.text() in row:
                 self.my_update()
                 print("update")
@@ -88,9 +87,7 @@ class NewCompany(QDialog):
             return
         else:
             self.but_status("change")
-
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.db.fetchall():
+        for row in self.rows_from_db:
             if text in row:
                 self.set_data(row)
 
@@ -157,5 +154,9 @@ class NewCompany(QDialog):
 
     def my_update(self):
         self.ev_kill()
-        self.parent.get_new_company(self.get_data())
+        self.parent.get_new_data(self.get_data())
         self.close()
+
+    def from_db(self, fields, table):
+        self.parent.db.execute(get_from_db(fields, table))
+        return self.parent.db.fetchall()

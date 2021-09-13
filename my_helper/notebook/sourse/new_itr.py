@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
+from my_helper.notebook.sourse.inserts import get_from_db
 
 fields = ["family", "name", "surname", "post",
           "passport", "passport_date", "passport_got",
@@ -15,7 +16,7 @@ fields = ["family", "name", "surname", "post",
           "ES_prot", "ES_group", "ES_card", "ES_date",
           "H_prot", "H_group", "H_card", "H_date",
           "ST_prot", "ST_card", "ST_date", "promsave", "birthday"]
-designer_file = '../../designer_ui/new_itr.ui'
+designer_file = '../designer_ui/new_itr.ui'
 
 
 class NewITR(QDialog):
@@ -26,7 +27,7 @@ class NewITR(QDialog):
         self.parent = parent
         self.itr = []
         self.table = "itr"
-        self.b_ok.clicked.connect(self.ev_OK)
+        self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_del.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
@@ -34,8 +35,8 @@ class NewITR(QDialog):
         self.but_status("add")
         self.init_mask()
         self.cb_chouse.addItems(["(нет)"])
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.db.fetchall():
+        self.rows_from_db = self.from_db("*", self.table)
+        for row in self.rows_from_db:
             self.cb_chouse.addItems([row[0]])
 
     def init_mask(self):
@@ -72,8 +73,11 @@ class NewITR(QDialog):
         self.n_ST_p.setValidator(number_prot)
         self.n_ST_c.setValidator(number_prot)
 
-    def ev_OK(self):
-        self.parent.get_new_itr(self.get_data())
+    def ev_ok(self):
+        data = self.get_data()
+        if not data:
+            return
+        self.parent.get_new_data(data)
         self.close()
 
     def ev_cancel(self):
@@ -87,25 +91,19 @@ class NewITR(QDialog):
         else:
             self.but_status("change")
 
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if text in row:
                 self.set_data(row)
 
     def ev_change(self):
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if self.family.text() in row and self.name.text() in row:
                 self.my_update()
                 print("update")
         pass
 
     def ev_kill(self):
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if self.family.text() in row:
                 data = self.get_data()
                 answer = QMessageBox.question(self, "Удаление записи",
@@ -114,7 +112,7 @@ class NewITR(QDialog):
                 if answer == QMessageBox.Ok:
                     self.parent.db.execute("DELETE FROM {0} WHERE family = '{1}'".format(
                         self.table, self.family.text()))
-                    self.parent.database_conn.commit()  # TODO удаление
+                    self.parent.db_conn.commit()  # TODO удаление
                     self.close()
                     return
                 if answer == QMessageBox.Cancel:
@@ -254,7 +252,10 @@ class NewITR(QDialog):
 
     def my_update(self):
         self.ev_kill()
-        self.parent.get_new_itr(self.get_data())
+        self.parent.get_new_data(self.get_data())
         self.close()
         pass
 
+    def from_db(self, fields, table):
+        self.parent.db.execute(get_from_db(fields, table))
+        return self.parent.db.fetchall()

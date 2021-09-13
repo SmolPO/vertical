@@ -1,6 +1,6 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
-from ..inserts import get_from_db
+from my_helper.notebook.sourse.inserts import get_from_db
 import datetime as dt
 import os
 import docx
@@ -8,7 +8,7 @@ import docxtpl
 #  сделать мессаджбоксы на Сохранить
 main_file = "B:/my_helper/unlock.docx"
 print_file = "B:/my_helper/to_print/unlock.docx"
-designer_file = '../../designer_ui/pass_unlock.ui'
+designer_file = '../designer_ui/pass_unlock.ui'
 
 
 class UnlockPass(QDialog):
@@ -18,33 +18,31 @@ class UnlockPass(QDialog):
         # pass
         self.parent = parent
         self.table = "workers"
-        self.b_ok.clicked.connect(self.ev_OK)
+        self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_open.clicked.connect(self.my_open_file)
 
         self.d_note.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
-
+        self.rows_from_db = self.from_db("*", self.table)
         self.init_workers()
         self.data = {"number": "", "data": "", "customer": "", "company": "", "start_date": "", "end_date": "",
                      "post": "", "family": "", "name": "", "surname": "", "adr": ""}
 
     def init_workers(self):
-        self.parent.db.execute(get_from_db("family, name", self.table))
-        rows = self.parent.db.fetchall()
         self.cb_worker.addItem("(нет)")
-        for name in rows:
+        for name in self.from_db("family, name", self.table):
             self.cb_worker.addItem(" ".join((name[0], name[1][0])) + ".")
 
     # обработчики кнопок
-    def ev_OK(self):
+    def ev_ok(self):
         if not self.get_data():
             return None
 
         doc = docxtpl.DocxTemplate(main_file)
         doc.render(self.data)
         doc.save(print_file)
-        os.startfile(print_file, "print")
+        os.startfile(print_file)
         self.close()
 
     def ev_cancel(self):
@@ -55,10 +53,8 @@ class UnlockPass(QDialog):
         pass
 
     def get_data(self):
-        self.parent.db.execute(get_from_db("family, name, surname, post, live_adr", self.table))
-        rows = self.parent.db.fetchall()
         family = self.cb_worker.currentText()
-        for row in rows:
+        for row in self.from_db("family, name, surname, post, live_adr", self.table):
             if family[:-3] == row[0]:  # на форме фамилия в виде Фамилия И.
                 self.data["number"] = "Исх. № " + self.number.text()
                 self.data["data"] = "от. " + self.d_note.text()
@@ -72,4 +68,9 @@ class UnlockPass(QDialog):
                 self.data["customer"] = self.parent.customer
                 self.data["company"] = self.parent.company
                 if "" in self.data:
-                    return None
+                    return False
+                return True
+
+    def from_db(self, fields, table):
+        self.parent.db.execute(get_from_db(fields, table))
+        return self.parent.db.fetchall()

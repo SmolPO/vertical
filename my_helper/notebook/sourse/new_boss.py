@@ -2,7 +2,8 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-designer_file = '../../designer_ui/new_boss.ui'
+from my_helper.notebook.sourse.inserts import get_from_db
+designer_file = '../designer_ui/new_boss.ui'
 
 
 class NewBoss(QDialog):
@@ -13,16 +14,15 @@ class NewBoss(QDialog):
         self.parent = parent
         self.bosses = []
         self.table = "bosses"
-        self.b_ok.clicked.connect(self.ev_OK)
+        self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_del.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
         self.cb_chouse.activated[str].connect(self.ev_select)
         self.but_status("add")
-
+        self.rows_from_db = self.from_db("*", self.table)
         self.cb_chouse.addItems(["(нет)"])
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        for row in self.parent.db.fetchall():
+        for row in self.rows_from_db:
             self.cb_chouse.addItems([row[0]])
 
     def init_mask(self):
@@ -35,10 +35,11 @@ class NewBoss(QDialog):
         self.phone.setValidator(QREVal(QRE("[0-9]{11}")))
         self.email.QREVal(QRE("[a-zA-Z ._@ 0-9]{30}"))
 
-    def ev_OK(self):
-        if '' in self.get_data():
+    def ev_ok(self):
+        data = self.get_data()
+        if not data:
             return
-        self.parent.get_new_bosses(self.get_data())
+        self.parent.get_new_data(data)
         self.close()
 
     def ev_cancel(self):
@@ -52,51 +53,48 @@ class NewBoss(QDialog):
         else:
             self.but_status("change")
 
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if text in row:
                 self.set_data(row)
 
     def ev_change(self):
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if self.family.text() in row and self.name.text() in row:
                 self.my_update()
                 print("update")
         pass
 
     def ev_kill(self):
-        self.parent.db.execute('SELECT * FROM ' + self.table)
-        rows = self.parent.db.fetchall()
-        for row in rows:
+        for row in self.rows_from_db:
             if self.family.text() in row:
                 data = self.get_data()
                 answer = QMessageBox.question(self, "Удаление записи",
                                               "Вы действительно хотите удалить запись " + str(data) + "?",
                                               QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
+                    print("DELETE FROM {0} WHERE family = '{1}'".format(
+                        self.table, self.family.text()))
+                    print(row)
                     self.parent.db.execute("DELETE FROM {0} WHERE family = '{1}'".format(
                         self.table, self.family.text()))
-                    self.parent.database_conn.commit()
+                    self.parent.db_conn.commit()
                     self.close()
                     return
                 if answer == QMessageBox.Cancel:
                     return
 
     def set_data(self, data):
-        self.name.setText(data[0])
-        self.family.setText(data[1])
-        self.family.enabled = False
+        self.family.setText(data[0])
+        self.family.setEnabled(False)
+        self.name.setText(data[1])
         self.surname.setText(data[2])
         self.post.setText(data[3])
         self.email.setText(data[4])
         self.phone.setText(data[5])
 
     def get_data(self):
-        return list([self.name.text(),
-                     self.family.text(),
+        return list([self.family.text(),
+                     self.name.text(),
                      self.surname.text(),
                      self.post.text(),
                      self.email.text(),
@@ -122,7 +120,10 @@ class NewBoss(QDialog):
 
     def my_update(self):
         self.ev_kill()
-        self.parent.get_new_bosses(self.get_data())
+        self.parent.get_new_data(self.get_data())
         self.close()
         pass
 
+    def from_db(self, fields, table):
+        self.parent.db.execute(get_from_db(fields, table))
+        return self.parent.db.fetchall()
