@@ -132,8 +132,8 @@ class MonthPass(QDialog):
             doc.tables[1].rows[i].cells[6].text = people[8]
             i += 1
         doc.save(print_file)
-        os.startfile(print_file)
         self.close()
+        os.startfile(print_file)
 
     def new_worker(self):
         flag = True

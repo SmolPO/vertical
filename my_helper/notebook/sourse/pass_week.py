@@ -137,8 +137,8 @@ class WeekPass(QDialog):
                 doc.tables[1].rows[1].cells[5].text = people[7]
                 doc.tables[1].rows[1].cells[6].text = people[8]
         doc.save(print_file)
-        os.startfile(print_file)
         self.close()
+        os.startfile(print_file)
 
     def ev_cancel(self):
         self.close()

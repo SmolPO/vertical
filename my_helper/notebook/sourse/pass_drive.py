@@ -80,8 +80,8 @@ class DrivePass(QDialog):
         doc = docxtpl.DocxTemplate(main_file)
         doc.render(self.data)
         doc.save(print_file)
-        os.startfile(print_file)
         self.close()
+        os.startfile(print_file)
 
     def ev_cancel(self):
         self.close()
