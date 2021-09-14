@@ -47,6 +47,7 @@ class NewDriver(QDialog):
             return
         self.parent.get_new_data(data)
         self.close()
+
     def ev_cancel(self):
         self.close()
 
@@ -100,10 +101,9 @@ class NewDriver(QDialog):
                 data.append(item.text())
             except:
                 data.append(item.toPlainText())
-        if "" in data:
-            answer = QMessageBox.question(self, "Внимание",
-                                          "Заполните все поля перед добавлением", QMessageBox.Cancel)
-            return None
+        if "" in data or "01.01.2000" in data:
+            QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
+            return
         return data
 
     def clean_data(self):

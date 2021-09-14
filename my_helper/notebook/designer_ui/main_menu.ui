@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>599</width>
+    <width>587</width>
     <height>584</height>
    </rect>
   </property>
@@ -122,7 +122,7 @@
     <property name="geometry">
      <rect>
       <x>20</x>
-      <y>10</y>
+      <y>20</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -135,43 +135,6 @@
     </property>
     <property name="text">
      <string>Организация:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="ui_l_build">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>40</y>
-      <width>49</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>10</pointsize>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Объект:</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="ui_l_chose">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>10</y>
-      <width>101</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Выбрать объект</string>
     </property>
    </widget>
    <widget class="QLabel" name="ui_l_fast">
@@ -492,23 +455,10 @@
    <widget class="QLabel" name="ui_l_company">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>10</y>
-      <width>281</width>
+      <x>120</x>
+      <y>20</y>
+      <width>131</width>
       <height>16</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
-    </property>
-   </widget>
-   <widget class="QLabel" name="ui_l_cur_build">
-    <property name="geometry">
-     <rect>
-      <x>130</x>
-      <y>40</y>
-      <width>281</width>
-      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -568,16 +518,6 @@
     </property>
     <property name="text">
      <string>Блокнот</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="cb_builds">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>30</y>
-      <width>101</width>
-      <height>22</height>
-     </rect>
     </property>
    </widget>
    <widget class="QPushButton" name="b_new_build">
@@ -658,6 +598,58 @@
      <string>Распечать ТБ</string>
     </property>
    </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>20</y>
+      <width>49</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Погода</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_2">
+    <property name="geometry">
+     <rect>
+      <x>270</x>
+      <y>40</y>
+      <width>81</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Температура</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="l_weather">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>20</y>
+      <width>221</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="l_temp">
+    <property name="geometry">
+     <rect>
+      <x>350</x>
+      <y>40</y>
+      <width>71</width>
+      <height>16</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QMenuBar" name="menubar">
@@ -665,7 +657,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>599</width>
+     <width>587</width>
      <height>22</height>
     </rect>
    </property>

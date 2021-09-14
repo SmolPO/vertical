@@ -93,7 +93,7 @@ class NewAuto(QDialog):
         if self.model.text() == "" or \
            self.brand.text() == "" or \
            self.gov_number.text() == "" or (self.is_track.isChecked() and self.track_number.text() == ""):
-            answer = QMessageBox.question(self, "Внимание",
+            QMessageBox.question(self, "Внимание",
                                           "Заполните все поля перед добавлением", QMessageBox.Cancel)
             return
         data = list((self.model.text(),

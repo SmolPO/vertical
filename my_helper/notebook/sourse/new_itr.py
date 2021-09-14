@@ -238,6 +238,9 @@ class NewITR(QDialog):
                     self.promsave.toPlainText(),
 
                     self.bday.text()])
+        if "" in data or "01.01.2000" in data:
+            QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
+            return
         return data
 
     def but_status(self, status):
@@ -245,10 +248,12 @@ class NewITR(QDialog):
             self.b_ok.setEnabled(True)
             self.b_change.setEnabled(False)
             self.b_del.setEnabled(False)
+            self.family.setEnabled(True)
         if status == "change":
             self.b_ok.setEnabled(False)
             self.b_change.setEnabled(True)
             self.b_del.setEnabled(True)
+            self.family.setEnabled(False)
 
     def my_update(self):
         self.ev_kill()

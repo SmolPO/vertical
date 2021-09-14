@@ -35,7 +35,6 @@ def check_file():
                 """Это утренний ковид журнал. 
                 Переместить в папку Ковид, преобразовать в PDF и отправить по почте. Адрес записан в настройках."""
                 pass
-
         elif "выдать" in text:
             os.replace(file, conf.path + conf.path_OCR + "/выдача_" + str(dt.now().date()))
         elif "разблокировать" in text:

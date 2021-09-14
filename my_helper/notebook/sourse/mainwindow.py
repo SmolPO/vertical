@@ -2,6 +2,7 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QMainWindow, QApplication, QCheckBox, QMessageBox
 import sys
 import os
+import requests
 import logging
 from datetime import datetime as dt
 from configparser import ConfigParser
@@ -75,9 +76,8 @@ class MainWindow(QMainWindow):
         self.b_scan.clicked.connect(self.ev_btn_start_file)
         self.b_attorney.clicked.connect(self.ev_btn_start_file)
         self.b_invoice.clicked.connect(self.ev_btn_start_file)
-
+        # self.cb_builds.activated[str].connect(self.change_build)
         self.b_notepad.clicked.connect(self.ev_btn_start_file)
-        self.cb_builds.activated[str].connect(self.change_build)
 
         self.get_param_from_widget = None
         self.current_build = "Объект"
@@ -87,18 +87,22 @@ class MainWindow(QMainWindow):
         self.data_to_db = None
 
         self.ui_l_company.setText(self.company)
-        self.ui_l_build.setText(self.current_build)
+        # self.ui_l_build.setText(self.current_build)
         self.config = ConfigParser()
         self.init_notif()
 
         # Database
         self.connect_to_db()
-        self.db.execute(ins.get_from_db("name", "contract"))
-        rows = self.db.fetchall()
-        self.cb_builds.addItems(["(нет)"])
-        for row in rows:
-            self.cb_builds.addItems([row[0]])
-        self.ui_l_cur_build.setText(self.cb_builds.currentText())
+        self.test_func()
+        self.get_weather()
+
+    def test_func(self):
+        self.b_create_act.setEnabled(False)
+        self.b_pdf_check.setEnabled(False)
+        self.b_send_covid.setEnabled(False)
+        self.b_connect.setEnabled(False)
+        self.b_new_invoice.setEnabled(False)
+        self.b_new_bill.setEnabled(False)
 
     def change_build(self, text):
         self.ui_l_cur_build.setText(text)
@@ -125,7 +129,7 @@ class MainWindow(QMainWindow):
         name = self.sender().text()
         if name == "Доверенность":
             try:
-                os.startfile(conf.path_default + "/доверенность.xlsx", "print")
+                os.startfile(conf.path_default + "/Доверенность.xlsx", "print")
             except:
                 print("Not found")
         if name == "Сканировать":
@@ -140,12 +144,12 @@ class MainWindow(QMainWindow):
                 print("Not found")
         elif name == "Журнал-ковид":
             try:
-                os.startfile(conf.path_default + "/covid.xlsx")
+                os.startfile(conf.path_default + "/Ковидный журнал.xls")
             except:
                 print("Not found")
         elif name == "Табель":
             try:
-                os.startfile(conf.path_default + "/табель.xlsx")
+                os.startfile(conf.path_default + "/Табель.xlsx")
             except:
                 print("Not found")
         elif name == "Блокнот":
@@ -216,15 +220,6 @@ class MainWindow(QMainWindow):
         pass
         print("pass create act")
 
-    def ev_get_material(self):
-        """
-        открыть форму для ввода название материала и даты завоза
-        сформировать документ
-        печать
-        """
-        pass
-        print("pass get mat")
-
     def ev_pdf_check(self):
         """
         открыть директорию
@@ -271,59 +266,6 @@ class MainWindow(QMainWindow):
     """____________________________________"""
 
     # работа с Excel
-    def open_wb(self, sheet):
-        # открытие файла
-        try:
-            self.wb = openpyxl.load_workbook(conf.path_xlsx)
-        except:
-            QMessageBox(self, "Нет xlsx файла по адресу {0}".format(conf.path_xlsx)).show()
-            return False
-
-        # открытие листа
-        if sheet in self.wb.sheetnames:
-            self.sheet = self.wb[sheet]
-            return True
-        else:
-            QMessageBox("Нет листа {0} в xlsx файле".format(sheet)).show()
-            logging.info("Нет листа {0} в xlsx файле".format(sheet))
-            print("Нет листа {0} в xlsx файле".format(sheet))
-            return False
-
-    def add_new_row_to_excel(self, row, start_row=10):
-        self.sheet.insert_rows(idx=start_row, amount=1)
-        i = iter(range(10))
-        # thin_border = Border(left=Side(style='thin'),
-        #                     right=Side(style='thin'),
-        #                    top=Side(style='thin'),
-        #                   bottom=Side(style='thin'))
-        for item in row:
-            cell = self.sheet.cell(row=start_row, column=next(i)+1)
-            cell.value = item
-        #   cell.border = thin_border
-
-    def add_next_auto(self, row):
-        driver = " ".join(row[2:])
-        add_row = [row[0], row[1], driver]
-        # thin_border = Border(left=Side(style='thin'),
-        #                     right=Side(style='thin'),
-        #                    top=Side(style='thin'),
-        #                   bottom=Side(style='thin'))
-        self.sheet.insert_rows(idx=10, amount=1)
-        i = iter(range(10))
-        for item in add_row:
-            cell = self.sheet.cell(row=10, column=next(i)+1)
-            cell.value = item
-            # cell.border = thin_border
-
-    def add_next_bill(self, date):
-        cell_count = self.sheet.cell(row=1, column=10)
-        count = cell_count.value
-        cell_count.value = count + 1
-        i = iter(range(4))
-        for item in date:
-            cell = self.sheet.cell(row=count, column=next(i)+1)
-            cell.value = item
-
     def get_next_number(self):
         # init
         config = ConfigParser()
@@ -336,51 +278,6 @@ class MainWindow(QMainWindow):
         with open('config.ini', 'w') as configfile:
             config.write(configfile)
         return int(number_note)
-
-    def set_week_days(self, days):
-        if len(days) > 1:
-            title = "        Прошу Вас разрешить работы в выходные дни {0} г. и {1}. по ремонту {2} работникам {3}, " \
-                    "с рабочей сменой с 07-00 до 19-00 часов:".format(days[0], days[1], self.current_build, self.company)
-        else:
-            title = "        Прошу Вас разрешить работы в выходной день {0} г. по ремонту {1} работникам {2}, " \
-                    "с рабочей сменой с 07-00 до 19-00 часов:".format(days[0], self.current_build, self.company)
-        cell = self.sheet.cell(row=5, column=1)
-        cell.value = title
-
-    def set_number_and_date(self):
-        if dt.now().month < 10:
-            month = "0" + str(dt.now().month)
-        else:
-            month = str(dt.now().day)
-        if dt.now().day < 10:
-            day = "0" + str(dt.now().day)
-        else:
-            day = str(dt.now().day)
-        date = ".".join((str(x) for x in (day, month, dt.now().year)))
-        cell_count = self.sheet.cell(row=3, column=1)
-        cell_data = self.sheet.cell(row=4, column=1)
-        cell_count.value = "Исх. № " + self.next_number_doc()
-        cell_data.value = "от " + date
-
-    def set_month_date(self):
-        next_month = 1 if dt.now().month == 12 else dt.now().month + 1
-        year = dt.now().year if dt.now().month < 12 else dt.now().year + 1
-        num_days = [31, 28 if dt.now().year / 4 else 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
-        if next_month < 10:
-            next_month = "0" + str(next_month)
-        max_day = num_days[dt.now().month]
-        first_date = ".".join((str(x) for x in ("01", next_month, year)))
-        end_date = ".".join((str(x) for x in (max_day, next_month, year)))
-        title = "        Прошу Вас продлить электронные пропуска для организации и производства работ " \
-                "на территории ПАО «Дорогобуж» " \
-                "работникам  {0} с {1} г. по {2} г. с рабочей сменой " \
-                "с 07-00 до 19-00 часов:".format(self.company, first_date, end_date)
-        cell_title = self.sheet.cell(row=5, column=1)
-        cell_title.value = title
-
-    def set_title(self, title, type_doc=5):
-        cell_title = self.sheet.cell(row=type_doc, column=1)
-        cell_title.value = title
 
     # database
     def connect_to_db(self):
@@ -401,16 +298,6 @@ class MainWindow(QMainWindow):
         self.config.read(conf.path_conf_ini)
         next_number = int(self.config.get("conf", "next_number"))
         return str(next_number)
-
-    def set_next_number_doc(self):
-        self.config.read(conf.path_conf_ini)
-        next_number = int(self.config.get("conf", "next_number"))
-        self.config.set("conf", "next_number", str(int(next_number)+1))
-
-
-
-    def create_new_contract(self, contract):
-        self.new_contract = contract
 
     def on_click_notif(self):  # TODO переделать в XML
         # read
@@ -439,6 +326,32 @@ class MainWindow(QMainWindow):
         self.ui_notification.addWidget(r_butt)
         f = open(conf.path + "/notif.txt", "a")
         f.write(str([mode, message]) + "\n")
+
+    def get_weather(self):
+        s_city = "Dorogobuzh"
+        city_id = 0
+        appid = "38462e21b3c595cfa5d4da0a88687dbe"
+        try:
+            res = requests.get("http://api.openweathermap.org/data/2.5/find",
+                               params={'q': s_city, 'type': 'like', 'units': 'metric', 'APPID': appid})
+            data = res.json()
+            cities = ["{} ({})".format(d['name'], d['sys']['country'])
+                      for d in data['list']]
+            city_id = data['list'][0]['id']
+        except Exception as e:
+            print("Exception (find):", e)
+            pass
+        try:
+            res = requests.get("http://api.openweathermap.org/data/2.5/weather",
+                               params={'id': city_id, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
+            data = res.json()
+            self.l_weather.setText(data['weather'][0]['description'])
+            self.l_temp.setText(str(round(data['main']['temp_max'])) + " C")
+        except Exception as e:
+            print("Exception (weather):", e)
+
+    def music(self):
+        playlist = list(["https://atmoradio.ru/", "https://radio7.ru/", "https://radio.yandex.ru/"])
 
 
 if __name__ == "__main__":

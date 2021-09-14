@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>340</width>
-    <height>310</height>
+    <height>317</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,7 +48,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Должность</string>
+    <string>Должность*</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="post">
@@ -71,7 +71,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Фамилия</string>
+    <string>Фамилия*</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="family">
@@ -120,7 +120,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>телефон</string>
+    <string>Телефон</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="phone">
@@ -189,7 +189,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Имя</string>
+    <string>Имя*</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="name">
@@ -212,7 +212,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Отчество</string>
+    <string>Отчество*</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="surname">
@@ -254,7 +254,7 @@
   <widget class="QComboBox" name="cb_sex">
    <property name="geometry">
     <rect>
-     <x>200</x>
+     <x>220</x>
      <y>70</y>
      <width>41</width>
      <height>22</height>
@@ -281,7 +281,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Пол</string>
+    <string>Пол*</string>
    </property>
   </widget>
  </widget>

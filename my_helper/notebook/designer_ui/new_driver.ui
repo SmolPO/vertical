@@ -111,7 +111,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Номер/место/дата/код пасспорт</string>
+    <string>Номер/место/дата/код паспорт</string>
    </property>
   </widget>
   <widget class="QPushButton" name="b_ok">

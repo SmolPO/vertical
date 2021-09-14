@@ -59,6 +59,9 @@
    </property>
   </widget>
   <widget class="QPushButton" name="b_open">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>20</x>
@@ -316,6 +319,9 @@
      <width>71</width>
      <height>22</height>
     </rect>
+   </property>
+   <property name="maximum">
+    <number>10000</number>
    </property>
   </widget>
   <widget class="QLabel" name="label_8">

@@ -2,6 +2,7 @@ import os
 from PyQt5.QtWidgets import QDialog
 from PyQt5 import uic
 import config as conf
+import requests
 
 
 class Notepad(QDialog):
@@ -10,7 +11,7 @@ class Notepad(QDialog):
         uic.loadUi('../designer_ui/notepad.ui', self)
         self.b_close.clicked.connect(self.ev_close)
         self.file_note = conf.path + "/notepad.txt"
-        self.text = self.get_text()
+        self.ui_text_area.appendPlainText(self.get_text())
         self.show()
 
     def get_text(self):
@@ -23,8 +24,6 @@ class Notepad(QDialog):
             print("not get text")
             return None
 
-
-
     def set_text(self):
         text_ui = self.ui_text_area.toPlainText()
         file = open(self.file_note, 'w')
@@ -32,11 +31,8 @@ class Notepad(QDialog):
         file.close()
 
     def ev_close(self):
-        try:
-            if self.ui_check_box.is_checked():
-                self.set_text()
-        except:
-            print("error")
+        if self.ui_check_box.isChecked():
+            self.set_text()
         self.close()
 
     def calc_tap_segments(self):

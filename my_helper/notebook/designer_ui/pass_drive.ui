@@ -90,6 +90,9 @@
      <height>22</height>
     </rect>
    </property>
+   <property name="maximum">
+    <number>10000</number>
+   </property>
   </widget>
   <widget class="QLabel" name="label_8">
    <property name="geometry">
@@ -105,6 +108,9 @@
    </property>
   </widget>
   <widget class="QPushButton" name="b_open">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>90</x>
@@ -148,6 +154,9 @@ p, li { white-space: pre-wrap; }
    </property>
   </widget>
   <widget class="QComboBox" name="cb_pattern">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>240</x>
@@ -158,6 +167,9 @@ p, li { white-space: pre-wrap; }
    </property>
   </widget>
   <widget class="QLabel" name="label_10">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>240</x>
@@ -285,14 +297,14 @@ p, li { white-space: pre-wrap; }
   <widget class="QCheckBox" name="cb_activ">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>270</x>
      <y>360</y>
-     <width>91</width>
+     <width>101</width>
      <height>20</height>
     </rect>
    </property>
    <property name="text">
-    <string>активиовать</string>
+    <string>в ручную</string>
    </property>
   </widget>
  </widget>

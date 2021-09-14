@@ -23,6 +23,8 @@ class UnlockPass(QDialog):
         self.b_open.clicked.connect(self.my_open_file)
 
         self.d_note.setDate(dt.datetime.now().date())
+        self.d_from.setDate(dt.datetime.now().date())
+        self.d_to.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
         self.rows_from_db = self.from_db("*", self.table)
         self.init_workers()

@@ -91,14 +91,27 @@ class NewBoss(QDialog):
         self.post.setText(data[3])
         self.email.setText(data[4])
         self.phone.setText(data[5])
+        self.cb_sex.setCurrentIndex(0) if data[6] == "М" else self.cb_sex.setCurrentIndex(0)
 
     def get_data(self):
-        return list([self.family.text(),
+        if not self.check_input():
+            return list([self.family.text(),
+                         self.name.text(),
+                         self.surname.text(),
+                         self.post.text(),
+                         self.email.text(),
+                         self.phone.text(),
+                         self.cb_sex.currentText()])
+        else:
+            QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
+
+    def check_input(self):
+        if "" in list([self.family.text(),
                      self.name.text(),
                      self.surname.text(),
-                     self.post.text(),
-                     self.email.text(),
-                     self.phone.text()])
+                     self.post.text()]):
+            return False
+        return True
 
     def clean_data(self):
         self.name.setText("")
@@ -113,10 +126,12 @@ class NewBoss(QDialog):
             self.b_ok.setEnabled(True)
             self.b_change.setEnabled(False)
             self.b_del.setEnabled(False)
+            self.family.setEnabled(True)
         if status == "change":
             self.b_ok.setEnabled(False)
             self.b_change.setEnabled(True)
             self.b_del.setEnabled(True)
+            self.family.setEnabled(False)
 
     def my_update(self):
         self.ev_kill()

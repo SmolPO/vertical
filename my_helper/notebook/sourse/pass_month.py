@@ -28,8 +28,11 @@ class MonthPass(QDialog):
         self.count_people = 0
 
         self.cb_all.stateChanged.connect(self.set_enabled_workers)
+        self.cb_manual_set.stateChanged.connect(self.set_dates)
 
         self.d_note.setDate(dt.datetime.now().date())
+        self.d_from.setDate(dt.datetime.now().date())
+        self.d_to.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
 
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5, self.worker_6,
@@ -42,10 +45,12 @@ class MonthPass(QDialog):
         self.rows_from_db = self.from_db("*", self.table)
         self.init_workers()
         self.init_cb_month()
+        self.set_dates(self.cb_manual_set.isChecked())
 
     # инициализация
     def init_cb_month(self):
-        for elem in self.list_month:
+        month = dt.datetime.now().month - 1
+        for elem in self.list_month[month:]:
             self.cb_month.addItem(elem)
 
     def init_workers(self):
@@ -64,10 +69,21 @@ class MonthPass(QDialog):
     def set_enabled_workers(self, state):
         for elem in self.list_ui:
             elem.setEnabled(state != Qt.Checked)
+        if state != Qt.Checked:
+            self.new_worker()
+
+    def set_dates(self, state):
+        self.d_to.setEnabled(state == Qt.Checked)
+        self.d_from.setEnabled(state == Qt.Checked)
+        self.cb_month.setEnabled(state != Qt.Checked)
 
     # получить данные
     # для заполнения текста
     def get_data(self):
+        if self.cb_manual_set.isChecked():
+            self.data["start_date"] = self.d_from.text()
+            self.data["end_date"] = self.d_to.text()
+            return
         next_month = self.list_month.index(self.cb_month.currentText()) + 1
         print("month: ", self.cb_month.currentText(), " index:", next_month)
         # если конец года: увеличить год и месяц в 1
@@ -87,8 +103,6 @@ class MonthPass(QDialog):
         else:
             end_next_month = str(count_days[int(next_month)])
 
-        self.data["customer"] = self.parent.customer
-        self.data["company"] = self.parent.company
         self.data["start_date"] = ".".join((next_day, next_month, next_year))
         self.data["end_date"] = ".".join((end_next_month, next_month, next_year))
 
@@ -105,6 +119,8 @@ class MonthPass(QDialog):
     def ev_ok(self):
         self.data["number"] = "Исх. № " + self.number.text()
         self.data["data"] = "от. " + self.d_note.text()
+        self.data["customer"] = self.parent.customer
+        self.data["company"] = self.parent.company
 
         self.get_data()
         doc = docxtpl.DocxTemplate(main_file)

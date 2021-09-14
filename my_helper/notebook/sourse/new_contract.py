@@ -107,19 +107,31 @@ class NewContact(QDialog):
         self.part.setText(data[6])
 
     def get_data(self):
-        return list([self.name.text(), self.name.text(), self.number.text(),  # TODO QCOMBOBOX !!!
-                     self.date.text(), self.object.toPlainText(), self.work.toPlainText(),
-                     self.part.text()])
+        if not self.check_input():
+            return list([self.name.text(), self.number.text(),
+                         self.date.text(), self.object.toPlainText(), self.work.toPlainText(),
+                         self.part.text()])
+        else:
+            QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
+
+    def check_input(self):
+        if "" in list([self.name.text(), self.number.text(),
+                       self.object.toPlainText(), self.work.toPlainText(),
+                      self.part.text()]) and self.date.text() != "01.01.2000":
+            return False
+        return True
 
     def but_status(self, status):
         if status == "add":
             self.b_ok.setEnabled(True)
             self.b_change.setEnabled(False)
             self.b_del.setEnabled(False)
+            self.number.setEnabled(True)
         if status == "change":
             self.b_ok.setEnabled(False)
             self.b_change.setEnabled(True)
             self.b_del.setEnabled(True)
+            self.number.setEnabled(False)
 
     def my_update(self):
         self.ev_kill()

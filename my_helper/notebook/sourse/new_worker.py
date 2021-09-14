@@ -185,6 +185,9 @@ class NewWorker(QDialog):
                     self.n_prot.text(),
                     self.n_card.text(),
                     self.d_prot.text()])
+        if "" in data or "01.01.2000" in data:
+            QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
+            return False
         return data
 
     def but_status(self, status):
@@ -192,10 +195,12 @@ class NewWorker(QDialog):
             self.b_ok.setEnabled(True)
             self.b_change.setEnabled(False)
             self.b_del.setEnabled(False)
+            self.family.setEnabled(True)
         if status == "change":
             self.b_ok.setEnabled(False)
             self.b_change.setEnabled(True)
             self.b_del.setEnabled(True)
+            self.family.setEnabled(False)
 
     def my_update(self):
         # удаляем старую запись

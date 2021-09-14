@@ -42,7 +42,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Короткое название</string>
+    <string>Короткое название *</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="name">
@@ -88,7 +88,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Объект</string>
+    <string>Объект *</string>
    </property>
   </widget>
   <widget class="QTextEdit" name="work">
@@ -111,7 +111,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Вид работ</string>
+    <string>Вид работ *</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="part">
@@ -134,10 +134,13 @@
     </rect>
    </property>
    <property name="text">
-    <string>Цех/отдел</string>
+    <string>Цех/отдел *</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_7">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>210</x>
@@ -156,6 +159,9 @@
    </property>
   </widget>
   <widget class="QTableWidget" name="bosses">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -271,7 +277,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Номер договора</string>
+    <string>Номер договора *</string>
    </property>
   </widget>
   <widget class="QDateEdit" name="date">
@@ -294,7 +300,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Дата договора</string>
+    <string>Дата договора *</string>
    </property>
   </widget>
   <widget class="QComboBox" name="cb_chouse">

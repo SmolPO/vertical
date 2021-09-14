@@ -35,6 +35,8 @@ class WeekPass(QDialog):
         self.d_to.setEnabled(False)
 
         self.d_note.setDate(dt.datetime.now().date())
+        self.d_from.setDate(dt.datetime.now().date())
+        self.d_to.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
         self.data = {"number": "", "date": "", "week_day": "", "contract": "", "type_work": "",
                      "part": "", "company": "", "customer": "", "post_boss": "", "boss_part": ""}
@@ -123,19 +125,20 @@ class WeekPass(QDialog):
 
         # Заполнить таблицу
         doc = docx.Document(print_file)
-        i = iter(range(1, 100))
+        i = 1
         for elem in self.list_ui:
             family = elem.currentText()
             if family != "(нет)":
                 doc.tables[1].add_row()
                 people = self.get_worker(family)
-                doc.tables[1].rows[1].cells[0].text = str(next(i))
-                doc.tables[1].rows[1].cells[1].text = " ".join(people[:3])
-                doc.tables[1].rows[1].cells[2].text = people[3]
-                doc.tables[1].rows[1].cells[3].text = people[6]
-                doc.tables[1].rows[1].cells[4].text = " ".join(people[4:6])
-                doc.tables[1].rows[1].cells[5].text = people[7]
-                doc.tables[1].rows[1].cells[6].text = people[8]
+                doc.tables[1].rows[i].cells[0].text = str(i)
+                doc.tables[1].rows[i].cells[1].text = " ".join(people[:3])
+                doc.tables[1].rows[i].cells[2].text = people[3]
+                doc.tables[1].rows[i].cells[3].text = people[6]
+                doc.tables[1].rows[i].cells[4].text = " ".join(people[4:6])
+                doc.tables[1].rows[i].cells[5].text = people[7]
+                doc.tables[1].rows[i].cells[6].text = people[8]
+                i += 1
         doc.save(print_file)
         self.close()
         os.startfile(print_file)
@@ -157,7 +160,7 @@ class WeekPass(QDialog):
 
     def get_contract(self, name):
         # получить номер договора по короткому имени
-        for row in self.from_db("number, date, object, part, work", "contract"):
+        for row in self.from_db("number, date, object, part, work, name", "contract"):
             if name in row:
                 self.data["contract"] = " от ".join(row[:2])
                 self.data["object_name"] = row[2]

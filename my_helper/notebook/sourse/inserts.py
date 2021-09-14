@@ -14,7 +14,7 @@ db_keys = {"auto": "(model, brand, gov_number, track_number)",
            "contract": "(name, customer, number, date, object, work, part)",
            "company": "(company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, family, "
                    "name, surname, post, count_dovr, date_dovr)",
-           "bosses": "(family, name, surname, post, email, phone)",
+           "bosses": "(family, name, surname, post, email, phone, sex)",
            "materials": "(name, measure, value, provider)"}
 
 

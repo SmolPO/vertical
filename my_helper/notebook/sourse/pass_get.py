@@ -24,6 +24,8 @@ class GetPass(QDialog):
         self.b_open.clicked.connect(self.my_open_file)
 
         self.d_note.setDate(dt.datetime.now().date())
+        self.d_from.setDate(dt.datetime.now().date())
+        self.d_to.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
 
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5,

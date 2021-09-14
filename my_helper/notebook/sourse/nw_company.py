@@ -126,7 +126,7 @@ class NewCompany(QDialog):
         self.date_dovr.setDate(Date.fromString("01.01.2000", "dd.mm.yyyy"))
 
     def get_data(self):
-        return list([self.company.text(),
+        data = list([self.company.text(),
                     self.adr.toPlainText(),
                     self.ogrn.text(),
                     self.inn.text(),
@@ -141,16 +141,23 @@ class NewCompany(QDialog):
                     self.post.text(),
                     self.count_dovr.text(),
                     self.date_dovr.text()])
+        if "" in data or "01.01.2000" in data:
+            QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
+            return False
+        else:
+            return True
 
     def but_status(self, status):
         if status == "add":
             self.b_ok.setEnabled(True)
             self.b_change.setEnabled(False)
             self.b_del.setEnabled(False)
+            self.company.setEnabled(True)
         if status == "change":
             self.b_ok.setEnabled(False)
             self.b_change.setEnabled(True)
             self.b_del.setEnabled(True)
+            self.company.setEnabled(False)
 
     def my_update(self):
         self.ev_kill()
