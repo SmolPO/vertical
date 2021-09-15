@@ -26,6 +26,7 @@ from my_helper.notebook.sourse.pass_auto import AutoPass
 from my_helper.notebook.sourse.pass_drive import DrivePass
 from my_tools import Notepad
 from music import Music
+from get_money import GetMoney
 import inserts as ins
 import config as conf
 """
@@ -57,7 +58,6 @@ class MainWindow(QMainWindow):
         self.b_pass_issue.clicked.connect(self.ev_btn_create_pass)
         # create
         self.b_new_person.clicked.connect(self.ev_btn_add_to_db)
-        self.b_new_bill.clicked.connect(self.ev_new_bill)
         self.b_new_build.clicked.connect(self.ev_btn_add_to_db)
         self.b_new_boss.clicked.connect(self.ev_btn_add_to_db)
         self.b_new_itr.clicked.connect(self.ev_btn_add_to_db)
@@ -80,6 +80,7 @@ class MainWindow(QMainWindow):
         # self.cb_builds.activated[str].connect(self.change_build)
         self.b_notepad.clicked.connect(self.ev_btn_start_file)
         self.b_music.clicked.connect(self.ev_btn_add_to_db)
+        #  self.b_get_money.clicked.connect(self.ev_btn_add_to_db)
 
         self.get_param_from_widget = None
         self.current_build = "Объект"
@@ -104,11 +105,6 @@ class MainWindow(QMainWindow):
         self.b_send_covid.setEnabled(False)
         self.b_connect.setEnabled(False)
         self.b_new_invoice.setEnabled(False)
-        self.b_new_bill.setEnabled(False)
-
-    def change_build(self, text):
-        self.ui_l_cur_build.setText(text)
-        self.ui_l_cur_build.adjustSize()
 
     def ev_btn_create_pass(self):
         name = self.sender().text()
@@ -190,6 +186,8 @@ class MainWindow(QMainWindow):
             wnd, table = NewMaterial(self), "materials"
         elif name == "Музыка":
             wnd, table = Music(self), "music"
+        elif name == "Заявка на деньги":
+            wnd, table = GetMoney(self), "bills"
         wnd.exec_()
         if self.data_to_db:
             self.commit(ins.add_to_db(self.data_to_db, table))

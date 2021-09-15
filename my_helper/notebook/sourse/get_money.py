@@ -1,75 +1,56 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtCore import QDate as Date
+import datetime as dt
 import webbrowser
+from config import link_fuer
+import docxtpl
+import os
 from my_helper.notebook.sourse.inserts import get_from_db, update_mat
 designer_file = '../designer_ui/music.ui'
+main_file = ""
+print_file = ""
 
 
-class Music(QDialog):
+class GetMoney(QDialog):
     def __init__(self, parent=None):
-        super(Music, self).__init__(parent)
+        super(GetMoney, self).__init__(parent)
         uic.loadUi(designer_file, self)
         self.parent = parent
         self.bosses = []
-        self.table = "music"
+        self.table = "bills"
 
         self.b_ok.clicked.connect(self.ev_start)
         self.b_cancel.clicked.connect(self.ev_cancel)
-        self.b_add.clicked.connect(self.ev_add)
-        self.b_change.clicked.connect(self.ev_change)
-        self.b_kill.clicked.connect(self.ev_kill)
-        self.cb_music.activated[str].connect(self.ev_select)
+        self.b_get_fuer.clicked.connect(self.ev_fuer)
+        self.cb_pattern.activated[str].connect(self.ev_pattern)
+        self.date.setDate(dt.datetime.now().date())
+        self.data = {"date": "", "summ": "", "note": "", "family": "", "post": "", "reciver": ""}
 
-        for row in self.from_db("name", self.table):
-            self.cb_music.addItems([row[0]])
+        for row in self.from_db("id", self.table):
+            self.cb_pattern.addItems([row])
+
+    def ev_fuer(self):
+        webbrowser.open(link_fuer)
 
     def from_db(self, fields, table):
         self.parent.db.execute(get_from_db(fields, table))
         return self.parent.db.fetchall()
 
-    def ev_add(self):
-        data = self.get_data()
-        if not data:
-            return
-        self.parent.get_new_data(data)
-        self.close()
-
-    def ev_start(self):
-        for row in self.from_db("name, link", self.table):
-            if self.cb_music.currentText() in row:
-                webbrowser.open(row[1])
-        self.close()
-
     def ev_cancel(self):
         self.close()
 
-    def ev_change(self):
-        for row in self.from_db("name", self.table):
-            if self.name.text() in row:
-                self.my_update()
-
-    def ev_kill(self):
-        for row in self.from_db("name", self.table):
-            if self.name.text() in row:
-                data = [self.name.text(),  self.add_link.text()]
-                answer = QMessageBox.question(self, "Удаление записи",
-                                              "Вы действительно хотите удалить запись " + str(data) + "?",
-                                              QMessageBox.Ok | QMessageBox.Cancel)
-                if answer == QMessageBox.Ok:
-                    self.parent.db.execute("DELETE FROM {0} WHERE name = '{1}'".format(
-                        self.table, self.name.text()))
-                    self.parent.db_conn.commit()
-                    self.close()
-                    return
-                if answer == QMessageBox.Cancel:
-                    return
-
     def set_data(self, data):
-        self.name.setText(data[0])
-        self.add_link.setText(data[1])
+        self.cb_rec.setText(data[0])
+        self.summ.setText(data[1])
+        self.note.setText(data[2])
+        self.date.setDate(Date.fromString(data[3], "dd.mm.yyyy"))
 
     def get_data(self):
-        data = list((self.name.text(), self.add_link.text()))
+        status = 0
+        next_id = len(self.from_db("*", self.table))
+        data = list((self.date.text(), self.summ.text(),
+                     self.cb_rec.currentText(), self.note.add_link.text(), status, next_id))
         if "" in data:
             QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
             return False
@@ -79,13 +60,14 @@ class Music(QDialog):
         self.name.setText("")
         self.add_link.setText("")
 
-    def my_update(self):
-        self.ev_kill()
-        self.parent.get_new_data(self.get_data())
-        self.close()
-
     def ev_select(self):
-        for row in self.from_db("name, link", self.table):
-            if self.cb_music.currentText() in row:
+        for row in self.from_db("*", self.table):
+            if self.cb_pattern.currentText().split()[0] in row:
                 self.set_data(row)
 
+    def create_note(self):
+        doc = docxtpl.DocxTemplate(main_file)
+        doc.render(self.data)
+        doc.save(print_file)
+        self.close()
+        os.startfile(print_file)
