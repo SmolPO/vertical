@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>274</width>
-    <height>231</height>
+    <height>303</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -43,22 +43,7 @@
    </property>
    <item>
     <property name="text">
-     <string>Янекс радио</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>Атмотсфера</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>7 холмов</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>Романтик</string>
+     <string>(нет)</string>
     </property>
    </item>
   </widget>
@@ -95,16 +80,16 @@
     </rect>
    </property>
    <property name="text">
-    <string>Добавить</string>
+    <string>Ссылка</string>
    </property>
   </widget>
   <widget class="QPushButton" name="b_ok">
    <property name="geometry">
     <rect>
      <x>190</x>
-     <y>190</y>
+     <y>230</y>
      <width>75</width>
-     <height>24</height>
+     <height>51</height>
     </rect>
    </property>
    <property name="text">
@@ -114,8 +99,8 @@
   <widget class="QPushButton" name="b_add">
    <property name="geometry">
     <rect>
-     <x>100</x>
-     <y>190</y>
+     <x>10</x>
+     <y>230</y>
      <width>75</width>
      <height>24</height>
     </rect>
@@ -127,14 +112,63 @@
   <widget class="QPushButton" name="b_cancel">
    <property name="geometry">
     <rect>
-     <x>10</x>
-     <y>190</y>
+     <x>100</x>
+     <y>260</y>
      <width>75</width>
      <height>24</height>
     </rect>
    </property>
    <property name="text">
     <string>Отмена</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="name">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>190</y>
+     <width>151</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>170</y>
+     <width>61</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Название</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="b_kill">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>260</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Удалить</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="b_change">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>230</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Изменить</string>
    </property>
   </widget>
  </widget>

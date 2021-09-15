@@ -25,6 +25,7 @@ from my_helper.notebook.sourse.pass_get import GetPass
 from my_helper.notebook.sourse.pass_auto import AutoPass
 from my_helper.notebook.sourse.pass_drive import DrivePass
 from my_tools import Notepad
+from music import Music
 import inserts as ins
 import config as conf
 """
@@ -78,6 +79,7 @@ class MainWindow(QMainWindow):
         self.b_invoice.clicked.connect(self.ev_btn_start_file)
         # self.cb_builds.activated[str].connect(self.change_build)
         self.b_notepad.clicked.connect(self.ev_btn_start_file)
+        self.b_music.clicked.connect(self.ev_btn_add_to_db)
 
         self.get_param_from_widget = None
         self.current_build = "Объект"
@@ -156,7 +158,8 @@ class MainWindow(QMainWindow):
             wnd = Notepad()
             wnd.exec_()
         elif name == "Музыка":
-            pass
+            wnd = Music(self)
+            wnd.exec_()
         pass
 
     def ev_btn_add_to_db(self):
@@ -185,6 +188,8 @@ class MainWindow(QMainWindow):
             wnd, table = NewITR(self), "itr"
         elif name == "Ввоз материалов":
             wnd, table = NewMaterial(self), "materials"
+        elif name == "Музыка":
+            wnd, table = Music(self), "music"
         wnd.exec_()
         if self.data_to_db:
             self.commit(ins.add_to_db(self.data_to_db, table))
