@@ -26,6 +26,9 @@ class NewWorker(QDialog):
         self.cb_chouse.addItems(["(нет)"])
         for row in self.rows_from_db:
             self.cb_chouse.addItems([row[1]])
+        self.cb_contracts.addItems(["(нет)"])
+        for row in self.from_db("name", "contracts"):
+            self.cb_contracts.addItems([row[1]])
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я ]{30}"))
@@ -184,7 +187,8 @@ class NewWorker(QDialog):
                     self.d_study.text(),
                     self.n_prot.text(),
                     self.n_card.text(),
-                    self.d_prot.text()])
+                    self.d_prot.text(),
+                    self.cb_contrats.currentText(())])
         if "" in data or "01.01.2000" in data:
             QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
             return False

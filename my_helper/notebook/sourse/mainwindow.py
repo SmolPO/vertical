@@ -89,7 +89,6 @@ class MainWindow(QMainWindow):
         self.new_worker = []
         self.data_to_db = None
 
-        self.ui_l_company.setText(self.company)
         # self.ui_l_build.setText(self.current_build)
         self.config = ConfigParser()
         self.init_notif()
@@ -229,8 +228,6 @@ class MainWindow(QMainWindow):
         рассортировать все отсканированные файлы по папкам
         """
         check_file()
-        print("pdf check")
-        print("not check file")
 
     def ev_send_covid(self):
         """
