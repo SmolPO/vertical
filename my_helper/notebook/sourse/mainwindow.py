@@ -174,17 +174,17 @@ class MainWindow(QMainWindow):
                 msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
                 if msg == QMessageBox.Ok:
                     return
-            wnd, table = NewContact(self), "contract"
+            wnd, table = NewContact(self), "contracts"
         elif name == "Заказчик":
             wnd, table = NewCompany(self), "company"
         elif name == "Сотрудник":
             wnd, table = NewWorker(self), "workers"
         elif name == "Прораб":
-            wnd, table = NewITR(self), "itr"
+            wnd, table = NewITR(self), "itrs"
         elif name == "Ввоз материалов":
             wnd, table = NewMaterial(self), "materials"
         elif name == "Музыка":
-            wnd, table = Music(self), "music"
+            wnd, table = Music(self), "musics"
         elif name == "Заявка на деньги":
             wnd, table = GetMoney(self), "bills"
         wnd.exec_()
@@ -281,10 +281,7 @@ class MainWindow(QMainWindow):
 
     # database
     def connect_to_db(self):
-        self.db_conn = psycopg2.connect(dbname='Company',
-                                        user='postgres',
-                                        password='pol_ool_123',
-                                        host='localhost')
+        self.db_conn = psycopg2.connect("host=95.163.249.246 dbname=Vertical_db user=office password=9024EgrGvz#m87Y1")
         self.db = self.db_conn.cursor()
         if not self.db_conn:
             return False

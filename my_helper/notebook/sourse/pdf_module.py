@@ -2,7 +2,6 @@ from PIL import Image
 import pytesseract
 import os
 from datetime import datetime as dt
-from PyPDF2 import PdfFileMerger
 import config as conf
 import cv2
 import img2pdf
@@ -51,10 +50,10 @@ def check_file():
 def create_covid():
     pdfs = conf.path_OCR + "/covid"
     files = os.listdir(pdfs)
-    merger = PdfFileMerger()
-    for pdf in files:
-        merger.append(pdf)
-    merger.write(pdfs + "/covid_{0}_{1}.pdf".format(dt.now().day, dt.now().month))
+   # merger = PdfFileMerger()
+   # for pdf in files:
+    #    merger.append(pdf)
+  #  merger.write(pdfs + "/covid_{0}_{1}.pdf".format(dt.now().day, dt.now().month))
     pass
 
 
