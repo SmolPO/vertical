@@ -91,7 +91,7 @@ class NewBoss(QDialog):
         self.post.setText(data[3])
         self.email.setText(data[4])
         self.phone.setText(data[5])
-        self.cb_sex.setCurrentIndex(0) if data[6] == "М" else self.cb_sex.setCurrentIndex(0)
+        self.cb_sex.setCurrentIndex(0) if data[6] == "М" else self.cb_sex.setCurrentIndex(1)
 
     def get_data(self):
         if not self.check_input():

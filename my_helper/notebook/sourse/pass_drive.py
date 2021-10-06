@@ -29,7 +29,7 @@ class DrivePass(QDialog):
 
         self.cb_activ.stateChanged.connect(self.manual_set)
         self.d_arrive.dateChanged.connect(self.date_changed)
-        self.input_text.textChanged.connect(self.text_changed)
+        self.input_text.textChanged.connect(self.change_note)
 
         self.d_note.setDate(dt.datetime.now().date())
         self.number.setValue(self.parent.get_next_number())
@@ -101,10 +101,6 @@ class DrivePass(QDialog):
             if self.cb_contracts.currentText() == "(нет)":
                 self.work = ""
                 self.contract = ""
-        self.change_note()
-
-    def text_changed(self):
-        self.my_text = self.input_text.toPlainText()
         self.change_note()
 
     def change_note(self):

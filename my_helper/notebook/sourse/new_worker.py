@@ -26,9 +26,9 @@ class NewWorker(QDialog):
         self.cb_chouse.addItems(["(нет)"])
         for row in self.rows_from_db:
             self.cb_chouse.addItems([row[1]])
-        self.cb_contracts.addItems(["(нет)"])
-        for row in self.from_db("name", "contracts"):
-            self.cb_contracts.addItems([row[1]])
+        self.cb_contract.addItems(["(нет)"])
+        for row in self.from_db("name", "contract"):
+            self.cb_contract.addItems([row[0]])
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я ]{30}"))
@@ -132,6 +132,7 @@ class NewWorker(QDialog):
         self.n_prot.setText("")
         self.n_card.setText("")
         self.d_prot.setDate(zero)
+        self.cb_contract.setCurrentIndex(0)
         pass
 
     def set_data(self, data):
@@ -188,7 +189,7 @@ class NewWorker(QDialog):
                     self.n_prot.text(),
                     self.n_card.text(),
                     self.d_prot.text(),
-                    self.cb_contrats.currentText(())])
+                    self.cb_contract.currentText()])
         if "" in data or "01.01.2000" in data:
             QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
             return False
@@ -207,12 +208,15 @@ class NewWorker(QDialog):
             self.family.setEnabled(False)
 
     def my_update(self):
-        # удаляем старую запись
-        self.ev_kill()
-        # добавляем новую запись
-        self.parent.get_new_data(self.get_data())
-        self.close()
-        pass
+        try:
+            data = self.get_data()
+            if data:
+                self.ev_kill()
+                self.parent.get_new_data(data)
+                self.close()
+        except:
+            print("error")
+            return
 
     def from_db(self, fields, table):
         self.parent.db.execute(get_from_db(fields, table))

@@ -43,7 +43,7 @@ import config as conf
 10. деньги на ТК
 Срок к концу недели
 """
-
+key_for_db = "host=95.163.249.246 dbname=Vertical_db user=office password=9024EgrGvz#m87Y1"
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -177,9 +177,9 @@ class MainWindow(QMainWindow):
             wnd, table = NewContact(self), "contracts"
         elif name == "Заказчик":
             wnd, table = NewCompany(self), "company"
-        elif name == "Сотрудник":
+        elif name == "Новый сотрудник":
             wnd, table = NewWorker(self), "workers"
-        elif name == "Прораб":
+        elif name == "Новый прораб":
             wnd, table = NewITR(self), "itrs"
         elif name == "Ввоз материалов":
             wnd, table = NewMaterial(self), "materials"
@@ -281,7 +281,7 @@ class MainWindow(QMainWindow):
 
     # database
     def connect_to_db(self):
-        self.db_conn = psycopg2.connect("host=95.163.249.246 dbname=Vertical_db user=office password=9024EgrGvz#m87Y1")
+        self.db_conn = psycopg2.connect(key_for_db)
         self.db = self.db_conn.cursor()
         if not self.db_conn:
             return False
