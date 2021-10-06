@@ -36,7 +36,7 @@ class GetPass(QDialog):
         self.init_contracts()
 
     def init_contracts(self):
-        for item in self.from_db("number, date", "contract"):
+        for item in self.from_db("number, date", "contracts"):
             self.cb_contract.addItem(item[0])
 
     def init_workers(self):

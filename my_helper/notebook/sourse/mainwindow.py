@@ -24,6 +24,7 @@ from my_helper.notebook.sourse.pass_month import MonthPass
 from my_helper.notebook.sourse.pass_get import GetPass
 from my_helper.notebook.sourse.pass_auto import AutoPass
 from my_helper.notebook.sourse.pass_drive import DrivePass
+from my_helper.notebook.sourse.inserts import get_from_db
 from my_tools import Notepad
 from music import Music
 from get_money import GetMoney
@@ -44,6 +45,7 @@ import config as conf
 Срок к концу недели
 """
 key_for_db = "host=95.163.249.246 dbname=Vertical_db user=office password=9024EgrGvz#m87Y1"
+
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -108,18 +110,37 @@ class MainWindow(QMainWindow):
     def ev_btn_create_pass(self):
         name = self.sender().text()
         wnd = None
+        people = self.from_db("*", "workers")
         if name == "Продление на месяц":
-            wnd = MonthPass(self)
+            if self.is_have_people():
+                wnd = MonthPass(self)
+            else:
+                return
         elif name == "Пропуск на выходные":
-            wnd = WeekPass(self)
+            if self.is_have_people():
+                wnd = WeekPass(self)
+            else:
+                return
         elif name == "Разблокировка пропуска":
-            wnd = UnlockPass(self)
+            if self.is_have_people():
+                wnd = UnlockPass(self)
+            else:
+                return
         elif name == "Выдать пропуск":
-            wnd = GetPass(self)
+            if self.is_have_people():
+                wnd = GetPass(self)
+            else:
+                return
         elif name == "Продление на машину":
-            wnd = AutoPass(self)
+            if self.is_have_auto():
+                wnd = AutoPass(self)
+            else:
+                return
         elif name == "Разовый пропуск на машину":
-            wnd = DrivePass(self)
+            if self.is_drivers():
+                wnd = DrivePass(self)
+            else:
+                return
         wnd.exec_()
 
     def ev_btn_start_file(self):
@@ -186,7 +207,7 @@ class MainWindow(QMainWindow):
         elif name == "Музыка":
             wnd, table = Music(self), "musics"
         elif name == "Заявка на деньги":
-            wnd, table = GetMoney(self), "bills"
+            wnd, table = GetMoney(self), "finances"
         wnd.exec_()
         if self.data_to_db:
             self.commit(ins.add_to_db(self.data_to_db, table))
@@ -349,6 +370,34 @@ class MainWindow(QMainWindow):
 
     def music(self):
         playlist = list(["https://atmoradio.ru/", "https://radio7.ru/", "https://radio.yandex.ru/"])
+
+    def from_db(self, fields, table):
+        self.db.execute(get_from_db(fields, table))
+        return self.db.fetchall()
+
+    def is_have_people(self):
+        people = self.from_db("*", "workers")
+        if not people:
+            msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Сотрудников", QMessageBox.Ok)
+            if msg == QMessageBox.Ok:
+                return False
+        return True
+
+    def is_have_auto(self):
+        auto = self.from_db("*", "auto")
+        if not auto:
+            msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте свое Феррари)", QMessageBox.Ok)
+            if msg == QMessageBox.Ok:
+                return False
+        return True
+
+    def is_drivers(self):
+        drivers = self.from_db("*", "drivers")
+        if not drivers:
+            msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте свое Феррари)", QMessageBox.Ok)
+            if msg == QMessageBox.Ok:
+                return False
+        return True
 
 
 if __name__ == "__main__":

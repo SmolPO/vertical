@@ -26,7 +26,7 @@ class NewITR(QDialog):
         # pass
         self.parent = parent
         self.itr = []
-        self.table = "itr"
+        self.table = "itrs"
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_del.clicked.connect(self.ev_kill)

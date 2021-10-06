@@ -30,7 +30,6 @@ class NewCompany(QDialog):
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я]{30}"))
         number_prot = QREVal(QRE("[А-Яа-я /- 0-9]{10}"))
-        self.company.setValidator(symbols)
         #  self.adr.appendPlainText(data[1])
         self.ogrn.setValidator(QREVal(QRE("[0-9]{11}")))
         self.inn.setValidator(QREVal(QRE("[0-9]{10}")))

@@ -94,7 +94,7 @@ class NewBoss(QDialog):
         self.cb_sex.setCurrentIndex(0) if data[6] == "М" else self.cb_sex.setCurrentIndex(1)
 
     def get_data(self):
-        if not self.check_input():
+        if self.check_input():
             return list([self.family.text(),
                          self.name.text(),
                          self.surname.text(),

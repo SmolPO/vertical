@@ -21,7 +21,7 @@ class WeekPass(QDialog):
         self.workers = [self.worker_1, self.worker_2, self.worker_3,
                         self.worker_4, self.worker_5, self.worker_6,
                         self.worker_7, self.worker_8, self.worker_9]
-        self.table = "contract"
+        self.table = "contracts"
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_save.clicked.connect(self.save_pattern)

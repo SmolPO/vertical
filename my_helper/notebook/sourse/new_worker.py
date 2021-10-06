@@ -27,7 +27,7 @@ class NewWorker(QDialog):
         for row in self.rows_from_db:
             self.cb_chouse.addItems([row[1]])
         self.cb_contract.addItems(["(нет)"])
-        for row in self.from_db("name", "contract"):
+        for row in self.from_db("name", "contracts"):
             self.cb_contract.addItems([row[0]])
 
     def init_mask(self):
