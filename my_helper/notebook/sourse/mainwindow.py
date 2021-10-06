@@ -99,6 +99,7 @@ class MainWindow(QMainWindow):
         self.connect_to_db()
         self.test_func()
         self.get_weather()
+        self.ip = 8
 
     def test_func(self):
         self.b_create_act.setEnabled(False)
