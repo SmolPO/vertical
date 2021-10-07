@@ -11,7 +11,7 @@ class Music(QDialog):
         uic.loadUi(designer_file, self)
         self.parent = parent
         self.bosses = []
-        self.table = "music"
+        self.table = "musics"
 
         self.b_ok.clicked.connect(self.ev_start)
         self.b_cancel.clicked.connect(self.ev_cancel)

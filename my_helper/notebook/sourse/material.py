@@ -27,6 +27,10 @@ class NewMaterial(QDialog):
         self.cb_select.addItems(["(нет)"])
         for row in self.from_db("name", self.table):
             self.cb_select.addItems([row[0]])
+
+        self.cb_contracts.addItems(["(нет)"])
+        for row in self.from_db("name", "contracts"):
+            self.cb_contracts.addItems([row[0]])
         self.but_status("add")
         self.rows_from_db = self.from_db("*", self.table)
 
@@ -94,6 +98,13 @@ class NewMaterial(QDialog):
         self.summ.setText(data[3])
         self.provider.setChecked(True if data[next(i)] == "Заказчик" else False)
 
+        contracts = self.from_db("name, number", "contracts")
+        j = iter(range(len(contracts)))
+        for item in contracts:
+            if data[4] in item:
+                self.cb_contracts.setCurrentIndex(next(j))
+            next(j)
+
     def get_data(self):
         if self.name.text() == "" or \
            self.value.text() == "":
@@ -106,12 +117,15 @@ class NewMaterial(QDialog):
             data.append(str(int(self.value.text()) + int(self.summ.text())))
         self.provider_ = "Заказчик" if self.provider.isChecked() else "Подрядчик"
         data.append(self.provider_)
+        data.append(self.contract.currentText())
         return data
 
     def clean_data(self):
         self.name.setText("")
         self.value.setText("")
         self.summ.setText("0")
+        self.cb_select.setCurrentIndex(0)
+        self.cb_contracts.setCurrentIndex(0)
 
     def but_status(self, status):
         if status == "add":

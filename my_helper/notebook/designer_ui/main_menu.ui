@@ -243,7 +243,7 @@
    </widget>
    <widget class="QPushButton" name="b_get_money">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
@@ -578,25 +578,6 @@
      <string>Распечать ТБ</string>
     </property>
    </widget>
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>30</x>
-      <y>450</y>
-      <width>71</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <pointsize>12</pointsize>
-      <italic>true</italic>
-     </font>
-    </property>
-    <property name="text">
-     <string>Погода</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="l_weather">
     <property name="geometry">
      <rect>
@@ -626,10 +607,10 @@
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>450</y>
-      <width>3</width>
-      <height>61</height>
+      <x>10</x>
+      <y>470</y>
+      <width>16</width>
+      <height>41</height>
      </rect>
     </property>
     <property name="orientation">

@@ -15,28 +15,35 @@ class GetMoney(QDialog):
         # pass
         self.parent = parent
         self.bosses = []
-        self.table = "finances"
+        self.table = "finance"
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
-        self.b_del.clicked.connect(self.ev_kill)
+        self.b_kill.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
 
-        self.cb_recipient.activated[str].connect(self.ev_recipient)
+        self.cb_recipient.activated[str].connect(self.change_note)
         self.cb_select.activated[str].connect(self.ev_select)
         # self.cb_manual_set.stateChanged.connect(self.manual_set)
         self.cb_day.stateChanged.connect(self.day_money)
+
         self.note.textChanged.connect(self.change_note)
+        self.sb_value.valueChanged[int].connect(self.change_note)
+        self.sb_days.valueChanged[int].connect(self.change_note)
+        self.sb_emploeeyrs.stateChanged.connect(self.change_note)
+        self.sb_cost.stateChanged.connect(self.change_note)
+        self.cb_some.stateChanged.connect(self.change_note)
+        self.cb_day.stateChanged.connect(self.change_note)
 
         # self.but_status("add")
         self.rows_from_db = self.from_db("*", self.table)
         self.cb_select.addItems(["(нет)"])
         for row in self.rows_from_db:
             self.cb_chouse.addItems([", ".join((row[0], row[1]))])
-        self.my_id.setValue(self.next_id())
 
-    def init_mask(self):
-        symbols = QREVal(QRE("[а-яА-Я]{30}"))
-        self.value.setValidator(symbols)
+        self.cb_recipient.addItems(["(нет)"])
+        for row in self.from_db("family, name", "itrs"):
+            self.cb_recipient.addItems([" ".join((row[0], row[1][0])) + "."])
+        self.my_id.setValue(self.next_id())
 
     def ev_ok(self):
         data = self.get_data()
@@ -60,7 +67,7 @@ class GetMoney(QDialog):
             if text in row:
                 self.set_data(row)
 
-    def change_note(self):
+    def change_note(self, state=None):
         itr = ""
         people = self.from_db("post, family, name", "itrs")
         for boss in people:
@@ -68,20 +75,26 @@ class GetMoney(QDialog):
                 itr = boss
         text = list()
         text.append("Прошу Вас выслать ")
-        text.append(str(self.value.value()))
+        text.append(str(self.sb_value.value()))
         text.append(" на банковскую карту ")
         text.append(" ".join(itr[0:2]))
         text.append(" для:\n")
-        text.append(self.note.toPlainText())
+        if self.cb_day.isChecked():
+            text.append("- суточные {0} чел {1} дней {2}р. ставка\n".format(self.sb_days.value(),
+                                                                            self.sb_emploeeyrs.value(),
+                                                                            self.sb_cost.value()))
+        if self.cb_some.isChecked():
+            text.append("- производственные нужды\n")
+        text.append(" - " + self.note.toPlainText())
         self.note_result.setText(" ".join(text))
 
     def day_money(self, state):
         if state == Qt.Checked:
-            self.sb_day.setEnabled(True)
+            self.sb_days.setEnabled(True)
             self.sb_emploeeyrs.setEnabled(True)
             self.sb_cost.setEnabled(True)
         else:
-            self.sb_day.setEnabled(False)
+            self.sb_daysm.setEnabled(False)
             self.sb_emploeeyrs.setEnabled(False)
             self.sb_cost.setEnabled(False)
 
@@ -118,7 +131,7 @@ class GetMoney(QDialog):
     def set_data(self, data):
         self.sb_number.setValue(data[0])
         self.date.setDate(Date.fromString(data[1], "dd.mm.yyyy"))
-        self.value.setText(data[2])
+        self.sb_value.Value(int(data[2]))
         i = range(len(self.rows_from_db))
         for row in self.rows_from_db:
             self.cb_recipient.setCurrentIndex(next(i)) if data[3] in row else next(i)
@@ -129,10 +142,10 @@ class GetMoney(QDialog):
         data = list()
         data.append(str(self.my_id_.value()))
         data.append(self.date.text())
-        data.append(self.value.text())
+        data.append(str(self.sb_value.value()))
         data.append(self.cb_recipient.currentText())
         if self.cb_day.setChecked():
-            data.append("суточные {0} чел {1} дней {2}р. ставка".format(self.sb_day.value(),
+            data.append("суточные {0} чел {1} дней {2}р. ставка".format(self.sb_days.value(),
                                                                         self.sb_emploeers.value(),
                                                                         self.sb_cost.value))
         if self.note.toPlainText():
@@ -148,7 +161,7 @@ class GetMoney(QDialog):
         return data
 
     def check_input(self):
-        if "" in list([self.value.value(),
+        if "" in list([self.sb_value.value(),
                      self.name.text(),
                      self.surname.text(),
                      self.post.text()]):
@@ -157,7 +170,7 @@ class GetMoney(QDialog):
 
     def clean_data(self):
         self.sb_recipient.setCurrentIndex(0)
-        self.value.setValue(0)
+        self.sb_value.setValue(0)
         self.note.clear()
         self.cb_day.setCheacked(False)
         self.sb_day.setValue(0)
@@ -180,7 +193,10 @@ class GetMoney(QDialog):
         pass
 
     def next_id(self):
-        return str(int(self.rows_from_db[-1][0]) + 1)
+        if not self.rows_from_db:
+            return 1
+        else:
+            return str(int(self.rows_from_db[-1][0]) + 1)
 
     def from_db(self, fields, table):
         self.parent.db.execute(get_from_db(fields, table))

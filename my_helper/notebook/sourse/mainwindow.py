@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
         # self.cb_builds.activated[str].connect(self.change_build)
         self.b_notepad.clicked.connect(self.ev_btn_start_file)
         self.b_music.clicked.connect(self.ev_btn_add_to_db)
-        #  self.b_get_money.clicked.connect(self.ev_btn_add_to_db)
+        self.b_get_money.clicked.connect(self.ev_btn_add_to_db)
 
         self.get_param_from_widget = None
         self.current_build = "Объект"

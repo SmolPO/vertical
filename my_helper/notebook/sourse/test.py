@@ -25,7 +25,7 @@ try:
     print("add table bosses")
     db.execute("CREATE TABLE musics (name text, link text)")
     print("add table materials")
-    db.execute("CREATE TABLE materials (name text, measure text, value text, provider text)")
+    db.execute("CREATE TABLE materials (name text, measure text, value text, provider text, contract text)")
     print("add table materials")
 
     db.execute("CREATE TABLE workers (family text, name text, surname text, birthday text, post text, phone text, "
