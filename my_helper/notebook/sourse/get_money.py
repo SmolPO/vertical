@@ -4,6 +4,7 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
+import datetime as dt
 from my_helper.notebook.sourse.inserts import get_from_db
 designer_file = '../designer_ui/get_money_2.ui'
 
@@ -29,10 +30,12 @@ class GetMoney(QDialog):
         self.note.textChanged.connect(self.change_note)
         self.sb_value.valueChanged[int].connect(self.change_note)
         self.sb_days.valueChanged[int].connect(self.change_note)
-        self.sb_emploeeyrs.stateChanged.connect(self.change_note)
-        self.sb_cost.stateChanged.connect(self.change_note)
+        self.sb_emploeeyrs.valueChanged[int].connect(self.change_note)
+        self.sb_some_value.valueChanged[int].connect(self.change_note)
+        self.sb_cost.valueChanged[int].connect(self.change_note)
         self.cb_some.stateChanged.connect(self.change_note)
         self.cb_day.stateChanged.connect(self.change_note)
+        self.date.setDate(dt.datetime.now().date())
 
         # self.but_status("add")
         self.rows_from_db = self.from_db("*", self.table)
@@ -68,6 +71,8 @@ class GetMoney(QDialog):
                 self.set_data(row)
 
     def change_note(self, state=None):
+        self.sb_some_value.setEnabled(True) if self.cb_some.isChecked() else self.sb_some_value.setEnabled(False)
+        self.day_money(self.cb_day.isChecked())
         itr = ""
         people = self.from_db("post, family, name", "itrs")
         for boss in people:
@@ -80,21 +85,24 @@ class GetMoney(QDialog):
         text.append(" ".join(itr[0:2]))
         text.append(" для:\n")
         if self.cb_day.isChecked():
-            text.append("- суточные {0} чел {1} дней {2}р. ставка\n".format(self.sb_days.value(),
-                                                                            self.sb_emploeeyrs.value(),
-                                                                            self.sb_cost.value()))
+            cost = self.sb_days.value() * self.sb_emploeeyrs.value() * self.sb_cost.value()
+            text.append("- суточные {0}р. из расчета {1} дней/я {2} чел. {3}р. ставка\n".format(cost,
+                                                                                           self.sb_days.value(),
+                                                                                           self.sb_emploeeyrs.value(),
+                                                                                           self.sb_cost.value()))
         if self.cb_some.isChecked():
-            text.append("- производственные нужды\n")
-        text.append(" - " + self.note.toPlainText())
+            text.append("- {0}р. на производственные нужды\n".format(self.sb_some_value.value()))
+        if self.note.toPlainText():
+            text.append(" - " + self.note.toPlainText())
         self.note_result.setText(" ".join(text))
 
     def day_money(self, state):
-        if state == Qt.Checked:
+        if state:
             self.sb_days.setEnabled(True)
             self.sb_emploeeyrs.setEnabled(True)
             self.sb_cost.setEnabled(True)
         else:
-            self.sb_daysm.setEnabled(False)
+            self.sb_days.setEnabled(False)
             self.sb_emploeeyrs.setEnabled(False)
             self.sb_cost.setEnabled(False)
 
@@ -139,6 +147,18 @@ class GetMoney(QDialog):
         self.note.append(data[4])
 
     def get_data(self):
+        cost = self.sb_days.value() * self.sb_emploeeyrs.value() * self.sb_cost.value()
+        if cost + self.sb_some_value.value() > self.sb_value.value():
+            QMessageBox.question(self, "Внимание",
+                                 "Сумма в итоге меньше, чем сумма пунктов. Вы хотите за своих оплачивать?))",
+                                 QMessageBox.Ok | QMessageBox.Cancel)
+            return
+        if not self.note.toPlainText():
+            if cost + self.sb_some_value.value() != self.sb_value.value():
+                QMessageBox.question(self, "Внимание",
+                                     "Не сходится сумма, напишите куда именно вы потратите разницу",
+                                     QMessageBox.Ok)
+            return
         data = list()
         data.append(str(self.my_id_.value()))
         data.append(self.date.text())
