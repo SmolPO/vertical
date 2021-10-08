@@ -5,6 +5,7 @@ from PyQt5.QtCore import QDate as Date
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
 import datetime as dt
+from database import DataBase as DB
 from my_helper.notebook.sourse.inserts import get_from_db
 designer_file = '../designer_ui/get_money_2.ui'
 
@@ -38,13 +39,13 @@ class GetMoney(QDialog):
         self.date.setDate(dt.datetime.now().date())
 
         # self.but_status("add")
-        self.rows_from_db = self.from_db("*", self.table)
+        self.rows_from_db = self.parent.db.get_from_table("*", self.table)
         self.cb_select.addItems(["(нет)"])
         for row in self.rows_from_db:
             self.cb_chouse.addItems([", ".join((row[0], row[1]))])
 
         self.cb_recipient.addItems(["(нет)"])
-        for row in self.from_db("family, name", "itrs"):
+        for row in self.parent.db.get_from_table("family, name", "itrs"):
             self.cb_recipient.addItems([" ".join((row[0], row[1][0])) + "."])
         self.my_id.setValue(self.next_id())
 
@@ -74,7 +75,7 @@ class GetMoney(QDialog):
         self.sb_some_value.setEnabled(True) if self.cb_some.isChecked() else self.sb_some_value.setEnabled(False)
         self.day_money(self.cb_day.isChecked())
         itr = ""
-        people = self.from_db("post, family, name", "itrs")
+        people = self.parent.db.get_from_table("post, family, name", "itrs")
         for boss in people:
             if self.cb_recipient.currentText()[:-4] in boss:
                 itr = boss
@@ -125,12 +126,8 @@ class GetMoney(QDialog):
                                               "Вы действительно хотите удалить запись " + str(data) + "?",
                                               QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    print("DELETE FROM {0} WHERE id = '{1}'".format(
-                        self.table, self.my_id.value()))
-                    print(row)
-                    self.parent.db.execute("DELETE FROM {0} WHERE id = '{1}'".format(
-                        self.table, self.my_id.value()))
-                    self.parent.db_conn.commit()
+                    self.parent.db.execute("DELETE FROM {0} WHERE id = '{1}'".format(self.table, self.my_id.value()))
+                    self.parent.db.my_commit()
                     self.close()
                     return
                 if answer == QMessageBox.Cancel:
@@ -182,9 +179,9 @@ class GetMoney(QDialog):
 
     def check_input(self):
         if "" in list([self.sb_value.value(),
-                     self.name.text(),
-                     self.surname.text(),
-                     self.post.text()]):
+                       self.name.text(),
+                       self.surname.text(),
+                       self.post.text()]):
             return False
         return True
 
@@ -210,14 +207,9 @@ class GetMoney(QDialog):
         self.ev_kill()
         self.parent.get_new_data(self.get_data())
         self.close()
-        pass
 
     def next_id(self):
         if not self.rows_from_db:
             return 1
         else:
             return str(int(self.rows_from_db[-1][0]) + 1)
-
-    def from_db(self, fields, table):
-        self.parent.db.execute(get_from_db(fields, table))
-        return self.parent.db.fetchall()

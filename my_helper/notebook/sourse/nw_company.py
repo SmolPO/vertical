@@ -22,7 +22,7 @@ class NewCompany(QDialog):
         self.cb_chouse.activated[str].connect(self.ev_select)
         self.but_status("add")
         self.init_mask()
-        self.rows_from_db = self.from_db("*", self.table)
+        self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.cb_chouse.addItems(["(нет)"])
         for row in self.rows_from_db:
             self.cb_chouse.addItems([row[0]])
@@ -62,13 +62,10 @@ class NewCompany(QDialog):
                                               "Вы действительно хотите удалить запись " + str(data) + "?",
                                               QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    print("DELETE FROM {0} WHERE company = '{1}'".format(
-                        self.table, self.company.text()))
-                    self.parent.db.execute("DELETE FROM {0} WHERE company = '{1}'".format(
-                        self.table, self.company.text()))
-                    self.parent.db_conn.commit()  # TODO удаление
+                    self.parent.db.execute("DELETE FROM {0} WHERE company = '{1}'".format(self.table,
+                                                                                          self.company.text()))
+                    self.parent.db.commit()  # TODO удаление
                     self.close()
-                    return
                 if answer == QMessageBox.Cancel:
                     return
 

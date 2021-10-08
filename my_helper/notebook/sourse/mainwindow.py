@@ -25,6 +25,7 @@ from my_helper.notebook.sourse.pass_get import GetPass
 from my_helper.notebook.sourse.pass_auto import AutoPass
 from my_helper.notebook.sourse.pass_drive import DrivePass
 from my_helper.notebook.sourse.inserts import get_from_db
+from database import DataBase
 from my_tools import Notepad
 from music import Music
 from get_money import GetMoney
@@ -96,6 +97,7 @@ class MainWindow(QMainWindow):
         self.init_notif()
 
         # Database
+        self.db = DataBase()
         self.connect_to_db()
         self.test_func()
         self.get_weather()
@@ -111,34 +113,33 @@ class MainWindow(QMainWindow):
     def ev_btn_create_pass(self):
         name = self.sender().text()
         wnd = None
-        people = self.from_db("*", "workers")
         if name == "Продление на месяц":
-            if self.is_have_people():
+            if self.is_have_some("workers"):
                 wnd = MonthPass(self)
             else:
                 return
         elif name == "Пропуск на выходные":
-            if self.is_have_people():
+            if self.is_have_some("workers"):
                 wnd = WeekPass(self)
             else:
                 return
         elif name == "Разблокировка пропуска":
-            if self.is_have_people():
+            if self.is_have_some("workers"):
                 wnd = UnlockPass(self)
             else:
                 return
         elif name == "Выдать пропуск":
-            if self.is_have_people():
+            if self.is_have_some("workers"):
                 wnd = GetPass(self)
             else:
                 return
         elif name == "Продление на машину":
-            if self.is_have_auto():
+            if self.is_have_some("auto"):
                 wnd = AutoPass(self)
             else:
                 return
         elif name == "Разовый пропуск на машину":
-            if self.is_drivers():
+            if self.is_have_some("drivers"):
                 wnd = DrivePass(self)
             else:
                 return
@@ -190,12 +191,9 @@ class MainWindow(QMainWindow):
         elif name == "Босс":
             wnd, table = NewBoss(self), "bosses"
         elif name == "Договор":
-            self.db.execute('SELECT * FROM company')
-            rows = self.db.fetchall()
-            if not rows:
-                msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
-                if msg == QMessageBox.Ok:
-                    return
+            if not self.db.get_from_table("*", "company"):
+                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
+                return
             wnd, table = NewContact(self), "contracts"
         elif name == "Заказчик":
             wnd, table = NewCompany(self), "company"
@@ -211,15 +209,7 @@ class MainWindow(QMainWindow):
             wnd, table = GetMoney(self), "finances"
         wnd.exec_()
         if self.data_to_db:
-            self.commit(ins.add_to_db(self.data_to_db, table))
-
-    def commit(self, query):
-        if self.data_to_db:
-            print(self.data_to_db)
-            self.db.execute(query)
-            self.db_conn.commit()
-            self.data_to_db = None
-            print("OK")
+            self.db.my_commit(ins.add_to_db(self.data_to_db, table), self.data_to_db)
 
     def ev_new_bill(self):
         try:
@@ -301,14 +291,6 @@ class MainWindow(QMainWindow):
             config.write(configfile)
         return int(number_note)
 
-    # database
-    def connect_to_db(self):
-        self.db_conn = psycopg2.connect(key_for_db)
-        self.db = self.db_conn.cursor()
-        if not self.db_conn:
-            return False
-        return True
-
     def get_new_data(self, data):
         self.data_to_db = data
 
@@ -369,37 +351,12 @@ class MainWindow(QMainWindow):
         except Exception as e:
             print("Exception (weather):", e)
 
-    def music(self):
-        playlist = list(["https://atmoradio.ru/", "https://radio7.ru/", "https://radio.yandex.ru/"])
-
-    def from_db(self, fields, table):
-        self.db.execute(get_from_db(fields, table))
-        return self.db.fetchall()
-
-    def is_have_people(self):
-        people = self.from_db("*", "workers")
-        if not people:
-            msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Сотрудников", QMessageBox.Ok)
-            if msg == QMessageBox.Ok:
-                return False
-        return True
-
-    def is_have_auto(self):
-        auto = self.from_db("*", "auto")
+    def is_have_some(self, table):
+        auto = self.from_db("*", table)
         if not auto:
-            msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте свое Феррари)", QMessageBox.Ok)
-            if msg == QMessageBox.Ok:
-                return False
+            QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте кого-то/что-то)", QMessageBox.Ok)
+            return False
         return True
-
-    def is_drivers(self):
-        drivers = self.from_db("*", "drivers")
-        if not drivers:
-            msg = QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте свое Феррари)", QMessageBox.Ok)
-            if msg == QMessageBox.Ok:
-                return False
-        return True
-
 
 if __name__ == "__main__":
     # app = Notebook()

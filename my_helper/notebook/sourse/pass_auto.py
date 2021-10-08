@@ -45,30 +45,30 @@ class AutoPass(QDialog):
         self.list_ui = list([self.driver_1, self.driver_2, self.driver_3, self.driver_4,
                              self.driver_5, self.driver_6, self.driver_7])
         self.count = 0
-        self.rows_from_db = self.from_db("*", self.table)
+        self.rows_from_db = self.parent.db.get_data("*", self.table)
 
     # инициализация
     def init_drivers(self):
         for item in self.list_ui:
             item.addItem("(нет)")
-        for row in self.from_db("family, name", self.table):
+        for row in self.parent.db.get_data("family, name", self.table):
             for item in self.list_ui:
                 item.addItem(" ".join((row[0], row[1][0] + ".")))
                 item.activated[str].connect(self.new_driver)
 
     def init_auto(self):
         self.cb_auto.addItem("(нет)")
-        for row in self.from_db("model, gov_number", "auto"):
+        for row in self.parent.db.get_data("model, gov_number", "auto"):
             self.cb_auto.addItem(row[0])
 
     # для заполнения текста
     def get_data(self):
-        rows = self.from_db("*", "auto")
+        rows = self.parent.db.get_data("*", "auto")
         for row in rows:
             if self.cb_auto.currentText() in row:
                 self.data["auto"].append(" ".join(row[:2]))
                 self.data["gov_number"].append(row[2])
-        for row in self.from_db("family, name, surname, birthday, passport", "drivers"):
+        for row in self.parent.db.get_data("family, name, surname, birthday, passport", "drivers"):
             for item in self.list_ui:
                 if item.currentText()[:-3] in row:
                     self.data["people"][self.count].append(" ".join(row))
@@ -118,10 +118,6 @@ class AutoPass(QDialog):
 
     def my_open_file(self):
         os.startfile(print_file)
-
-    def from_db(self, fields, table):
-        self.parent.db.execute(get_from_db(fields, table))
-        return self.parent.db.fetchall()
 
     def manual_set(self, state):
         if state == Qt.Checked:
