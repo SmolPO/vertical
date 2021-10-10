@@ -5,6 +5,8 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.inserts import get_from_db
 designer_file = "../designer_ui/add_company.ui"
+fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank", "family", "name", "surname",
+          "post", "count_attorney", "date_attorney", "id"]
 
 
 class NewCompany(QDialog):
@@ -17,15 +19,16 @@ class NewCompany(QDialog):
         self.table = "company"
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
-        self.b_del.clicked.connect(self.ev_kill)
+        self.b_kill.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
-        self.cb_chouse.activated[str].connect(self.ev_select)
+        self.cb_select.activated[str].connect(self.ev_select)
         self.but_status("add")
         self.init_mask()
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
-        self.cb_chouse.addItems(["(нет)"])
-        for row in self.rows_from_db:
-            self.cb_chouse.addItems([row[0]])
+        self.current_id = 0
+
+        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
+        if not self.rows_from_db and self.rows_from_db != []:
+            self.close()
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я]{30}"))
@@ -54,27 +57,24 @@ class NewCompany(QDialog):
     def ev_cancel(self):
         self.close()
 
+    def ev_change(self):
+        self.parent.db.update(self.get_data())
+        self.close()
+
     def ev_kill(self):
-        for row in self.rows_from_db:
+        self.parent.db.kill_value(self.get_data())
+        self.close()
+
+    """    for row in self.rows_from_db:
             if self.company.text() in row:
                 data = self.get_data()
-                answer = QMessageBox.question(self, "Удаление записи",
-                                              "Вы действительно хотите удалить запись " + str(data) + "?",
-                                              QMessageBox.Ok | QMessageBox.Cancel)
+                answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись "
+                                              + str(data) + "?", QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
                     self.parent.db.execute("DELETE FROM {0} WHERE company = '{1}'".format(self.table,
                                                                                           self.company.text()))
-                    self.parent.db.commit()  # TODO удаление
-                    self.close()
-                if answer == QMessageBox.Cancel:
-                    return
-
-    def ev_change(self):
-        for row in self.rows_from_db:
-            if self.family.text() in row and self.name.text() in row:
-                self.my_update()
-                print("update")
-        pass
+                    self.parent.db.my_commit()
+                    self.close()"""
 
     def ev_select(self, text):
         if text == "(нет)":
@@ -88,21 +88,22 @@ class NewCompany(QDialog):
                 self.set_data(row)
 
     def set_data(self, data):
-        self.company.setText(data[0])
-        self.adr.appendPlainText(data[1])
-        self.ogrn.setText(str(data[2]))
-        self.inn.setText(str(data[3]))
-        self.kpp.setText(str(data[4]))
-        self.bik.setText(str(data[5]))
-        self.korbill.setText(str(data[6]))
-        self.rbill.setText(str(data[7]))
-        self.bank.setText(data[8])
-        self.family.setText(data[9])
-        self.name.setText(data[10])
-        self.surname.setText(data[11])
-        self.post.setText(data[12])
-        self.count_dovr.setText(data[13])
-        self.date_dovr.setDate(Date.fromString((data[14]), "dd.mm.yyyy"))
+        self.company.setText(data[fields.index("company")])
+        self.adr.appendPlainText(data[fields.index("adr")])
+        self.ogrn.setText(data[fields.index("ogrn")])
+        self.inn.setText(data[fields.index("inn")])
+        self.kpp.setText(data[fields.index("kpp")])
+        self.bik.setText(data[fields.index("bik")])
+        self.korbill.setText(data[fields.index("korbill")])
+        self.rbill.setText(data[fields.index("rbill")])
+        self.bank.setText(data[fields.index("bank")])
+        self.family.setText(data[fields.index("family")])
+        self.name.setText(data[fields.index("name")])
+        self.surname.setText(data[fields.index("surname")])
+        self.post.setText(data[fields.index("post")])
+        self.count_dovr.setText(data[fields.index("count_attorney")])
+        self.date_dovr.setDate(Date.fromString(data[fields.index("date_attorney")], "dd.mm.yyyy"))
+        self.current_id = data[fields.index("id")]
 
     def clear(self):
         self.company.setText("")
@@ -120,6 +121,7 @@ class NewCompany(QDialog):
         self.post.setText("")
         self.count_dovr.setText("")
         self.date_dovr.setDate(Date.fromString("01.01.2000", "dd.mm.yyyy"))
+        self.current_id = 0
 
     def get_data(self):
         data = list([self.company.text(),
@@ -139,27 +141,18 @@ class NewCompany(QDialog):
                     self.date_dovr.text()])
         if "" in data or "01.01.2000" in data:
             QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
-            return False
+            return []
         else:
-            return True
+            return data
 
     def but_status(self, status):
         if status == "add":
             self.b_ok.setEnabled(True)
             self.b_change.setEnabled(False)
-            self.b_del.setEnabled(False)
+            self.b_kill.setEnabled(False)
             self.company.setEnabled(True)
         if status == "change":
             self.b_ok.setEnabled(False)
             self.b_change.setEnabled(True)
-            self.b_del.setEnabled(True)
+            self.b_kill.setEnabled(True)
             self.company.setEnabled(False)
-
-    def my_update(self):
-        self.ev_kill()
-        self.parent.get_new_data(self.get_data())
-        self.close()
-
-    def from_db(self, fields, table):
-        self.parent.db.execute(get_from_db(fields, table))
-        return self.parent.db.fetchall()

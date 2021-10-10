@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
 import webbrowser
-from my_helper.notebook.sourse.inserts import get_from_db, update_mat
+from my_helper.notebook.sourse.inserts import get_from_db
 designer_file = '../designer_ui/music.ui'
 
 

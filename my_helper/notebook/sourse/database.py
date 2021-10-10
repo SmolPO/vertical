@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QDialog, QMessageBox
-from my_helper.notebook.sourse.inserts import get_from_db
+from my_helper.notebook.sourse.inserts import get_from_db, my_update
 import psycopg2
 
 
@@ -20,51 +20,85 @@ class DataBase:
             self.cursor = self.conn.cursor()
             return True
         except:
-            print("Внимание, нет соединения с базой данных по интернету")
+            print("Нет соединения с базой данных по интернету")
             return False
             # QMessageBox.question(self, "Внимание", "Нет соединения с базой данных по интернету", QMessageBox.Ok)
 
     def get_data(self, fields, table):
-        try:
-            self.db.execute(get_from_db(fields, table))
-        except:
+        """        except:
             print("Разрыв соединения, пробуем переподключиться...")
             try:
                 self.connect_to_db()
-                self.db.execute(get_from_db(fields, table))
+                self.execute(get_from_db(fields, table))
                 return self.db.fetchall()
             except:
                 print("Внимание, нет соединения с базой данных по интернету")
-                return None
-        return self.db.fetchall()
+                return None"""
+        row = get_from_db(fields, table)
+        try:
+            self.execute(row)
+            return self.cursor.fetchall()
+        except:
+            print("Не удалось получить данные из БД")
+            return
 
     def execute(self, text):
+        """except:
+                   print("Разрыв соединения, пробуем переподключиться...")
+                   try:
+                       self.connect_to_db()
+                       self.conn.execute(text)
+                       return True
+                   except:
+                       print("Внимание, нет соединения с базой данных по интернету")
+                       return False"""
         try:
-            self.conn.execute(text)
-            return True
+            self.cursor.execute(text)
         except:
-            print("Разрыв соединения, пробуем переподключиться...")
-            try:
-                self.connect_to_db()
-                self.conn.execute(text)
-                return True
-            except:
-                print("Внимание, нет соединения с базой данных по интернету")
-                return False
+            print("Не удалось выполнить запрос")
+            return False
+        return True
 
-    def my_commit(self, data, query):
+    def get_next_id(self, table):
+        rows = self.get_data("id", table)
+        if not rows:
+            return 1
+        return int(max(rows)[0]) + 1
+
+    def my_commit(self, data):
         if data:
-            print(data)
             try:
-                self.db.execute(query)
+                print(data)
+                self.connect_to_db()
+                self.cursor.execute(data)
                 self.conn.commit()
+
             except:
-                print("Разрыв соединения, пробуем переподключиться...")
-                try:
-                    self.connect_to_db()
-                    self.db.execute(query)
-                    self.conn.commit()
-                except:
-                    print("Внимание, нет соединения с базой данных по интернету")
+                print("Не удалось сделать коммит.")
             print("OK")
 
+    def init_list(self, item, fields, table, people=False):
+        rows = self.get_data(fields, table)
+        item.addItems(["(нет)"])
+        if not rows and rows != []:
+            return False
+        if not people:
+            for row in rows:
+                item.addItems([row[0]])
+            return rows
+        else:
+            for row in rows:
+                item.addItems([row[0] + " " + ".".join([row[1][0], row[2][0]]) + "."])
+            return rows
+
+    def my_update(self, data, table):
+        print(data)
+        try:
+            self.cursor.execute(my_update(data, table))
+            self.conn.commit()
+        except:
+            print("Не удалось обновить данные")
+
+    def kill_value(self, my_id, table):
+        self.execute("DELETE FROM {0} WHERE id = '{1}'".format(table, my_id))
+        self.conn.commit()

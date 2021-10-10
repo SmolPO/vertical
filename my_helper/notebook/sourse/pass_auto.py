@@ -49,16 +49,19 @@ class AutoPass(QDialog):
 
     # инициализация
     def init_drivers(self):
+        drivers = self.parent.db.get_data("family, name", self.table)
         for item in self.list_ui:
             item.addItem("(нет)")
-        for row in self.parent.db.get_data("family, name", self.table):
+        for row in drivers:
             for item in self.list_ui:
                 item.addItem(" ".join((row[0], row[1][0] + ".")))
                 item.activated[str].connect(self.new_driver)
 
     def init_auto(self):
-        self.cb_auto.addItem("(нет)")
-        for row in self.parent.db.get_data("model, gov_number", "auto"):
+        auto = list()
+        auto = self.parent.db.get_data("model, gov_number", "auto")
+        auto.append(["(нет)"])
+        for row in auto:
             self.cb_auto.addItem(row[0])
 
     # для заполнения текста

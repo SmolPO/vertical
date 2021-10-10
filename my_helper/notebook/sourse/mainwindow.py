@@ -6,6 +6,7 @@ import requests
 import logging
 from datetime import datetime as dt
 from configparser import ConfigParser
+from PyQt5.QtWidgets import QMessageBox as mes
 import openpyxl
 import psycopg2
 from my_helper.notebook.sourse.new_boss import NewBoss
@@ -98,17 +99,8 @@ class MainWindow(QMainWindow):
 
         # Database
         self.db = DataBase()
-        self.connect_to_db()
-        self.test_func()
+        self.db.connect_to_db()
         self.get_weather()
-        self.ip = 8
-
-    def test_func(self):
-        self.b_create_act.setEnabled(False)
-        self.b_pdf_check.setEnabled(False)
-        self.b_send_covid.setEnabled(False)
-        self.b_connect.setEnabled(False)
-        self.b_new_invoice.setEnabled(False)
 
     def ev_btn_create_pass(self):
         name = self.sender().text()
@@ -191,7 +183,7 @@ class MainWindow(QMainWindow):
         elif name == "Босс":
             wnd, table = NewBoss(self), "bosses"
         elif name == "Договор":
-            if not self.db.get_from_table("*", "company"):
+            if not self.db.get_data("*", "company"):
                 QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
                 return
             wnd, table = NewContact(self), "contracts"
@@ -208,8 +200,6 @@ class MainWindow(QMainWindow):
         elif name == "Заявка на деньги":
             wnd, table = GetMoney(self), "finances"
         wnd.exec_()
-        if self.data_to_db:
-            self.db.my_commit(ins.add_to_db(self.data_to_db, table), self.data_to_db)
 
     def ev_new_bill(self):
         try:

@@ -17,18 +17,18 @@ class NewWorker(QDialog):
         self.table = "workers"
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
-        self.b_del.clicked.connect(self.ev_kill)
+        self.b_kill.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
         self.cb_chouse.activated[str].connect(self.ev_select)
         self.but_status("add")
         self.init_mask()
-        self.rows_from_db = self.from_db("*", self.table)
-        self.cb_chouse.addItems(["(нет)"])
-        for row in self.rows_from_db:
-            self.cb_chouse.addItems([row[1]])
-        self.cb_contract.addItems(["(нет)"])
-        for row in self.from_db("name", "contracts"):
-            self.cb_contract.addItems([row[0]])
+
+        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
+        if not self.rows_from_db:
+            self.close()
+
+        if not self.parent.db.init_list(self.cb_contract, "name", "contracts"):
+            self.close()
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я ]{30}"))
@@ -83,18 +83,12 @@ class NewWorker(QDialog):
         for row in self.rows_from_db:
             if self.family.text() in row:
                 data = self.get_data()
-                answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись " + str(data) + "?",
-                                     QMessageBox.Ok | QMessageBox.Cancel)
+                answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись "
+                                              + str(data) + "?", QMessageBox.Ok | QMessageBox.Cancel)
                 if answer == QMessageBox.Ok:
-                    self.parent.db.execute("DELETE FROM {0} WHERE family = '{1}'".format(self.table,
-                        self.family.text()))
-                    self.parent.db_conn.commit()  # TODO удаление
+                    self.parent.db.execute("DELETE FROM {0} WHERE family = '{1}'".format(self.table, self.family.text()))
+                    self.parent.db.my_commit()
                     self.close()
-                    return
-                if answer == QMessageBox.Cancel:
-                    return
-                pass
-        pass
 
     def ev_change(self):
         for row in self.rows_from_db:
@@ -199,12 +193,12 @@ class NewWorker(QDialog):
         if status == "add":
             self.b_ok.setEnabled(True)
             self.b_change.setEnabled(False)
-            self.b_del.setEnabled(False)
+            self.b_kill.setEnabled(False)
             self.family.setEnabled(True)
         if status == "change":
             self.b_ok.setEnabled(False)
             self.b_change.setEnabled(True)
-            self.b_del.setEnabled(True)
+            self.b_kill.setEnabled(True)
             self.family.setEnabled(False)
 
     def my_update(self):
@@ -218,6 +212,3 @@ class NewWorker(QDialog):
             print("error")
             return
 
-    def from_db(self, fields, table):
-        self.parent.db.execute(get_from_db(fields, table))
-        return self.parent.db.fetchall()

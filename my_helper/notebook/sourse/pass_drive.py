@@ -49,17 +49,26 @@ class DrivePass(QDialog):
     # инициализация
     def init_drivers(self):
         self.cb_drivers.addItem("(нет)")
-        for row in self.from_db("family, name", self.table):
+        people = self.parent.db.get_data("family, name", self.table)
+        if not people:
+            return
+        for row in people:
             self.cb_drivers.addItem(" ".join((row[0], row[1][0] + ".")))
 
     def init_auto(self):
         self.cb_auto.addItem("(нет)")
-        for row in self.from_db("model, gov_number", "auto"):
+        auto = self.parent.db.get_data("model, gov_number", "auto")
+        if not auto:
+            return
+        for row in auto:
             self.cb_auto.addItem(row[0])
 
     def init_contracts(self):
         self.cb_contracts.addItem("(нет)")
-        for row in self.from_db("name", "contract"):
+        contracts = self.parent.db.get_data("name", "contract")
+        if not contracts:
+            return
+        for row in contracts:
             self.cb_contracts.addItem(row[0])
 
     # для заполнения текста
@@ -135,11 +144,10 @@ class DrivePass(QDialog):
                 self.data["track_number"] = "п/п " + row[-1] if row[-1] else " "
 
     def driver_changed(self):
-        for row in self.from_db("*", "drivers"):
+        people = self.parent.db.get_data("*", self.table)
+        if not people:
+            return
+        for row in people:
             if self.cb_drivers.currentText()[:-3] == row[0]:
                 self.data["passport"] = " ".join(row[:])
                 self.data["adr"] = row[-1]
-
-    def from_db(self, fields, table):
-        self.parent.db.execute(get_from_db(fields, table))
-        return self.parent.db.fetchall()

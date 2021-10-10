@@ -32,12 +32,17 @@ class GetPass(QDialog):
                         self.worker_6, self.worker_7, self.worker_8, self.worker_9, self.worker_10)
         self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
                      "contract": "", "date_contract": "", "number": "", "data": ""}
-        self.init_workers()
-        self.init_contracts()
+        if not self.init_workers() and self.init_contracts():
+            self.close()
 
     def init_contracts(self):
-        for item in self.from_db("number, date", "contracts"):
-            self.cb_contract.addItem(item[0])
+        self.cb_contracts.addItem("(нет)")
+        contracts = self.parent.db.get_data("name, date", "contract")
+        if not contracts:
+            return False
+        for row in contracts:
+            self.cb_contract.addItem(row[0])
+        return True
 
     def init_workers(self):
         for item in self.list_ui:
@@ -45,11 +50,15 @@ class GetPass(QDialog):
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
-        for name in self.from_db("family, name, surname, post, passport, "
-                                 "passport_got, birthday, adr,  live_adr", "workers"):
+        people = self.parent.db.get_data("family, name, surname, post, passport, "
+                                            "passport_got, birthday, adr,  live_adr", "workers")
+        if not people:
+            return False
+        for name in people:
             family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
             for item in self.list_ui:
                 item.addItem(family)
+        return True
 
     # получить данные
     # для заполнения текста

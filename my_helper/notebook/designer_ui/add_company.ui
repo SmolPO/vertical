@@ -466,7 +466,7 @@
     <string>Должность</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="cb_chouse">
+  <widget class="QComboBox" name="cb_select">
    <property name="geometry">
     <rect>
      <x>40</x>
@@ -502,7 +502,7 @@
     <string>Изменить</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="b_del">
+  <widget class="QPushButton" name="b_kill">
    <property name="geometry">
     <rect>
      <x>240</x>

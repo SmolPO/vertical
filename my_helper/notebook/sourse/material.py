@@ -3,7 +3,8 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
-from my_helper.notebook.sourse.inserts import get_from_db, update_mat
+from my_helper.notebook.sourse.inserts import get_from_db
+from database import DataBase
 designer_file = '../designer_ui/materials.ui'
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 
@@ -25,11 +26,11 @@ class NewMaterial(QDialog):
         self.provider.stateChanged.connect(self.provider_select)
 
         self.cb_select.addItems(["(нет)"])
-        for row in self.from_db("name", self.table):
+        for row in self.parent.db.get_data("name", self.table):
             self.cb_select.addItems([row[0]])
 
         self.cb_contracts.addItems(["(нет)"])
-        for row in self.from_db("name", "contracts"):
+        for row in self.parent.db.get_data("name", "contracts"):
             self.cb_contracts.addItems([row[0]])
         self.but_status("add")
         self.rows_from_db = self.from_db("*", self.table)

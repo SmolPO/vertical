@@ -1,130 +1,71 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMessageBox
+from PyQt5.QtWidgets import QMessageBox as mes
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
-from my_helper.notebook.sourse.inserts import get_from_db
+from my_helper.notebook.sourse.template import TempForm
 designer_file = '../designer_ui/new_auto_2.ui'
+fields = ["model", "brand", "gov_number", "track_number", "id"]
 
 
-class NewAuto(QDialog):
+class NewAuto(TempForm):
     def __init__(self, parent=None):
-        super(NewAuto, self).__init__(parent)
-        uic.loadUi(designer_file, self)
+        super(NewAuto, self).__init__(designer_file)
         self.parent = parent
-        self.bosses = []
         self.table = "auto"
-        self.b_ok.clicked.connect(self.ev_ok)
-        self.b_cancel.clicked.connect(self.ev_cancel)
-        self.b_kill.clicked.connect(self.ev_kill)
-        self.b_change.clicked.connect(self.ev_change)
-        self.cb_select.activated[str].connect(self.ev_select)
+        self.rows_from_db = self.parent.db.get_data("*", self.table)
+        if not self.rows_from_db:
+            self.close()
+
         self.is_track.stateChanged.connect(self.have_track)
-
-        self.cb_select.addItems(["(нет)"])
-        for row in self.from_db("gov_number, model", self.table):
-            self.cb_select.addItems([" ".join((row[:2]))])
-        self.but_status("add")
+        self.init_list()
         self.track_number.setEnabled(False)
-        self.list_ui = [self.model, self.brand, self.gov_number, self.track_number]
-        self.rows_from_db = self.from_db("*", self.table)
+        self.list_ui = [self.gov_number, self.model, self.brand, self.track_number]
+        self.slice_set = len(self.list_ui)
+        self.slice_get = len(self.list_ui) - 1
+        self.slice_clean = len(self.list_ui)
+        self.next_id = self.parent.db.get_next_id(self.table)
 
-    def from_db(self, fields, table):
-        self.parent.db.execute(get_from_db(fields, table))
-        return self.parent.db.fetchall()
+    def init_list(self):
+        rows = self.parent.db.get_data("gov_number, model", self.table)
+        self.cb_select.addItems(["(нет)"])
+        if not rows:
+            return False
+        for row in rows:
+            self.cb_select.addItems([" ".join((row[:2]))])
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я 0-9]{9}"))
 
-        self.model.setValidator(symbols)
-        self.brand.setValidator(symbols)
-        self.gov_number.setValidator(symbols)
-        self.track_number.setValidator(symbols)
+        for item in self.list_ui[:4]:
+            item.setValidator(symbols)
 
-    def ev_ok(self):
-        data = self.get_data()
-        if not data:
-            return
-        self.parent.get_new_data(data)
-        self.close()
-
-    def ev_cancel(self):
-        self.close()
-
-    def ev_select(self, text):
-        if text == "(нет)":
-            self.clean_data()
-            self.but_status("add")
-            return
-        self.but_status("change")
-
+    def _ev_select(self, text):
         for row in self.rows_from_db:
             if text.split()[0] in row:
                 self.set_data(row)
+        return False
 
-    def ev_change(self):
-        for row in self.rows_from_db:
-            if self.gov_number.text() in row:
-                self.my_update()
-                print("update")
-
-    def ev_kill(self):
-        for row in self.rows_from_db:
-            if self.gov_number.text() in row:
-                data = self.get_data()
-                answer = QMessageBox.question(self, "Удаление записи",
-                                              "Вы действительно хотите удалить запись " + str(data) + "?",
-                                              QMessageBox.Ok | QMessageBox.Cancel)
-                if answer == QMessageBox.Ok:
-                    self.parent.db.execute("DELETE FROM {0} WHERE gov_number = '{1}'".format(
-                        self.table, self.gov_number.text()))
-                    self.parent.db_conn.commit()
-                    self.close()
-                    return
-                if answer == QMessageBox.Cancel:
-                    return
-
-    def set_data(self, data):
-        i = iter(range(len(data)))
-        for item in self.list_ui:
-            item.setText(data[next(i)])
-
-    def get_data(self):
-        if self.model.text() == "" or \
-           self.brand.text() == "" or \
-           self.gov_number.text() == "" or (self.is_track.isChecked() and self.track_number.text() == ""):
-            QMessageBox.question(self, "Внимание",
-                                          "Заполните все поля перед добавлением", QMessageBox.Cancel)
-            return
-        data = list((self.model.text(),
-                     self.brand.text(),
-                     self.gov_number.text()))
-        if self.is_track.isChecked():
-            data.append(self.track_number.text())
-        else:
-            data.append("")
+    def _get_data(self, data):
+        data.append(self.track_number.text()) if self.is_track.isChecked() else data.append("")
+        data.append(str(self.current_id))
         return data
 
-    def clean_data(self):
-        for item in self.list_ui:
-            item.setText("")
+    def _set_data(self, data):
+        if self.track_number.text():
+            self.is_track.setChecked(True)
+        return True
 
-    def but_status(self, status):
-        if status == "add":
-            self.b_ok.setEnabled(True)
-            self.gov_number.setEnabled(True)
-            self.b_change.setEnabled(False)
-            self.b_kill.setEnabled(False)
-        if status == "change":
-            self.b_ok.setEnabled(False)
-            self.gov_number.setEnabled(False)
-            self.b_change.setEnabled(True)
-            self.b_kill.setEnabled(True)
+    def _clean_data(self):
+        return True
 
-    def my_update(self):
-        self.ev_kill()
-        self.parent.get_new_data(self.get_data())
-        self.close()
+    def check_input(self):
+        if "" in self.list_ui[:3]:
+            mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
+            return False
+        if self.is_track.isChecked() and self.track_number.text() == "":
+            mes.question(self, "Внимание", "Так есть прицеп или нет??.. Введите номер или уберите галочку", mes.Cancel)
+            return False
+        return True
 
     def have_track(self, state):
         if state == Qt.Checked:

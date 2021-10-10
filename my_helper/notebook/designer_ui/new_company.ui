@@ -266,7 +266,7 @@
     <string>Отмена</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="cb_chouse">
+  <widget class="QComboBox" name="cb_select">
    <property name="geometry">
     <rect>
      <x>30</x>
