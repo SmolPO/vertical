@@ -11,7 +11,7 @@ db_keys = {"auto": "(gov_number, model, brand, track_number, id)",
                    "h_protocol, h_date, h_group, h_card, "
                    "industrial_save, "
                    "st_protocol, st_card, st_date, birthday, id)",
-           "contracts": "(name, customer, number, date, object, work, part, id)",
+           "contracts": "(name, customer, number, date, object, type_work, place, id)",
            "company": "(company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, family, "
                    "name, surname, post, count_attorney, date_attorney, id)",
            "bosses": "(family, name, surname, post, email, phone, sex, id)",

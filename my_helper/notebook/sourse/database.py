@@ -39,6 +39,7 @@ class DataBase:
             self.execute(row)
             return self.cursor.fetchall()
         except:
+            print(row)
             print("Не удалось получить данные из БД")
             return
 
@@ -55,6 +56,7 @@ class DataBase:
         try:
             self.cursor.execute(text)
         except:
+            print(text)
             print("Не удалось выполнить запрос")
             return False
         return True

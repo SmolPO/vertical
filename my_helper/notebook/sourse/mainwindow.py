@@ -183,7 +183,8 @@ class MainWindow(QMainWindow):
         elif name == "Босс":
             wnd, table = NewBoss(self), "bosses"
         elif name == "Договор":
-            if not self.db.get_data("*", "company"):
+            data = self.db.get_data("*", "company")
+            if not data:
                 QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
                 return
             wnd, table = NewContact(self), "contracts"

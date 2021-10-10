@@ -1,9 +1,6 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.inserts import get_from_db
 from my_helper.notebook.sourse.template import TempForm
 """
 валидация, защита от ввода в табл в разнобой
@@ -15,18 +12,18 @@ fields = ["name", "customer", "number", "date", "object", "type_work", "place", 
 class NewContact(TempForm):
     def __init__(self, parent=None):
         super(NewContact, self).__init__(designer_file)
-        uic.loadUi(designer_file, self)
-        # pass
         self.parent = parent
-        self.table = "contract"
-        self.contract = []
-        self.comp = []
+        self.table = "contracts"
         self.init_mask()
-        self.parent.db.init_list(self.cb_comp, "*", self.table)
-        self.list_ui = [self.name, self.customer, self.number, self.date, self.adr, self.d_birthday]
-        self.slice_set = 3
-        self.slice_get = 3
-        self.slice_clean = len(self.list_ui)
+        self.parent.db.init_list(self.cb_comp, "company", "company")
+        self.parent.db.init_list(self.cb_select, "name", self.table)
+        self.rows_from_db = self.parent.db.get_data("*", self.table)
+        self.list_ui = [self.name, self.cb_comp, self.part, self.number, self.date, self.my_object, self.work]
+
+        self.slice_set = 0
+        self.slice_get = 0
+        self.slice_clean = 0
+        self.slice_select = len(self.list_ui)
         self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
 
@@ -39,15 +36,36 @@ class NewContact(TempForm):
     def _ev_select(self, text):
         return True
 
-    def _clean_date(self):
-        self.cb_comp.setCurrentText("(нет)")  # TODO set text
+    def _clean_data(self):
+        self.name.setText("")
+        self.cb_comp.setCurrentIndex(0)
+        self.part.setText("")
+        self.number.setText("")
         self.date.setDate(Date.fromString("01.01.2000", "dd.mm.yyyy"))
+        self.my_object.clear()
+        self.work.clear()
+        self.cb_comp.setCurrentText("(нет)")
 
     def _set_data(self, data):
+        self.name.setText(data[0])
+        # self.cb_comp
+        self.part.setText(data[6])
+        self.number.setText(data[0])
         self.date.setDate(Date.fromString(data[3], "dd.mm.yyyy"))
+        self.my_object.clear()
+        self.work.clear()
+        self.my_object.append(data[4])
+        self.work.append(data[5])
 
     def _get_data(self, data):
-       return data
+        data.append(self.name.text())
+        data.append(self.cb_comp.currentText())
+        data.append(self.number.text())
+        data.append(self.date.text())
+        data.append(self.my_object.toPlainText())
+        data.append(self.work.toPlainText())
+        data.append(self.part.text())
+        return data
 
     def check_input(self):
         if "" in list([self.name.text(), self.number.text(),

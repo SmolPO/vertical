@@ -3,32 +3,25 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.inserts import get_from_db
+from my_helper.notebook.sourse.template import TempForm
 designer_file = '../designer_ui/new_worker.ui'
 
 
-class NewWorker(QDialog):
+class NewWorker(TempForm):
     def __init__(self, parent=None):
-        super(NewWorker, self).__init__(parent)
-        uic.loadUi(designer_file, self)
+        super(NewWorker, self).__init__(designer_file)
         # pass
         self.parent = parent
-        self.worker = []
         self.table = "workers"
-        self.b_ok.clicked.connect(self.ev_ok)
-        self.b_cancel.clicked.connect(self.ev_cancel)
-        self.b_kill.clicked.connect(self.ev_kill)
-        self.b_change.clicked.connect(self.ev_change)
-        self.cb_chouse.activated[str].connect(self.ev_select)
-        self.but_status("add")
         self.init_mask()
-
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
-        if not self.rows_from_db:
-            self.close()
-
-        if not self.parent.db.init_list(self.cb_contract, "name", "contracts"):
-            self.close()
+        self.parent.db.init_list(self.cb_contract, "name", "contracts")
+        self.slice_set = 0
+        self.slice_get = 0
+        self.slice_clean = 0
+        self.slice_select = len(self.list_ui)
+        self.next_id = self.parent.db.get_next_id(self.table)
+        self.current_id = self.next_id
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я ]{30}"))
@@ -40,9 +33,6 @@ class NewWorker(QDialog):
         self.post.setValidator(symbols)
         self.phone.setValidator(QREVal(QRE("[0-9]{11}")))
         self.passport.setValidator(QREVal(QRE("[0-9]{10}")))
-        # self.passport_post.append("")
-        # self.adr.append("")
-        # self.live_adr.append("")
         self.inn.setValidator(QREVal(QRE("[0-9]{8}")))
         self.snils.setValidator(QREVal(QRE("[0-9]{8}")))
         self.n_td.setValidator(QREVal(QRE("[0-9]{2}")))
@@ -52,50 +42,10 @@ class NewWorker(QDialog):
         self.n_prot.setValidator(number_prot)
         self.n_card.setValidator(number_prot)
 
-    def ev_ok(self):
-        data = self.get_data()
-        if not data:
-            return
-        self.parent.get_new_data(data)
-        self.close()
-
-    def ev_cancel(self):
-        self.close()
-
-    def ev_select(self, text):
-        if text == "(нет)":
-            self.clean_data()
-            self.but_status("add")
-            return
-        else:
-            self.but_status("change")
-
+    def _ev_select(self, text):
         for row in self.rows_from_db:
             if text in row:
                 self.set_data(row)
-
-    def ev_kill(self):
-        """
-        сообщение об подтверждение
-        удалить запись
-        :return:
-        """
-        for row in self.rows_from_db:
-            if self.family.text() in row:
-                data = self.get_data()
-                answer = QMessageBox.question(self, "Удаление записи", "Вы действительно хотите удалить запись "
-                                              + str(data) + "?", QMessageBox.Ok | QMessageBox.Cancel)
-                if answer == QMessageBox.Ok:
-                    self.parent.db.execute("DELETE FROM {0} WHERE family = '{1}'".format(self.table, self.family.text()))
-                    self.parent.db.my_commit()
-                    self.close()
-
-    def ev_change(self):
-        for row in self.rows_from_db:
-            if self.family.text() in row and self.name.text() in row:
-                self.my_update()
-                print("update")
-        pass
 
     def clean_data(self):
         zero = Date.fromString("01.01.2000", "dd.mm.yyyy")

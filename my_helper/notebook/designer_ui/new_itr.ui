@@ -969,7 +969,7 @@
     <string>Отмена</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="b_del">
+  <widget class="QPushButton" name="b_kill">
    <property name="geometry">
     <rect>
      <x>560</x>
