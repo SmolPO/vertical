@@ -18,7 +18,6 @@ class TempForm (QDialog):
         self.b_change.clicked.connect(self.ev_change)
         self.cb_select.activated[str].connect(self.ev_select)
         self.but_status("add")
-        self.current_id = 0
 
     def ev_ok(self):
         if not self.check_input():
@@ -27,7 +26,7 @@ class TempForm (QDialog):
         if not data:
             return
         self.parent.db.my_commit(ins.add_to_db(data, self.table))
-        mes.question(self, "Сообщение", "Запись добавлена", mes.Cancel)
+        mes.question(self, "Сообщение", "Запись добавлена", mes.Ok)
         self.close()
 
     def ev_cancel(self):
@@ -60,6 +59,7 @@ class TempForm (QDialog):
         for item in self.list_ui[:self.slice_get]:
             data.append(item.text())
         data = self._get_data(data)
+        data.append(str(self.current_id))
         return data
 
     def clean_data(self):

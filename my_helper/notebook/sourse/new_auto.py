@@ -13,9 +13,6 @@ class NewAuto(TempForm):
         self.parent = parent
         self.table = "auto"
         self.rows_from_db = self.parent.db.get_data("*", self.table)
-        if not self.rows_from_db:
-            self.close()
-
         self.is_track.stateChanged.connect(self.have_track)
         self.init_list()
         self.track_number.setEnabled(False)
@@ -24,6 +21,7 @@ class NewAuto(TempForm):
         self.slice_get = len(self.list_ui) - 1
         self.slice_clean = len(self.list_ui)
         self.next_id = self.parent.db.get_next_id(self.table)
+        self.current_id = self.next_id
 
     def init_list(self):
         rows = self.parent.db.get_data("gov_number, model", self.table)
@@ -35,7 +33,6 @@ class NewAuto(TempForm):
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я 0-9]{9}"))
-
         for item in self.list_ui[:4]:
             item.setValidator(symbols)
 
@@ -47,7 +44,6 @@ class NewAuto(TempForm):
 
     def _get_data(self, data):
         data.append(self.track_number.text()) if self.is_track.isChecked() else data.append("")
-        data.append(str(self.current_id))
         return data
 
     def _set_data(self, data):

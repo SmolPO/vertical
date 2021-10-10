@@ -1,5 +1,5 @@
 db_keys = {"auto": "(gov_number, model, brand, track_number, id)",
-           "drivers": "(family, name, surname, birthday, passport, adr, id)",
+           "drivers": "(family, name, surname, passport, adr, birthday, id)",
            "workers": "(family, name, surname, birthday, post, phone, passport, passport_got, adr, live_adr, inn, "
                       "snils, numb_contract, date_contract, numb_h, numb_group_h, date_h, numb_study, numb_study_card, "
                       "d_study, numb_protocol, numb_card, d_protocol, id)",

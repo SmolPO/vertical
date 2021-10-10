@@ -23,6 +23,7 @@ class NewBoss(TempForm):
         self.slice_clean = 6
         self.list_ui = list([self.family, self.name, self.surname, self.post, self.email, self.phone, self.cb_sex])
         self.next_id = self.parent.db.get_next_id(self.table)
+        self.current_id = self.next_id
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я]{30}"))
@@ -37,7 +38,6 @@ class NewBoss(TempForm):
 
     def _get_data(self, data):
         data.append(self.cb_sex.currentText())
-        data.append(str(self.current_id))
         return data
 
     def check_input(self):

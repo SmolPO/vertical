@@ -46,7 +46,7 @@
    <property name="geometry">
     <rect>
      <x>340</x>
-     <y>140</y>
+     <y>130</y>
      <width>141</width>
      <height>22</height>
     </rect>
@@ -56,7 +56,7 @@
    <property name="geometry">
     <rect>
      <x>180</x>
-     <y>140</y>
+     <y>130</y>
      <width>141</width>
      <height>22</height>
     </rect>
@@ -66,7 +66,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>140</y>
+     <y>130</y>
      <width>121</width>
      <height>22</height>
     </rect>
@@ -89,7 +89,7 @@
    <property name="geometry">
     <rect>
      <x>340</x>
-     <y>120</y>
+     <y>110</y>
      <width>49</width>
      <height>16</height>
     </rect>
@@ -102,7 +102,7 @@
    <property name="geometry">
     <rect>
      <x>180</x>
-     <y>120</y>
+     <y>110</y>
      <width>49</width>
      <height>16</height>
     </rect>
@@ -115,7 +115,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>120</y>
+     <y>110</y>
      <width>49</width>
      <height>16</height>
     </rect>
@@ -124,21 +124,11 @@
     <string>ОГРН</string>
    </property>
   </widget>
-  <widget class="QPlainTextEdit" name="adr">
-   <property name="geometry">
-    <rect>
-     <x>120</x>
-     <y>180</y>
-     <width>281</width>
-     <height>31</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>70</x>
-     <y>190</y>
+     <x>40</x>
+     <y>160</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -471,7 +461,7 @@
     <rect>
      <x>40</x>
      <y>480</y>
-     <width>91</width>
+     <width>101</width>
      <height>22</height>
     </rect>
    </property>
@@ -513,6 +503,16 @@
    </property>
    <property name="text">
     <string>Удалить</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="adr">
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>180</y>
+     <width>441</width>
+     <height>31</height>
+    </rect>
    </property>
   </widget>
  </widget>
