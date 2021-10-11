@@ -343,7 +343,7 @@ class MainWindow(QMainWindow):
             print("Exception (weather):", e)
 
     def is_have_some(self, table):
-        auto = self.from_db("*", table)
+        auto = self.db.get_data("*", table)
         if not auto:
             QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте кого-то/что-то)", QMessageBox.Ok)
             return False

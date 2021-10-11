@@ -2,9 +2,9 @@ db_keys = {"auto": "(gov_number, model, brand, track_number, id)",
            "drivers": "(family, name, surname, passport, adr, birthday, id)",
            "workers": "(family, name, surname, birthday, post, phone, passport, passport_got, adr, live_adr, inn, "
                       "snils, numb_contract, date_contract, numb_h, numb_group_h, date_h, numb_study, numb_study_card, "
-                      "d_study, numb_protocol, numb_card, d_protocol, id)",
+                      "d_study, numb_protocol, numb_card, d_protocol, object, id)",
            "itrs": "(family, name, surname, post, passport, passport_date, passport_got, adr, live_adr, auto, inn, "
-                   "snils, n_td, td_date, "
+                   "snils, n_employment_contract,date_employment_contract, "
                    "ot_protocol, ot_date, ot_card, "
                    "PTM_protocol, PTM_date, PTM_card, "
                    "es_protocol, es_group, es_card, es_date, "
@@ -32,6 +32,7 @@ def get_from_db(fields, db):
 def add_to_db(data, table):
     result = "('" + "', '".join(data) + "')"
     names_colomn = db_keys[table]
+    print(len(data), len(names_colomn.split(" ")))
     return "INSERT INTO {0} {1} VALUES {2}".format(table, names_colomn, result)
 
 

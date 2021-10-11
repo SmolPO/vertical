@@ -1,9 +1,8 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.template import TempForm
+from PyQt5.QtWidgets import QMessageBox as mes
 designer_file = '../designer_ui/new_worker.ui'
 
 
@@ -14,14 +13,15 @@ class NewWorker(TempForm):
         self.parent = parent
         self.table = "workers"
         self.init_mask()
-        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
+        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
         self.parent.db.init_list(self.cb_contract, "name", "contracts")
         self.slice_set = 0
         self.slice_get = 0
         self.slice_clean = 0
-        self.slice_select = len(self.list_ui)
+        self.slice_select = -5
         self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
+        self.list_ui = list()
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я ]{30}"))
@@ -43,11 +43,9 @@ class NewWorker(TempForm):
         self.n_card.setValidator(number_prot)
 
     def _ev_select(self, text):
-        for row in self.rows_from_db:
-            if text in row:
-                self.set_data(row)
+        return True
 
-    def clean_data(self):
+    def _clean_data(self):
         zero = Date.fromString("01.01.2000", "dd.mm.yyyy")
         self.passport_post.clear()
         self.adr.clear()
@@ -77,16 +75,14 @@ class NewWorker(TempForm):
         self.n_card.setText("")
         self.d_prot.setDate(zero)
         self.cb_contract.setCurrentIndex(0)
-        pass
 
-    def set_data(self, data):
+    def _set_data(self, data):
         self.passport_post.clear()
         self.adr.clear()
         self.live_adr.clear()
-
-        self.family.setText(data[1])
-        self.family.enabled = False
-        self.name.setText(data[0])
+        print(data)
+        self.family.setText(data[0])
+        self.name.setText(data[1])
         self.surname.setText(data[2])
         self.bday.setDate(Date.fromString(data[3], "dd.mm.yyyy"))
         self.post.setText(data[4])
@@ -109,7 +105,7 @@ class NewWorker(TempForm):
         self.n_card.setText(data[21])
         self.d_prot.setDate(Date.fromString(data[22], "dd.mm.yyyy"))
 
-    def get_data(self):
+    def _get_data(self, data):
         data = list([self.family.text(),
                     self.name.text(),
                     self.surname.text(),
@@ -134,31 +130,41 @@ class NewWorker(TempForm):
                     self.n_card.text(),
                     self.d_prot.text(),
                     self.cb_contract.currentText()])
-        if "" in data or "01.01.2000" in data:
-            QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
-            return False
         return data
 
-    def but_status(self, status):
-        if status == "add":
-            self.b_ok.setEnabled(True)
-            self.b_change.setEnabled(False)
-            self.b_kill.setEnabled(False)
-            self.family.setEnabled(True)
-        if status == "change":
-            self.b_ok.setEnabled(False)
-            self.b_change.setEnabled(True)
-            self.b_kill.setEnabled(True)
-            self.family.setEnabled(False)
+    def check_input(self):
+        data = list([self.family.text(),
+                     self.name.text(),
+                     self.surname.text(),
+                     self.bday.text(),
+                     self.post.text(),
+                     self.phone.text(),
+                     self.passport.text(),
+                     self.passport_post.toPlainText(),
+                     self.adr.toPlainText(),
+                     self.live_adr.toPlainText(),
+                     self.inn.text(),
+                     self.snils.text(),
+                     self.n_td.text(),
+                     self.d_td.text(),
+                     self.n_hght.text(),
+                     self.n_group_h.text(),
+                     self.d_height.text(),
+                     self.n_study.text(),
+                     self.n_study_card.text(),
+                     self.d_study.text(),
+                     self.n_prot.text(),
+                     self.n_card.text(),
+                     self.d_prot.text(),
+                     self.cb_contract.currentText()])
+        if "" in data or "01.01.2000" in data or "(нет)" in data:
+            mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
+            return False
+        else:
+            return True
 
-    def my_update(self):
-        try:
-            data = self.get_data()
-            if data:
-                self.ev_kill()
-                self.parent.get_new_data(data)
-                self.close()
-        except:
-            print("error")
-            return
+    def _ev_ok(self):
+        return True
 
+    def _but_status(self, status):
+        return True

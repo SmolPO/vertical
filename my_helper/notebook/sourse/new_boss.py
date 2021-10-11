@@ -53,3 +53,9 @@ class NewBoss(TempForm):
 
     def _ev_select(self, text):
         return True
+
+    def _ev_ok(self):
+        return True
+
+    def _but_status(self, status):
+        return True

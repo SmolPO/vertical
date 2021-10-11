@@ -69,4 +69,8 @@ class NewAuto(TempForm):
         else:
             self.track_number.setEnabled(False)
 
+    def _ev_ok(self):
+        return True
 
+    def _but_status(self, status):
+        return True

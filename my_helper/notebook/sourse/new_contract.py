@@ -73,3 +73,9 @@ class NewContact(TempForm):
                       self.part.text()]) and self.date.text() != "01.01.2000":
             return False
         return True
+
+    def _ev_ok(self):
+        return True
+
+    def _but_status(self, status):
+        return True

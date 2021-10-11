@@ -22,6 +22,8 @@ class TempForm (QDialog):
     def ev_ok(self):
         if not self.check_input():
             return False
+        if not self._ev_ok():
+            return
         data = self.get_data()
         if not data:
             return
@@ -88,6 +90,8 @@ class TempForm (QDialog):
                 self.close()
 
     def but_status(self, status):
+        if self._but_status(status):
+            return False
         if status == "add":
             self.b_ok.setEnabled(True)
             self.b_change.setEnabled(False)

@@ -36,13 +36,13 @@ class MonthPass(QDialog):
         self.number.setValue(self.parent.get_next_number())
 
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5, self.worker_6,
-                   self.worker_7, self.worker_8, self.worker_9, self.worker_10)
+                        self.worker_7, self.worker_8, self.worker_9, self.worker_10)
         self.list_month = ["январь", "февраль", "март", "апрель",
                            "май", "июнь", "июль", "август", "сентябрь",
                            "октябрь", "ноябрь", "декабрь"]
         self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
                      "post": "", "number": "", "data": ""}
-        self.rows_from_db = self.from_db("*", self.table)
+        self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.init_workers()
         self.init_cb_month()
         self.set_dates(self.cb_manual_set.isChecked())
@@ -59,8 +59,8 @@ class MonthPass(QDialog):
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
-        for name in self.from_db("family, name, surname, post, passport, "
-                                 "passport_got, birthday, adr,  live_adr", "workers"):
+        for name in self.parent.db.get_data("family, name, surname, post, passport, "
+                                            "passport_got, birthday, adr,  live_adr", "workers"):
             family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
             for item in self.list_ui:
                 item.addItem(family)
@@ -107,8 +107,8 @@ class MonthPass(QDialog):
         self.data["end_date"] = ".".join((end_next_month, next_month, next_year))
 
     def get_worker(self, family):
-        rows = self.from_db("family, name, surname, post, passport, "
-                            "passport_got, birthday, adr,  live_adr", "workers")
+        rows = self.parent.db.get_data("family, name, surname, post, passport, "
+                                       "passport_got, birthday, adr,  live_adr", "workers")
         if family == "all":
             return rows
         for row in rows:
@@ -178,12 +178,3 @@ class MonthPass(QDialog):
 
     def kill_pattern(self):
         pass
-
-    def from_db(self, fields, table):
-        self.parent.db.execute(get_from_db(fields, table))
-        return self.parent.db.fetchall()
-
-
-
-
-

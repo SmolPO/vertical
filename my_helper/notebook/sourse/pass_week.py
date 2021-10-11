@@ -42,7 +42,7 @@ class WeekPass(QDialog):
                      "part": "", "company": "", "customer": "", "post_boss": "", "boss_part": ""}
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4,
                         self.worker_5, self.worker_6, self.worker_7, self.worker_8, self.worker_9)
-        self.rows_from_db = self.from_db("*", self.table)
+        self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.init_object()
         self.init_boss()
         self.init_workers()
@@ -89,7 +89,7 @@ class WeekPass(QDialog):
             self.cb_object.addItem(row[0])
 
     def init_boss(self):
-        for people in self.from_db("family, name, surname, post", "bosses"):
+        for people in self.parent.db.get_data("family, name, surname, post", "bosses"):
             try:
                 family = people[0] + " " + people[1][0] + ". " + people[2][0] + "."
                 self.cb_boss_part.addItem(family)       # брать из БД
@@ -102,7 +102,7 @@ class WeekPass(QDialog):
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
-        for name in self.from_db("family, name, surname, post, passport, "
+        for name in self.parent.db.get_data("family, name, surname, post, passport, "
                                  "passport_got, birthday, adr,  live_adr", "workers"):
             family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
             for item in self.list_ui:
@@ -160,7 +160,7 @@ class WeekPass(QDialog):
 
     def get_contract(self, name):
         # получить номер договора по короткому имени
-        for row in self.from_db("number, date, object, part, work, name", "contract"):
+        for row in self.parent.db.get_data("number, date, object, place, type_work, name", "contracts"):
             if name in row:
                 self.data["contract"] = " от ".join(row[:2])
                 self.data["object_name"] = row[2]
@@ -169,7 +169,7 @@ class WeekPass(QDialog):
 
     def get_worker(self, family):
         # получить номер договора по короткому имени
-        for row in self.from_db("family, name, surname, post, passport, passport_got, "
+        for row in self.parent.db.get_data("family, name, surname, post, passport, passport_got, "
                                 "birthday, adr,  live_adr", "workers"):
             if family[:-5] == row[0]:
                 return row
@@ -189,7 +189,3 @@ class WeekPass(QDialog):
 
     def kill_pattern(self):
         pass
-
-    def from_db(self, fields, table):
-        self.parent.db.execute(get_from_db(fields, table))
-        return self.parent.db.fetchall()

@@ -43,7 +43,7 @@ class DrivePass(QDialog):
         self.init_auto()
         self.init_drivers()
         self.init_contracts()
-        self.rows_from_db = self.from_db("*", self.table)
+        self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.d_arrive.setDate(dt.datetime.now().date())
 
     # инициализация
@@ -65,7 +65,7 @@ class DrivePass(QDialog):
 
     def init_contracts(self):
         self.cb_contracts.addItem("(нет)")
-        contracts = self.parent.db.get_data("name", "contract")
+        contracts = self.parent.db.get_data("name", "contracts")
         if not contracts:
             return
         for row in contracts:
@@ -103,7 +103,7 @@ class DrivePass(QDialog):
         self.change_note()
 
     def contract_changed(self):
-        for row in self.from_db("*", "contract"):
+        for row in self.parent.db.get_data("*", "contracts"):
             if self.cb_contracts.currentText() == row[0]:
                 self.work = " ".join(row[4:7])
                 self.contract = " от ".join(row[2:4])
@@ -119,7 +119,7 @@ class DrivePass(QDialog):
         text.append("с 08-00 до 17-00 для проезда на территорию")
         text.append(self.parent.customer)
         text.append(" и ")
-        text.append(self.my_text)
+        text.append(self.input_text.toPlainText())
         text.append(self.work)
         text.append(self.contract)
         self.note.setText(" ".join(text))
@@ -137,7 +137,7 @@ class DrivePass(QDialog):
             self.cb_contracts.setEnabled(True)
 
     def auto_changed(self):
-        for row in self.from_db("*", "auto"):
+        for row in self.parent.db.get_data("*", "auto"):
             if self.cb_auto.currentText() == row[0]:
                 self.data["auto"] = " ".join(row[:2])
                 self.data["gov_number"] = row[2]

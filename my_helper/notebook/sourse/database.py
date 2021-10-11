@@ -68,13 +68,13 @@ class DataBase:
         return int(max(rows)[0]) + 1
 
     def my_commit(self, data):
+        print(data)
+        self.connect_to_db()
+        self.cursor.execute(data)
+        self.conn.commit()
         if data:
             try:
-                print(data)
-                self.connect_to_db()
-                self.cursor.execute(data)
-                self.conn.commit()
-
+                pass
             except:
                 print("Не удалось сделать коммит.")
             print("OK")
@@ -95,9 +95,10 @@ class DataBase:
 
     def my_update(self, data, table):
         print(data)
+        self.cursor.execute(my_update(data, table))
+        self.conn.commit()
         try:
-            self.cursor.execute(my_update(data, table))
-            self.conn.commit()
+            pass
         except:
             print("Не удалось обновить данные")
 

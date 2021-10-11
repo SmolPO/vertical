@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>307</width>
-    <height>329</height>
+    <width>304</width>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -292,6 +292,22 @@
      <string>шт</string>
     </property>
    </item>
+  </widget>
+  <widget class="QPushButton" name="b_change">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>220</y>
+     <width>0</width>
+     <height>0</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>PushButton</string>
+   </property>
   </widget>
  </widget>
  <resources/>

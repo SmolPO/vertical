@@ -67,3 +67,8 @@ class NewDriver(TempForm):
                     return False
             else:
                 return True
+    def _ev_ok(self):
+        return
+
+    def _but_status(self, status):
+        return True
