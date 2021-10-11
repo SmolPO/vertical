@@ -115,7 +115,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Новый сотрудник</string>
+     <string>Сотрудник</string>
     </property>
    </widget>
    <widget class="QLabel" name="ui_l_fast">
@@ -520,7 +520,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Новый прораб</string>
+     <string>Прораб</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_music">

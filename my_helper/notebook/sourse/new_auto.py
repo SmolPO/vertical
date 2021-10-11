@@ -55,7 +55,8 @@ class NewAuto(TempForm):
         return True
 
     def check_input(self):
-        if "" in self.list_ui[:3]:
+        data = self.get_data()
+        if "" in data:
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         if self.is_track.isChecked() and self.track_number.text() == "":

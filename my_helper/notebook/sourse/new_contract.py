@@ -2,6 +2,7 @@ from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.template import TempForm
+from PyQt5.QtWidgets import QMessageBox as mes
 """
 валидация, защита от ввода в табл в разнобой
 """
@@ -34,6 +35,7 @@ class NewContact(TempForm):
         self.part.setValidator(QREVal(QRE("[а-яА-Яa-zA-Z /_-., 0-9]{1000}")))
 
     def _ev_select(self, text):
+        self.slice_select = len(text)
         return True
 
     def _clean_data(self):
@@ -70,7 +72,8 @@ class NewContact(TempForm):
     def check_input(self):
         if "" in list([self.name.text(), self.number.text(),
                        self.my_object.toPlainText(), self.work.toPlainText(),
-                      self.part.text()]) and self.date.text() != "01.01.2000":
+                      self.part.text()]) or self.date.text() == "01.01.2000":
+            mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         return True
 

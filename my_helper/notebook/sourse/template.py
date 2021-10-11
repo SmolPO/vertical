@@ -48,6 +48,7 @@ class TempForm (QDialog):
                 print(text[:self.slice_select])
                 if text[:self.slice_select] in row:
                     self.set_data(row)
+                    return
 
     def set_data(self, data):
         i = iter(range(len(data)))
@@ -90,7 +91,7 @@ class TempForm (QDialog):
                 self.close()
 
     def but_status(self, status):
-        if self._but_status(status):
+        if not self._but_status(status):
             return False
         if status == "add":
             self.b_ok.setEnabled(True)

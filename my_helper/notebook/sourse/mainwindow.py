@@ -85,6 +85,7 @@ class MainWindow(QMainWindow):
         self.b_notepad.clicked.connect(self.ev_btn_start_file)
         self.b_music.clicked.connect(self.ev_btn_add_to_db)
         self.b_get_money.clicked.connect(self.ev_btn_add_to_db)
+        self.b_scan.setEnabled(False)
 
         self.get_param_from_widget = None
         self.current_build = "Объект"
@@ -141,27 +142,27 @@ class MainWindow(QMainWindow):
         name = self.sender().text()
         if name == "Доверенность":
             try:
-                os.startfile(conf.path_default + "/Доверенность.xlsx", "print")
+                os.startfile(conf.path_default + "/attourney.xlsx", "print")
             except:
                 print("Not found")
         if name == "Сканировать":
             try:
-                os.startfile(conf.path + "/scan.exe")
+                os.startfile("C:\Program Files\Pantum\ptm6500\PushScan\ptm6500app.exe")
             except:
                 print("Not found")
         elif name == "Накладная":
             try:
-                os.startfile(conf.path_default + "/накладная.xlsx", "print")
+                os.startfile(conf.path_default + "/invoice.xlsx", "print")
             except:
                 print("Not found")
         elif name == "Журнал-ковид":
             try:
-                os.startfile(conf.path_default + "/Ковидный журнал.xls")
+                os.startfile(conf.path_default + "/covid.xls", "print")
             except:
                 print("Not found")
         elif name == "Табель":
             try:
-                os.startfile(conf.path_default + "/Табель.xlsx")
+                os.startfile(conf.path_default + "/table.xlsx")
             except:
                 print("Not found")
         elif name == "Блокнот":
@@ -190,9 +191,9 @@ class MainWindow(QMainWindow):
             wnd, table = NewContact(self), "contracts"
         elif name == "Заказчик":
             wnd, table = NewCompany(self), "company"
-        elif name == "Новый сотрудник":
+        elif name == "Сотрудник":
             wnd, table = NewWorker(self), "workers"
-        elif name == "Новый прораб":
+        elif name == "Прораб":
             wnd, table = NewITR(self), "itrs"
         elif name == "Ввоз материалов":
             wnd, table = NewMaterial(self), "materials"

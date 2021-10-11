@@ -1,10 +1,9 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMessageBox
+
+from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.template import TempForm
 from PyQt5.QtWidgets import QMessageBox as mes
-from my_helper.notebook.sourse.inserts import my_update
 
 designer_file = '../designer_ui/materials.ui'
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
@@ -14,15 +13,14 @@ class NewMaterial(TempForm):
     def __init__(self, parent=None):
         super(NewMaterial, self).__init__(designer_file)
         self.parent = parent
-        self.bosses = []
         self.table = "materials"
         self.provider_ = ""
         self.add_new = True
         self.provider.stateChanged.connect(self.provider_select)
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
-        self.parent.db.init_list(self.cb_contracts, "name", self.table)
-        self.cb_contracts.addItems(["(нет)"])
+        self.parent.db.init_list(self.cb_contracts, "name", "contracts")
 
+        self.init_mask()
         self.slice_set = 0
         self.slice_get = 0
         self.slice_clean = 0
@@ -32,50 +30,45 @@ class NewMaterial(TempForm):
         self.list_ui = list()
 
     def init_mask(self):
-        symbols = QREVal(QRE("[а-яА-Я 0-9]{9}"))
-        self.name.setValidator(symbols)
-        self.value.setValidator(symbols)
+        self.name.setValidator(QREVal(QRE("[а-яА-Я 0-9]{9}")))
+        self.value.setValidator(QREVal(QRE("[0-9]{9}")))
 
     def _ev_ok(self):
-        if not self.add_new:
-            self.my_update()
-            self.close()
-            return True
+        return True
 
     def _ev_select(self, text):
+        self.slice_select = len(text)
         return True
 
     def _set_data(self, data):
-        i = iter(range(1, 6))
+        i = iter(range(0, 5))
         self.name.setText(data[next(i)])
         self.cb_si.setCurrentIndex(si.index(data[next(i)]))
         self.value.setText(data[next(i)])
-        self.summ.setText(data[3])
+        self.summ.setText(data[2])
         self.provider.setChecked(True if data[next(i)] == "Заказчик" else False)
 
-        contracts = self.from_db("name, number", "contracts")
+        contracts = self.parent.db.get_data("name, number", "contracts")
         j = iter(range(len(contracts)))
         for item in contracts:
             if data[4] in item:
-                self.cb_contracts.setCurrentIndex(next(j))
+                self.cb_contracts.setCurrentIndex(next(j) + 1)
+                return
             next(j)
 
-    def get_data(self):
-        if self.name.text() == "" or \
-           self.value.text() == "":
-            QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
-            return False
-        data = list((self.name.text(), self.cb_si.currentText()))
+    def _get_data(self, data):
+        data.append(self.name.text())
+        data.append(self.cb_si.currentText())
         if self.add_new:
             data.append(self.value.text())
         else:
             data.append(str(int(self.value.text()) + int(self.summ.text())))
         self.provider_ = "Заказчик" if self.provider.isChecked() else "Подрядчик"
         data.append(self.provider_)
-        data.append(self.contract.currentText())
+        data.append(self.cb_contracts.currentText())
         return data
 
-    def clean_data(self):
+    def _clean_data(self):
         self.name.setText("")
         self.value.setText("")
         self.summ.setText("0")
@@ -83,25 +76,16 @@ class NewMaterial(TempForm):
         self.cb_contracts.setCurrentIndex(0)
 
     def _but_status(self, status):
-        if status == "add":
-            self.add_new = True
-            self.name.setEnabled(True)
-            self.cb_si.setEnabled(True)
-            self.b_kill.setEnabled(False)
-        if status == "change":
-            self.add_new = False
-            self.name.setEnabled(False)
-            self.cb_si.setEnabled(False)
-            self.b_kill.setEnabled(True)
-        return False
+        return True
 
-    def my_update(self):
-        self.parent.db.execute(my_update(self.cb_select.currentText(), "value",
-                   str(int(self.summ.text()) + int(self.value.text())), self.table))
-        self.parent.db_conn.commit()
-        self.close()
+        # str(int(self.summ.text()) + int(self.value.text())), self.table))
 
     def provider_select(self):
         self.provider_ = "Заказчик" if self.provider.isChecked() else "Подрядчик"
 
-
+    def check_input(self):
+        data = [self.value.text(), self.name.text(), self.cb_contracts.currentText(), self.cb_si.currentText()]
+        if "" in data or "(нет)" in data:
+            QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
+            return False
+        return True

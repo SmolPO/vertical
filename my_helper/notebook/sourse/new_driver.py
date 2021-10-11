@@ -55,7 +55,8 @@ class NewDriver(TempForm):
         return False
 
     def check_input(self):
-        if "" in self.list_ui[:5]:
+        data = self.get_data()
+        if "" in data:
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         else:
