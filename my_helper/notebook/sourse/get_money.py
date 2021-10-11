@@ -43,11 +43,13 @@ class GetMoney(QDialog):
         self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.cb_select.addItems(["(нет)"])
         for row in self.parent.db.get_data("id, date", self.table):
-            self.cb_chouse.addItems([", ".join((row[0], row[1]))])
+            self.cb_select.addItems([", ".join((row[0], row[1]))])
         self.parent.db.init_list(self.cb_recipient, "family, name, surname", "itrs", people=True)
+        self.parent.db.init_list(self.cb_customer, "family, name, surname", "itrs", people=True)
         self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
         self.my_id.setValue(self.next_id)
+        self.data = {"date": "", "post": "", "family": "", "text": ""}
 
     def ev_ok(self):
         if not self.check_input():
@@ -57,7 +59,15 @@ class GetMoney(QDialog):
             return
 
         self.parent.db.my_commit(ins.add_to_db(data, self.table))
-        print(data)
+
+        rows = self.parent.db.get_data("post, family, name, surname", "itrs")
+        for row in rows:
+            if self.cb_customer.currentText() == row[1] + " " + row[2][0] + "." + row[3][0] + ".":
+                self.data["post"] = row[0]
+                self.data["family"] = self.cb_customer.currentText()
+                self.data["text"] = self.note_result.toPlainText()
+                self.data["date"] = self.date.text()
+
         doc = docxtpl.DocxTemplate(main_file)
         doc.render(self.data)
         doc.save(print_file)
@@ -156,29 +166,29 @@ class GetMoney(QDialog):
             return
         if not self.note.toPlainText():
             if cost + self.sb_some_value.value() != self.sb_value.value():
-                QMessageBox.question(self, "Внимание",
-                                     "Не сходится сумма, напишите куда именно вы потратите разницу",
+                QMessageBox.question(self, "Внимание", "Не сходится сумма, напишите куда именно вы потратите разницу",
                                      QMessageBox.Ok)
-            return
+                return
         data = list()
-        data.append(str(self.my_id.value()))
         data.append(self.date.text())
         data.append(str(self.sb_value.value()))
-        data.append(self.cb_recipient.currentText())
+        data.append(self.cb_customer.currentText())
+
         if self.cb_day.isChecked():
             data.append("суточные {0} чел {1} дней {2}р. ставка".format(self.sb_days.value(),
-                                                                        self.sb_emploeers.value(),
-                                                                        self.sb_cost.value))
-        if self.note.toPlainText():
-            if len(data) == 3:
-                data.append("производственные нужды")
-            else:
-                data[4] = data[4] + "| производственные нужды"
+                                                                        self.sb_emploeeyrs.value(),
+                                                                        self.sb_cost.value()))
         if self.cb_some.isChecked():
-            if len(data) == 3:
+            if len(data) == 2:
+                data.append("производственные нужды " + self.sb_some_value.value())
+            else:
+                data[3] = data[3] + "| производственные нужды " + str(self.sb_some_value.value())
+        if self.note.toPlainText():
+            if len(data) == 2:
                 data.append(self.note.toPlainText())
             else:
-                data[4] = data[4] + "| " + self.note.toPlainText()
+                data[3] = data[3] + "| " + self.note.toPlainText()
+        data.append(str(self.my_id.value()))
         return data
 
     def check_input(self):
