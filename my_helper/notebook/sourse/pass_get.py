@@ -8,8 +8,8 @@ import docx
 import docxtpl
 #  сделать мессаджбоксы на Сохранить
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-main_file = "B:/my_helper/getpass.docx"
-print_file = "B:/my_helper/to_print/getpass.docx"
+main_file = "D:/my_helper/getpass.docx"
+print_file = "D:/my_helper/to_print/getpass.docx"
 designer_file = '../designer_ui/pass_get.ui'
 
 
@@ -51,7 +51,7 @@ class GetPass(QDialog):
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
         people = self.parent.db.get_data("family, name, surname, post, passport, "
-                                            "passport_got, birthday, adr,  live_adr", "workers")
+                                         "passport_got, birthday, adr,  live_adr", "workers")
         if not people:
             return False
         for name in people:
@@ -67,7 +67,7 @@ class GetPass(QDialog):
         self.data["end_date"] = self.d_to.text()
         self.data["customer"] = self.parent.customer
         self.data["company"] = self.parent.company
-        for contract in self.from_db("number, date", "contract"):
+        for contract in self.parent.db.get_data("number, date", "contract"):
             if self.cb_contract.currentText() == contract[0]:
                 self.data["contract"] = contract[0]
                 self.data["date_contract"] = contract[1]
@@ -139,11 +139,6 @@ class GetPass(QDialog):
 
     def kill_pattern(self):
         pass
-
-    def from_db(self, fields, table):
-        self.parent.db.execute(get_from_db(fields, table))
-        return self.parent.db.fetchall()
-
 
 
 

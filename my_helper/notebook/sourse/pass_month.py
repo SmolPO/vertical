@@ -8,8 +8,8 @@ import docx
 import docxtpl
 #  сделать мессаджбоксы на Сохранить
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-main_file = "B:/my_helper/month.docx"
-print_file = "B:/my_helper/to_print/month.docx.docx"
+main_file = "D:/my_helper/month.docx"
+print_file = "D:/my_helper/to_print/month.docx.docx"
 designer_file = '../designer_ui/pass_month.ui'
 
 

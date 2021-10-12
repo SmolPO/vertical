@@ -7,8 +7,8 @@ import os
 import docx
 import docxtpl
 #  сделать мессаджбоксы на Сохранить
-main_file = "B:/my_helper/week.docx"
-print_file = "B:/my_helper/to_print/week.docx"
+main_file = "D:/my_helper/week.docx"
+print_file = "D:/my_helper/to_print/week.docx"
 designer_file = "../designer_ui/pass_week.ui"
 
 

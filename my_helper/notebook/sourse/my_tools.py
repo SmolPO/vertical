@@ -67,3 +67,4 @@ class Notepad(QDialog):
         os.startfile("tmp.txt", "print")
         os.remove("tmp.txt")
         return
+

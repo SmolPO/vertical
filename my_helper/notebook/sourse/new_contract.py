@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.template import TempForm
+from my_helper.notebook.sourse.template import TempForm, from_str
 from PyQt5.QtWidgets import QMessageBox as mes
 """
 валидация, защита от ввода в табл в разнобой
@@ -53,7 +53,7 @@ class NewContact(TempForm):
         # self.cb_comp
         self.part.setText(data[6])
         self.number.setText(data[0])
-        self.date.setDate(Date.fromString(data[3], "dd.mm.yyyy"))
+        self.date.setDate(Date(from_str(data[3])))
         self.my_object.clear()
         self.work.clear()
         self.my_object.append(data[4])

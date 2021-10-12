@@ -8,8 +8,8 @@ import docx
 import docxtpl
 #  сделать мессаджбоксы на Сохранить
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-main_file = "B:/my_helper/pass_drive.docx"
-print_file = "B:/my_helper/to_print/pass_drive.docx"
+main_file = "D:/my_helper/pass_drive.docx"
+print_file = "D:/my_helper/to_print/pass_drive.docx"
 designer_file = '../designer_ui/pass_drive.ui'
 
 
@@ -47,8 +47,8 @@ class DrivePass(QDialog):
             self.cb_month.addItem(elem)
 
     def init_workers(self):
-        rows = self.from_db("family, name, surname, post, passport, "
-                            "passport_got, birthday, adr,  live_adr", "workers")
+        rows = self.parent.db.get_data("family, name, surname, post, passport, "
+                                       "passport_got, birthday, adr,  live_adr", "workers")
         for item in self.list_ui:
             item.addItem("(нет)")
             item.activated[str].connect(self.new_worker)
@@ -148,12 +148,7 @@ class DrivePass(QDialog):
         self.close()
 
     def save_pattern(self):
-        data = {"who": self.cb_who.text(),
-                "object_name": self.cb_object.text(),
-                "workers": self.get_list()}
-        self.zip_pattern(data)
-        # запоковать в словарь
-        # сохранить в файл
+        return True
 
     def my_open_file(self):
         print("open file")
@@ -162,9 +157,6 @@ class DrivePass(QDialog):
     def kill_pattern(self):
         pass
 
-    def from_db(self, fields, table):
-        self.parent.db.execute(get_from_db(fields, table))
-        return self.parent.db.fetchall()
 
 
 

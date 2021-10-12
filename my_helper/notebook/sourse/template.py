@@ -101,3 +101,7 @@ class TempForm (QDialog):
             self.b_ok.setEnabled(False)
             self.b_change.setEnabled(True)
             self.b_kill.setEnabled(True)
+
+
+def from_str(self, date):
+    return int(date[0:2]), int(date[2:4]), int(date[4:])

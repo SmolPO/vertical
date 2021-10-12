@@ -7,8 +7,8 @@ import docxtpl
 from my_helper.notebook.sourse.inserts import get_from_db
 
 #  сделать мессаджбоксы на Сохранить
-main_file = "B:/my_helper/drive.docx"
-print_file = "B:/my_helper/to_print/drive.docx"
+main_file = "D:/my_helper/drive.docx"
+print_file = "D:/my_helper/to_print/drive.docx"
 designer_file = '../designer_ui/pass_drive.ui'
 
 
