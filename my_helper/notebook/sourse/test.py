@@ -45,6 +45,8 @@ try:
     print("add table itrs")
     db.execute("CREATE TABLE finance (id text, date text, value text, recipient text, comment text)")
     print("add table finance")
+    db.execute("CREATE TABLE bills (date text, value text, buyer text, name_file text, comment text, id text)")
+    print("add table bills")
 except:
     print("error")
 conn.commit()

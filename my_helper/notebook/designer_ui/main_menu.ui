@@ -367,7 +367,7 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>230</y>
+      <y>250</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -569,7 +569,7 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>250</y>
+      <y>270</y>
       <width>181</width>
       <height>24</height>
      </rect>
@@ -615,6 +615,19 @@
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b_new_bill">
+    <property name="geometry">
+     <rect>
+      <x>220</x>
+      <y>220</y>
+      <width>181</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Чек</string>
     </property>
    </widget>
   </widget>

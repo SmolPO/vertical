@@ -6,15 +6,13 @@ import requests
 import logging
 from datetime import datetime as dt
 from configparser import ConfigParser
-from PyQt5.QtWidgets import QMessageBox as mes
-import openpyxl
-import psycopg2
 from my_helper.notebook.sourse.new_boss import NewBoss
 from my_helper.notebook.sourse.new_itr import NewITR
 from my_helper.notebook.sourse.new_worker import NewWorker
 from my_helper.notebook.sourse.nw_company import NewCompany
 from my_helper.notebook.sourse.new_auto import NewAuto
 from my_helper.notebook.sourse.new_driver import NewDriver
+from my_helper.notebook.sourse.new_bill import NewBill
 from pdf_module import check_file, create_covid
 from my_helper.notebook.sourse.new_contract import NewContact
 from my_helper.notebook.sourse.material import NewMaterial
@@ -25,7 +23,6 @@ from my_helper.notebook.sourse.pass_month import MonthPass
 from my_helper.notebook.sourse.pass_get import GetPass
 from my_helper.notebook.sourse.pass_auto import AutoPass
 from my_helper.notebook.sourse.pass_drive import DrivePass
-from my_helper.notebook.sourse.inserts import get_from_db
 from database import DataBase
 from my_tools import Notepad
 from music import Music
@@ -70,6 +67,7 @@ class MainWindow(QMainWindow):
         self.b_new_auto.clicked.connect(self.ev_btn_add_to_db)
         self.b_new_driver.clicked.connect(self.ev_btn_add_to_db)
         self.b_new_material.clicked.connect(self.ev_btn_add_to_db)
+        self.b_new_bill.clicked.connect(self.ev_btn_add_to_db)
 
         self.b_create_act.clicked.connect(self.ev_create_act)
         self.b_pdf_check.clicked.connect(self.ev_pdf_check)
@@ -199,6 +197,8 @@ class MainWindow(QMainWindow):
             wnd, table = NewMaterial(self), "materials"
         elif name == "Музыка":
             wnd, table = Music(self), "musics"
+        elif name == "Чек":
+            wnd, table = NewBill(self), "biils"
         elif name == "Заявка на деньги":
             wnd, table = GetMoney(self), "finances"
         wnd.exec_()

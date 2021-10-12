@@ -17,7 +17,8 @@ db_keys = {"auto": "(gov_number, model, brand, track_number, id)",
            "bosses": "(family, name, surname, post, email, phone, sex, id)",
            "materials": "(name, measure, value, provider, contract, id)",
            "musics": "(name, link, id)",
-           "finance": "(date, value, recipient, comment, id)"}
+           "finance": "(date, value, recipient, comment, id)",
+           "bills": "(date, value, buyer, name_file, comment, id)"}
 
 
 def get_person(person):
