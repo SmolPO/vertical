@@ -6,8 +6,8 @@ from PyQt5.QtWidgets import QMessageBox as mes
 import docxtpl
 import os
 import inserts as ins
-main_file = "D:/my_helper/get_money.docx"
-print_file = "D:/my_helper/to_print/get_money.docx"
+main_file = "B:/my_helper/getmoney.docx"
+print_file = "B:/my_helper/to_print/get_money.docx"
 designer_file = '../designer_ui/get_money_2.ui'
 
 
@@ -50,6 +50,7 @@ class GetMoney(QDialog):
         self.current_id = self.next_id
         self.my_id.setValue(self.next_id)
         self.data = {"date": "", "post": "", "family": "", "text": ""}
+        self.change_note()
 
     def ev_ok(self):
         if not self.check_input():
@@ -87,7 +88,7 @@ class GetMoney(QDialog):
         else:
             self.but_status("change")
         for row in self.rows_from_db:
-            if text in row:
+            if text.split(",")[0] == row[0]:
                 self.set_data(row)
 
     def change_note(self, state=None):
@@ -102,7 +103,7 @@ class GetMoney(QDialog):
         text = list()
         text.append("Прошу Вас выслать ")
         text.append(str(self.sb_value.value()))
-        text.append(" на банковскую карту ")
+        text.append("р. на банковскую карту ")
         text.append(" ".join(itr[0:2]))
         text.append(" для:\n")
         if self.cb_day.isChecked():
@@ -148,7 +149,7 @@ class GetMoney(QDialog):
                 self.close()
 
     def set_data(self, data):
-        self.sb_number.setValue(data[0])
+        self.my_id.setValue(data[0])
         self.date.setDate(Date.fromString(data[1], "dd.mm.yyyy"))
         self.sb_value.Value(int(data[2]))
         i = range(len(self.rows_from_db))
