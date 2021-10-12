@@ -103,5 +103,5 @@ class TempForm (QDialog):
             self.b_kill.setEnabled(True)
 
 
-def from_str(self, date):
+def from_str(date):
     return int(date[0:2]), int(date[2:4]), int(date[4:])

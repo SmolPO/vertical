@@ -270,19 +270,6 @@ class MainWindow(QMainWindow):
     """____________________________________"""
 
     # работа с Excel
-    def get_next_number(self):
-        # init
-        config = ConfigParser()
-        config.read('config.ini')
-        # read
-        number_note = config.get('config', 'number')
-        # write
-        next_number = int(number_note) + 1
-        config.set('config', 'number', str(next_number))
-        with open('config.ini', 'w') as configfile:
-            config.write(configfile)
-        return int(number_note)
-
     def get_new_data(self, data):
         self.data_to_db = data
 

@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.template import TempForm, from_str
+from my_helper.notebook.sourse.new_template import TempForm, from_str
 from PyQt5.QtWidgets import QMessageBox as mes
 """
 валидация, защита от ввода в табл в разнобой

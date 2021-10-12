@@ -1,51 +1,31 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from my_helper.notebook.sourse.inserts import get_from_db
 import datetime as dt
-import os
-import docx
-import docxtpl
-#  сделать мессаджбоксы на Сохранить
+from pass_template import TempPass
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-main_file = "D:/my_helper/month.docx"
-print_file = "D:/my_helper/to_print/month.docx.docx"
 designer_file = '../designer_ui/pass_month.ui'
 
 
-class MonthPass(QDialog):
+class MonthPass(TempPass):
     def __init__(self, parent):
-        super(MonthPass, self).__init__()
-        uic.loadUi(designer_file, self)
-        # pass
-        self.parent = parent
-        self.table = "workers"
-        self.b_ok.clicked.connect(self.ev_ok)
-        self.b_cancel.clicked.connect(self.ev_cancel)
+        super(MonthPass, self).__init__(designer_file, parent, "workers")
         self.b_save.clicked.connect(self.save_pattern)
         self.b_kill.clicked.connect(self.kill_pattern)
         self.b_open.clicked.connect(self.my_open_file)
         self.count_people = 0
-
+        self.d_from.setDate(dt.datetime.now().date())
+        self.d_to.setDate(dt.datetime.now().date())
         self.cb_all.stateChanged.connect(self.set_enabled_workers)
         self.cb_manual_set.stateChanged.connect(self.set_dates)
 
-        self.d_note.setDate(dt.datetime.now().date())
-        self.d_from.setDate(dt.datetime.now().date())
-        self.d_to.setDate(dt.datetime.now().date())
-        self.number.setValue(self.parent.get_next_number())
-
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5, self.worker_6,
                         self.worker_7, self.worker_8, self.worker_9, self.worker_10)
-        self.list_month = ["январь", "февраль", "март", "апрель",
-                           "май", "июнь", "июль", "август", "сентябрь",
-                           "октябрь", "ноябрь", "декабрь"]
         self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
                      "post": "", "number": "", "data": ""}
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.init_workers()
         self.init_cb_month()
         self.set_dates(self.cb_manual_set.isChecked())
+        self.main_file = "D:/my_helper/month.docx"
+        self.print_file = "D:/my_helper/to_print/month.docx.docx"
 
     # инициализация
     def init_cb_month(self):
@@ -72,20 +52,14 @@ class MonthPass(QDialog):
         if state != Qt.Checked:
             self.new_worker()
 
-    def set_dates(self, state):
-        self.d_to.setEnabled(state == Qt.Checked)
-        self.d_from.setEnabled(state == Qt.Checked)
-        self.cb_month.setEnabled(state != Qt.Checked)
-
     # получить данные
     # для заполнения текста
-    def get_data(self):
+    def _get_data(self):
         if self.cb_manual_set.isChecked():
             self.data["start_date"] = self.d_from.text()
             self.data["end_date"] = self.d_to.text()
             return
         next_month = self.list_month.index(self.cb_month.currentText()) + 1
-        print("month: ", self.cb_month.currentText(), " index:", next_month)
         # если конец года: увеличить год и месяц в 1
         if next_month == 13:
             next_day = "09"
@@ -106,28 +80,8 @@ class MonthPass(QDialog):
         self.data["start_date"] = ".".join((next_day, next_month, next_year))
         self.data["end_date"] = ".".join((end_next_month, next_month, next_year))
 
-    def get_worker(self, family):
-        rows = self.parent.db.get_data("family, name, surname, post, passport, "
-                                       "passport_got, birthday, adr,  live_adr", "workers")
-        if family == "all":
-            return rows
-        for row in rows:
-            if family[:-5] == row[0]:  # на форме фамилия в виде Фамилия И.О.
-                return row
-
     # обработчики кнопок
-    def ev_ok(self):
-        self.data["number"] = "Исх. № " + self.number.text()
-        self.data["data"] = "от. " + self.d_note.text()
-        self.data["customer"] = self.parent.customer
-        self.data["company"] = self.parent.company
-
-        self.get_data()
-        doc = docxtpl.DocxTemplate(main_file)
-        doc.render(self.data)
-
-        doc.save(print_file)
-        doc = docx.Document(print_file)
+    def _create_data(self, doc):
         # Заполнить таблицу
         workers = []
         if self.cb_all.isChecked():
@@ -147,34 +101,6 @@ class MonthPass(QDialog):
             doc.tables[1].rows[i].cells[5].text = people[7]
             doc.tables[1].rows[i].cells[6].text = people[8]
             i += 1
-        doc.save(print_file)
-        self.close()
-        os.startfile(print_file)
 
-    def new_worker(self):
-        flag = True
-        for item in self.list_ui:
-            if item.currentText() != "(нет)":
-                item.setEnabled(True)
-            else:
-                item.setEnabled(flag)
-                flag = False
-        pass
-
-    def ev_cancel(self):
-        self.close()
-
-    def save_pattern(self):
-        data = {"who": self.cb_who.text(),
-                "object_name": self.cb_object.text(),
-                "workers": self.get_list()}
-        self.zip_pattern(data)
-        # запоковать в словарь
-        # сохранить в файл
-
-    def my_open_file(self):
-        print("open file")
-        pass
-
-    def kill_pattern(self):
-        pass
+    def check_input(self):
+        return True

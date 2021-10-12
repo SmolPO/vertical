@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.template import TempForm
+from my_helper.notebook.sourse.new_template import TempForm
 designer_file = "../designer_ui/add_company.ui"
 fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank", "family", "name", "surname",
           "post", "count_attorney", "date_attorney", "id"]

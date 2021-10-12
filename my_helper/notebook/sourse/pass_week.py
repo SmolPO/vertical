@@ -1,72 +1,35 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMessageBox
-from PyQt5.QtCore import Qt
-from my_helper.notebook.sourse.inserts import get_from_db
+from pass_template import TempPass
 import datetime as dt
-import os
-import docx
-import docxtpl
 #  сделать мессаджбоксы на Сохранить
-main_file = "D:/my_helper/week.docx"
-print_file = "D:/my_helper/to_print/week.docx"
 designer_file = "../designer_ui/pass_week.ui"
 
 
-class WeekPass(QDialog):
+class WeekPass(TempPass):
     def __init__(self, parent):
-        super(WeekPass, self).__init__()
-        uic.loadUi(designer_file, self)
-        # pass
-        self.parent = parent
+        super(WeekPass, self).__init__(designer_file, parent, "contracts")
+        self.rows_from_db = self.parent.db.get_data("*", self.table)
+        self.d_from.setDate(dt.datetime.now().date())
+        self.d_to.setDate(dt.datetime.now().date())
         self.workers = [self.worker_1, self.worker_2, self.worker_3,
                         self.worker_4, self.worker_5, self.worker_6,
                         self.worker_7, self.worker_8, self.worker_9]
-        self.table = "contracts"
-        self.b_ok.clicked.connect(self.ev_ok)
-        self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_save.clicked.connect(self.save_pattern)
         self.b_kill.clicked.connect(self.kill_pattern)
-        self.b_open.clicked.connect(self.my_open_file)
-
         self.cb_other.stateChanged.connect(self.other_days)
         self.cb_sun.stateChanged.connect(self.week_days)
         self.cb_sub.stateChanged.connect(self.week_days)
         self.d_from.setEnabled(False)
         self.d_to.setEnabled(False)
+        self.main_file = "D:/my_helper/week.docx"
+        self.print_file = "D:/my_helper/to_print/week.docx"
 
-        self.d_note.setDate(dt.datetime.now().date())
-        self.d_from.setDate(dt.datetime.now().date())
-        self.d_to.setDate(dt.datetime.now().date())
-        self.number.setValue(self.parent.get_next_number())
         self.data = {"number": "", "date": "", "week_day": "", "contract": "", "type_work": "",
                      "part": "", "company": "", "customer": "", "post_boss": "", "boss_part": ""}
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4,
                         self.worker_5, self.worker_6, self.worker_7, self.worker_8, self.worker_9)
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.init_object()
         self.init_boss()
         self.init_workers()
-
-    # выбор дня
-    def other_days(self, state):
-        if state == Qt.Checked:
-            self.cb_sun.setEnabled(False)
-            self.cb_sub.setEnabled(False)
-            self.d_from.setEnabled(True)
-            self.d_to.setEnabled(True)
-        else:
-            self.cb_sun.setEnabled(True)
-            self.cb_sub.setEnabled(True)
-            self.d_from.setEnabled(False)
-            self.d_to.setEnabled(False)
-
-    def week_days(self, state):
-        if state == Qt.Checked:
-            self.cb_other.setEnabled(False)
-            self.d_from.setEnabled(False)
-            self.d_to.setEnabled(False)
-        elif not self.cb_sun.isChecked() and not self.cb_sub.isChecked():
-            self.cb_other.setEnabled(True)
 
     # заполнение список
     def get_days(self):
@@ -109,28 +72,20 @@ class WeekPass(QDialog):
                 item.addItem(family)
 
     # обработчики кнопок
-    def ev_ok(self):
-        self.data["customer"] = self.parent.customer
-        self.data["company"] = self.parent.company
-        self.data["number"] = "Исх. № " + self.number.text()
-        self.data["date"] = "от. " + self.d_note.text()
+    def _ev_ok(self):
         self.data["boss_part"] = self.cb_boss_part.currentText()
         self.data["post_boss"] = "Начальник цеха"
         self.get_contract(self.cb_object.currentText())
         self.get_week_days()
 
-        doc = docxtpl.DocxTemplate(main_file)
-        doc.render(self.data)
-        doc.save(print_file)
-
         # Заполнить таблицу
-        doc = docx.Document(print_file)
+    def _create_data(self, doc):
         i = 1
         for elem in self.list_ui:
             family = elem.currentText()
             if family != "(нет)":
                 doc.tables[1].add_row()
-                people = self.get_worker(family)
+                people = self.get_worker_week(family)
                 doc.tables[1].rows[i].cells[0].text = str(i)
                 doc.tables[1].rows[i].cells[1].text = " ".join(people[:3])
                 doc.tables[1].rows[i].cells[2].text = people[3]
@@ -139,53 +94,4 @@ class WeekPass(QDialog):
                 doc.tables[1].rows[i].cells[5].text = people[7]
                 doc.tables[1].rows[i].cells[6].text = people[8]
                 i += 1
-        doc.save(print_file)
-        self.close()
-        os.startfile(print_file)
 
-    def ev_cancel(self):
-        self.close()
-
-    def new_worker(self):
-        flag = True
-        for item in self.list_ui:
-            if item.currentText() != "(нет)":
-                item.setEnabled(True)
-            else:
-                item.setEnabled(flag)
-                flag = False
-
-    def my_open_file(self):
-        os.startfile(print_file)
-
-    def get_contract(self, name):
-        # получить номер договора по короткому имени
-        for row in self.parent.db.get_data("number, date, object, place, type_work, name", "contracts"):
-            if name in row:
-                self.data["contract"] = " от ".join(row[:2])
-                self.data["object_name"] = row[2]
-                self.data["part"] = row[3]
-                self.data["type_work"] = row[4]
-
-    def get_worker(self, family):
-        # получить номер договора по короткому имени
-        for row in self.parent.db.get_data("family, name, surname, post, passport, passport_got, "
-                                "birthday, adr,  live_adr", "workers"):
-            if family[:-5] == row[0]:
-                return row
-            return row
-
-    def get_week_days(self):
-        if self.cb_other.isChecked():
-            self.data["week_day"] = "в выходные дни с " + self.d_from.text() + " до " + self.d_to.text()
-        else:
-            if len(self.get_days()) > 1:
-                self.data["week_day"] = "в выходные дни с " + str(self.get_days()[0]) + " до " + str(self.get_days()[1])
-            else:
-                self.data["week_day"] = "в выходной день " + str(self.get_days()[0])
-
-    def save_pattern(self):
-        pass
-
-    def kill_pattern(self):
-        pass

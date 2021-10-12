@@ -2,7 +2,7 @@
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.template import TempForm
+from my_helper.notebook.sourse.new_template import TempForm
 from PyQt5.QtWidgets import QMessageBox as mes
 
 designer_file = '../designer_ui/materials.ui'

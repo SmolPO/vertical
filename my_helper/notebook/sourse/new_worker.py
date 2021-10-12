@@ -1,7 +1,7 @@
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.template import TempForm
+from my_helper.notebook.sourse.new_template import TempForm, from_str
 from PyQt5.QtWidgets import QMessageBox as mes
 designer_file = '../designer_ui/new_worker.ui'
 
@@ -46,7 +46,7 @@ class NewWorker(TempForm):
         return True
 
     def _clean_data(self):
-        zero = Date.fromString("01.01.2000", "dd.mm.yyyy")
+        zero = Date(from_str("01.01.2000"))
         self.passport_post.clear()
         self.adr.clear()
         self.live_adr.clear()
@@ -84,7 +84,7 @@ class NewWorker(TempForm):
         self.family.setText(data[0])
         self.name.setText(data[1])
         self.surname.setText(data[2])
-        self.bday.setDate(Date.fromString(data[3], "dd.mm.yyyy"))
+        self.bday.setDate(Date(from_str(data[3])))
         self.post.setText(data[4])
         self.phone.setText(data[5])
         self.passport.setText(data[6])
@@ -94,16 +94,16 @@ class NewWorker(TempForm):
         self.inn.setText(data[10])
         self.snils.setText(data[11])
         self.n_td.setText(data[12])
-        self.d_td.setDate(Date.fromString(data[13], "dd.mm.yyyy"))
+        self.d_td.setDate(Date(from_str(data[13])))
         self.n_hght.setText(data[14])
         self.n_group_h.setText(str(data[15]))
-        self.d_height.setDate(Date.fromString(data[16], "dd.mm.yyyy"))
+        self.d_height.setDate(Date(from_str(data[16])))
         self.n_study.setText(data[17])
         self.n_study_card.setText(data[18])
-        self.d_study.setDate(Date.fromString(data[19], "dd.mm.yyyy"))
+        self.d_study.setDate(Date(from_str(data[19])))
         self.n_prot.setText(data[20])
         self.n_card.setText(data[21])
-        self.d_prot.setDate(Date.fromString(data[22], "dd.mm.yyyy"))
+        self.d_prot.setDate(Date(from_str(data[22])))
 
     def _get_data(self, data):
         data = list([self.family.text(),

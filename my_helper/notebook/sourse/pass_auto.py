@@ -88,8 +88,10 @@ class AutoPass(QDialog):
             return
         doc = docxtpl.DocxTemplate(main_file)
         doc.render(self.data)
-        doc.save(print_file)
-        self.close()
+        try:
+            doc.save(print_file)
+        except:
+            self.close()
         os.startfile(print_file)
 
     def my_setEnabled(self, status):

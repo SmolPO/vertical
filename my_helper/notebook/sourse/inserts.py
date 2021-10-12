@@ -44,5 +44,5 @@ def my_update(data, table):
     return "UPDATE {0} SET {1} = {2} where id = '{3}'".format(table, fields, result, my_id)
 
 
-def from_str(self, date):
+def from_str(date):
     return int(date[0:2]), int(date[2:4]), int(date[4:])

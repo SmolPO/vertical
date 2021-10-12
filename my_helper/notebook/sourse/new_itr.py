@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.template import TempForm
+from my_helper.notebook.sourse.new_template import TempForm, from_str
 from PyQt5.QtWidgets import QMessageBox as mes
 designer_file = '../designer_ui/new_itr.ui'
 
@@ -51,7 +51,7 @@ class NewITR(TempForm):
         for item in list_clean[0]:
             item.setText("")
         for item in list_clean[1]:
-            item.setDate(Date.fromString("01.01.2000", "dd.mm.yyyy"))
+            item.setDate(Date(from_str("01.01.2000")))
         for item in list_clean[2]:
             item.clear()
 
@@ -68,7 +68,7 @@ class NewITR(TempForm):
         self.post.setText(data[3])
 
         self.passport.setText((data[4]))
-        self.passport_date.setDate(Date.fromString(data[5]))
+        self.passport_date.setDate(Date(from_str(data[5])))
         self.passport_got.append(data[6])
         self.adr.append(data[7])
         self.live_adr.append(data[8])
@@ -77,23 +77,23 @@ class NewITR(TempForm):
         self.inn.setText((data[10]))
         self.snils.setText((data[11]))
         self.n_td.setText((data[12]))
-        self.d_td.setDate(Date.fromString(data[13]))
+        self.d_td.setDate(Date(from_str(data[13])))
 
         self.n_OT_p.setText((data[14]))
-        self.d_OT.setDate(Date.fromString((data[15])))
+        self.d_OT.setDate(Date(from_str(data[15])))
         self.n_OT_c.setText((data[16]))
 
         self.n_PTM_p.setText((data[17]))
-        self.d_PTM.setDate(Date.fromString((data[18])))
+        self.d_PTM.setDate(Date(from_str(data[18])))
         self.n_PTM_c.setText((data[19]))
 
         self.n_ES_p.setText((data[20]))
         self.n_ES_g.setText((data[21]))
         self.n_ES_c.setText((data[22]))
-        self.d_ES.setDate(Date.fromString((data[23])))
+        self.d_ES.setDate(Date(from_str(data[23])))
 
         self.n_H_p.setText((data[24]))
-        self.d_H.setDate(Date.fromString((data[25])))
+        self.d_H.setDate(Date(from_str(data[25])))
         self.n_H_g.setText((data[26]))
         self.n_H_c.setText((data[27]))
 
@@ -101,13 +101,8 @@ class NewITR(TempForm):
 
         self.n_ST_p.setText((data[29]))
         self.n_ST_c.setText((data[30]))
-        self.d_ST.setDate(Date.fromString((data[31])))
-
-        date_str = data[32]
-        qdate = QtCore.QDate.fromString(date_str, "dd.mm.yyyy")
-
-        self.bday.setDisplayFormat("dd.mm.yyyy")
-        self.bday.setDate(qdate)
+        self.d_ST.setDate(Date(from_str(data[31])))
+        self.bday.setDate(Date(from_str(data[32])))
 
     def _get_data(self, data):
         _data = list([self.family.text(), self.name.text(), self.surname.text(),

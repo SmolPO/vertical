@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
-from my_helper.notebook.sourse.template import TempForm
+from my_helper.notebook.sourse.new_template import TempForm, from_str
 designer_file = '../designer_ui/new_auto_2.ui'
 fields = ["model", "brand", "gov_number", "track_number", "id"]
 

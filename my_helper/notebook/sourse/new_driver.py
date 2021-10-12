@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import QDate as Date
-from my_helper.notebook.sourse.template import TempForm
+from my_helper.notebook.sourse.new_template import TempForm, from_str
 designer_file = '../designer_ui/new_driver.ui'
 fields = ["family", "name", "surname", "birthday", "passport", "id"]
 
@@ -38,7 +38,7 @@ class NewDriver(TempForm):
         self.adr.clear()
         self.passport.append(data[3])
         self.adr.append(data[4])
-        self.d_birthday.setDate(Date.fromString(data[5]))
+        self.d_birthday.setDate(Date(from_str(data[5])))
 
     def _get_data(self, data):
         data.append(self.passport.toPlainText())

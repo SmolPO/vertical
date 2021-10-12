@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import  QMessageBox
 import webbrowser
-from my_helper.notebook.sourse.template import TempForm
+from my_helper.notebook.sourse.new_template import TempForm
 designer_file = '../designer_ui/music.ui'
 
 
