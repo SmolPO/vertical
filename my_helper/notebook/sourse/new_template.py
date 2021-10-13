@@ -104,4 +104,15 @@ class TempForm (QDialog):
 
 
 def from_str(date):
-    return int(date[0:2]), int(date[2:4]), int(date[4:])
+    print(date)
+    print(int(date[0:2]), int(date[3:5]), int(date[6:]))
+    return int(date[0:2]), int(date[3:5]), int(date[6:])
+
+
+def set_cb_text(combobox, data, rows):
+    i = iter(range(1000))
+    for item in rows:
+        if item[2] == data:
+            combobox.setCurrentIndex(next(i) + 1)
+            return
+        next(i)

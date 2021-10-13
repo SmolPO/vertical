@@ -41,7 +41,7 @@ class DataBase:
         except:
             print(row)
             print("Не удалось получить данные из БД")
-            return
+            return []
 
     def execute(self, text):
         """except:
