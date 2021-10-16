@@ -54,6 +54,12 @@ class NewBill(TempForm):
         return data
 
     def check_input(self):
+        if self.sb_value.value() == 0:
+            return False
+        if self.recipient.currentIndex() == 0:
+            return False
+        if self.filename == "":
+            return False
         return True
 
     def _clean_data(self):

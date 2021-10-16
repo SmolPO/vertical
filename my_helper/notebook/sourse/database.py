@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QDialog, QMessageBox
-from my_helper.notebook.sourse.inserts import get_from_db, my_update
+from my_helper.notebook.sourse.inserts import get_from_db, my_update, add_to_db
 import psycopg2
 
 
@@ -44,15 +44,6 @@ class DataBase:
             return []
 
     def execute(self, text):
-        """except:
-                   print("Разрыв соединения, пробуем переподключиться...")
-                   try:
-                       self.connect_to_db()
-                       self.conn.execute(text)
-                       return True
-                   except:
-                       print("Внимание, нет соединения с базой данных по интернету")
-                       return False"""
         try:
             self.cursor.execute(text)
         except:
@@ -105,3 +96,6 @@ class DataBase:
     def kill_value(self, my_id, table):
         self.execute("DELETE FROM {0} WHERE id = '{1}'".format(table, my_id))
         self.conn.commit()
+
+    def new_note(self, date, name, number):
+        self.my_commit(add_to_db((date, name, number), "notes"))

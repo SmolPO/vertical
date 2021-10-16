@@ -16,6 +16,7 @@ from my_helper.notebook.sourse.new_bill import NewBill
 from pdf_module import check_file, create_covid
 from my_helper.notebook.sourse.new_contract import NewContact
 from my_helper.notebook.sourse.material import NewMaterial
+from my_helper.notebook.sourse.new_TB import NewTB, CountPeople
 from my_email import send_post
 from my_helper.notebook.sourse.pass_week import WeekPass
 from my_helper.notebook.sourse.pass_unlock import UnlockPass
@@ -57,6 +58,7 @@ class MainWindow(QMainWindow):
         self.b_pass_drive.clicked.connect(self.ev_btn_create_pass)
         self.b_pass_unlock.clicked.connect(self.ev_btn_create_pass)
         self.b_pass_issue.clicked.connect(self.ev_btn_create_pass)
+        self.b_tb.clicked.connect(self.ev_btn_create_pass)
         # create
         self.b_new_person.clicked.connect(self.ev_btn_add_to_db)
         self.b_new_build.clicked.connect(self.ev_btn_add_to_db)
@@ -129,6 +131,12 @@ class MainWindow(QMainWindow):
                 wnd = AutoPass(self)
             else:
                 return
+        elif name == "Распечатать ТБ":
+            self.count_people_tb = int()
+            wnd = CountPeople(self)
+            wnd.exec_()
+            if self.count_people_tb > 0:
+                wnd = NewTB(self)
         elif name == "Разовый пропуск на машину":
             if self.is_have_some("drivers"):
                 wnd = DrivePass(self)

@@ -1,6 +1,6 @@
-path = "B:/my_helper"
+path = "B:/pythonProject/vertical/vertical/my_helper"
 path_scan = path + "/scan"
-path_OCR = path + "/after_OCR"
+path_OCR = path + "/OCR"
 path_for_print = path + "/to_print"
 path_default = path + "/patterns"
 path_conf_ini = path + "/config.ini"

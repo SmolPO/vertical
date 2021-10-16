@@ -47,6 +47,8 @@ try:
     print("add table finance")
     db.execute("CREATE TABLE bills (date text, value text, buyer text, name_file text, comment text, id text)")
     print("add table bills")
+    db.execute("CREATE TABLE notes (date text, name text, id text)")
+    print("add table notes")
 except:
     print("error")
 conn.commit()
