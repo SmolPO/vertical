@@ -75,6 +75,7 @@ class NewTable(QDialog):
             if sheet.cell(row=i + 2, column=1).value:
                 count = sheet.cell(row=i + 2, column=1).value
         if count != len(self.rows_from_db):
+            pass
         for i in range(len(self.rows_from_db)):
             val = "н" if list_people[i + 2] == 0 else list_people[i + 2]
             sheet.cell(row=i + 2, column=dt.datetime.now().day + 3).value = val
