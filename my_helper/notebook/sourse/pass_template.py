@@ -24,7 +24,7 @@ class TempPass(QDialog):
         # self.b_kill.clicked.connect(self.kill_pattern)
 
         self.d_note.setDate(dt.datetime.now().date())
-        self.number.setValue(self.get_next_number())
+        self.number.setValue(get_next_number())
 
         self.list_month = ["январь", "февраль", "март", "апрель",
                            "май", "июнь", "июль", "август", "сентябрь",
@@ -75,19 +75,6 @@ class TempPass(QDialog):
 
     def kill_pattern(self):
         pass
-
-    def get_next_number(self):
-        # init
-        config = ConfigParser()
-        config.read('config.ini')
-        # read
-        number_note = config.get('config', 'number')
-        # write
-        next_number = int(number_note) + 1
-        config.set('config', 'number', str(next_number))
-        with open('config.ini', 'w') as configfile:
-            config.write(configfile)
-        return int(number_note)
 
     def get_contract(self, name):
         # получить номер договора по короткому имени
@@ -162,3 +149,17 @@ class TempPass(QDialog):
             end_next_month = str(count_days[int(next_month)])
         print(".".join((end_next_month, next_month, next_year)))
         return (end_next_month, next_month, next_year)
+
+
+def get_next_number():
+    # init
+    config = ConfigParser()
+    config.read('config.ini')
+    # read
+    number_note = config.get('config', 'number')
+    # write
+    next_number = int(number_note) + 1
+    config.set('config', 'number', str(next_number))
+    with open('config.ini', 'w') as configfile:
+        config.write(configfile)
+    return int(number_note)
