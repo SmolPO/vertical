@@ -3,6 +3,7 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.new_template import TempForm, from_str
 from PyQt5.QtWidgets import QMessageBox as mes
+import datetime as dt
 designer_file = '../designer_ui/new_worker.ui'
 
 
@@ -12,6 +13,7 @@ class NewWorker(TempForm):
         # pass
         self.parent = parent
         self.table = "workers"
+        self.cb_auto.stateChanged.connect(self.ev_auto)
         self.init_mask()
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
         self.parent.db.init_list(self.cb_contract, "name", "contracts")
@@ -22,6 +24,7 @@ class NewWorker(TempForm):
         self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
         self.list_ui = list()
+        self.auto_numbers = ()
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я ]{30}"))
@@ -80,7 +83,6 @@ class NewWorker(TempForm):
         self.passport_post.clear()
         self.adr.clear()
         self.live_adr.clear()
-        print(data)
         self.family.setText(data[0])
         self.name.setText(data[1])
         self.surname.setText(data[2])
@@ -162,6 +164,31 @@ class NewWorker(TempForm):
             return False
         else:
             return True
+
+    def ev_auto(self, state):
+        if state:
+            number = list()
+            card = list()
+            for worker in self.rows_from_db:
+                number.append(worker[21])
+                card.append(worker[22])
+            delta = 1 if dt.datetime.now().weekday() >= 1 else 3
+            date = dt.datetime.now() - dt.timedelta(delta)
+            if number == []:
+                number.append(0)
+                card.append(0)
+            self.auto_numbers = max(number), max(card), str(date)
+            self.n_prot.setText(max(number) + 1),
+            self.n_card.setText(max(card) + 1),
+            self.d_prot.setDate(Date(from_str(date)))
+
+            self.n_prot.setEnabled(False)
+            self.n_card.setEnabled(False)
+            self.d_prot.setEnabled(False)
+        else:
+            self.n_prot.setEnabled(True)
+            self.n_card.setEnabled(True)
+            self.d_prot.setEnabled(True)
 
     def _ev_ok(self):
         return True

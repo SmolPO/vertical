@@ -152,12 +152,9 @@ class TempPass(QDialog):
 
 
 def get_next_number():
-    # init
     config = ConfigParser()
     config.read('config.ini')
-    # read
     number_note = config.get('config', 'number')
-    # write
     next_number = int(number_note) + 1
     config.set('config', 'number', str(next_number))
     with open('config.ini', 'w') as configfile:

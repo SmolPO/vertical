@@ -7,5 +7,6 @@ path_conf_ini = path + "/config.ini"
 path_to_covid = "/covid"
 path_to_xml_pass_week = "/xml/pass_week.xml"
 link_fuer = "https://lk.ruspetrol.ru/Identity/Login?ReturnUrl=%2F"
+ip_address = "84.23.55.25"
 
 

@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QCheckBox, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QCheckBox, QMessageBox, QAction
 import sys
 import os
 import requests
@@ -24,6 +24,7 @@ from my_helper.notebook.sourse.pass_month import MonthPass
 from my_helper.notebook.sourse.pass_get import GetPass
 from my_helper.notebook.sourse.pass_auto import AutoPass
 from my_helper.notebook.sourse.pass_drive import DrivePass
+from my_helper.notebook.sourse.settings import Settings
 from database import DataBase
 from my_tools import Notepad
 from music import Music
@@ -71,6 +72,14 @@ class MainWindow(QMainWindow):
         self.b_new_material.clicked.connect(self.ev_btn_add_to_db)
         self.b_new_bill.clicked.connect(self.ev_btn_add_to_db)
 
+        exitAction = QAction('Настройки', self)
+        exitAction.setStatusTip('Настройки')
+        exitAction.triggered.connect(self.ev_settings)
+
+        menu = self.menu
+        fileMenu = menu.addMenu("Настройки")
+        fileMenu.addAction(exitAction)
+
         self.b_create_act.clicked.connect(self.ev_create_act)
         self.b_pdf_check.clicked.connect(self.ev_pdf_check)
         self.b_send_covid.clicked.connect(self.ev_send_covid)
@@ -85,6 +94,7 @@ class MainWindow(QMainWindow):
         self.b_notepad.clicked.connect(self.ev_btn_start_file)
         self.b_music.clicked.connect(self.ev_btn_add_to_db)
         self.b_get_money.clicked.connect(self.ev_btn_add_to_db)
+        # self.menu.setting.settings.exitAction.triggered.connect(self.settings)
         self.b_scan.setEnabled(False)
 
         self.get_param_from_widget = None
@@ -102,6 +112,10 @@ class MainWindow(QMainWindow):
         self.db = DataBase()
         self.db.connect_to_db()
         self.get_weather()
+
+    def ev_settings(self):
+        wnd = Settings(self)
+        wnd.exec_()
 
     def ev_btn_create_pass(self):
         name = self.sender().text()
@@ -210,25 +224,6 @@ class MainWindow(QMainWindow):
         elif name == "Заявка на деньги":
             wnd, table = GetMoney(self), "finances"
         wnd.exec_()
-
-    def ev_new_bill(self):
-        try:
-            os.startfile(conf.path + "/scan.exe")
-        except:
-            print("не могу запустить сканер")
-            return
-        date, price, number = check_file()
-        tmp = ".".join((str(x) for x in (dt.now().day, dt.now().month, dt.now().year)))
-        os.replace("", conf.path_OCR + "/bills/{0}.jpg".format(tmp))
-        # xlsx
-        if not self.open_wb("bill"):
-            return
-        # TODO добавление в конец файла
-
-        self.add_next_bill((date, price, number))
-        self.wb.save(conf.path_OCR + "/bills.xlsx")
-        self.wb.close()
-        print("new bill")
 
     def ev_create_act(self):
         pass

@@ -80,6 +80,9 @@
     </property>
    </widget>
    <widget class="QPushButton" name="b_scan">
+    <property name="enabled">
+     <bool>false</bool>
+    </property>
     <property name="geometry">
      <rect>
       <x>440</x>
@@ -632,7 +635,7 @@
    </widget>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-  <widget class="QMenuBar" name="menubar">
+  <widget class="QMenuBar" name="menu">
    <property name="geometry">
     <rect>
      <x>0</x>
@@ -641,18 +644,6 @@
      <height>22</height>
     </rect>
    </property>
-   <widget class="QMenu" name="ui_settings">
-    <property name="title">
-     <string>Настройки</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="ui_about">
-    <property name="title">
-     <string>О программе</string>
-    </property>
-   </widget>
-   <addaction name="ui_settings"/>
-   <addaction name="ui_about"/>
   </widget>
   <action name="btn_settings">
    <property name="text">
@@ -707,6 +698,11 @@
   <action name="action_2">
    <property name="text">
     <string>Добавить машину</string>
+   </property>
+  </action>
+  <action name="settings">
+   <property name="text">
+    <string>Настройки</string>
    </property>
   </action>
  </widget>

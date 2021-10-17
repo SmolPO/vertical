@@ -6,7 +6,8 @@ import docx
 import docxtpl
 import os
 designer_file = '../designer_ui/new_TB.ui'
-_types = {"1": "/OT.docx", "2": "/PTM.docx", "3": "/ES.docx"}
+types_docs = {"1": "/OT_doc.docx", "2": "/PTM_doc.docx", "3": "/ES_doc.docx"}
+types_card = {"1": "/OT_card.docx", "2": "/PTM_card.docx", "3": "/ES_card.docx"}
 
 
 class NewTB(QDialog):
@@ -20,17 +21,13 @@ class NewTB(QDialog):
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.rows_from_db = self.parent.db.get_data("*", self.table)
-        self.main_file = ""
-        self.print_file = ""
+        self.path = dict()
+        self.path["main_folder"] = ""
+        self.path["print_folder"] = ""
         self.list_ui = list()
         self.init_list()
 
     def init_list(self):
-        """
-        создать таблицу 0 | ФИО
-        добавить все ФИО работающих сотрудников
-        :return:
-        """
         g = iter(range(self.count + 1))
         for item in self.rows_from_db:
             i = next(g)
@@ -53,17 +50,13 @@ class NewTB(QDialog):
     def ev_ok(self):
         people = self.get_list_people()
         self.create_protocols(people)
+        self.create_cards(people)
         return True
 
     def ev_cancel(self):
         self.close()
 
     def create_protocols(self, people):
-        """
-        список протоколов: просмотреть всех сотрудников и найти номера протоколов
-        :param people: список id сотрудников
-        :return:
-        """
         printed_docs = list()
         worker = list()
         fields = [0, 1, 2, 4, 20, 21, 22, 24]
@@ -73,20 +66,37 @@ class NewTB(QDialog):
                 for field in fields:
                     worker.append(man[field])
                 print(worker)
-                for key in _types.keys():
+                for key in types_docs.keys():
                     self.print_doc(worker, key)
                 printed_docs.append(man[_key])
         return
+    
+    def create_cards(self, people):
+        data = dict()
+        for worker in people:
+            data["family"] = " ".join(worker[:3])
+            data["post"] = worker[3]
+            data["number_doc"] = worker[20]
+            data["number"] = worker[21]
+            data["date"] = worker[22]
+            for name in types_card.keys():
+                doc = docxtpl.DocxTemplate(self.path["main_folder"] + types_card[name])
+                doc.render(self.data)
+                try:
+                    doc.save(self.path["print_folder"] + types_card[name])
+                except:
+                    self.close()
+                os.startfile(self.path["print_folder"] + types_card[name], "print")
 
     def print_doc(self, workers, number_type):
         data = dict()
         data["date"] = workers[7] + "/" + str(number_type)  # номер столбца с датой
         data["number_doc"] = workers[6]  # номер протокол
         self.create_table(workers, number_type)
-        doc = docxtpl.DocxTemplate(self.main_file + _types[number_type])
+        doc = docxtpl.DocxTemplate(self.path["main_folder"] + types_docs[number_type])
         doc.render(self.data)
         try:
-            doc.save(self.print_file + _types[number_type])
+            doc.save(self.path["print_folder"] + types_docs[number_type])
         except:
             self.close()
 
@@ -96,7 +106,7 @@ class NewTB(QDialog):
     def create_table(self, data, number_type):
         g = iter(range(len(data)))
         print(data)
-        doc = docx.Document(self.print_file + _types[str(number_type)])
+        doc = docx.Document(self.path["main_folder"] + types_docs[number_type])
         for item in data:
             i = next(g)
             doc.tables[1].add_row()
@@ -104,7 +114,7 @@ class NewTB(QDialog):
             doc.tables[1].rows[i].cells[1].text = " ".join(item[:3]) # ФИО
             doc.tables[1].rows[i].cells[2].text = item[3]   # профессия
             doc.tables[1].rows[i].cells[3].text = "Сдал №" + item[5]
-        doc.save(self.print_file + _types[str(number_type)])
+        doc.save(self.path["print_folder"] + types_docs[number_type])
 
 
 class CountPeople(QDialog):

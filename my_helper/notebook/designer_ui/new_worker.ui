@@ -723,6 +723,19 @@
     <string>Объект</string>
    </property>
   </widget>
+  <widget class="QCheckBox" name="cb_auto">
+   <property name="geometry">
+    <rect>
+     <x>470</x>
+     <y>400</y>
+     <width>76</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>авто</string>
+   </property>
+  </widget>
  </widget>
  <resources/>
  <connections/>
