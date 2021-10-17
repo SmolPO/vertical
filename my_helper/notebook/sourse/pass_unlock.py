@@ -14,8 +14,8 @@ class UnlockPass(TempPass):
         self.init_workers()
         self.data = {"number": "", "data": "", "customer": "", "company": "", "start_date": "", "end_date": "",
                      "post": "", "family": "", "name": "", "surname": "", "adr": ""}
-        self.main_file = "D:/my_helper/unlock.docx"
-        self.print_file = "D:/my_helper/to_print/unlock.docx"
+        self.main_file = self.path + "/patterns/unlock.docx"
+        self.print_file = self.path + "/to_print/"
 
     def init_workers(self):
         self.cb_worker.addItem("(нет)")

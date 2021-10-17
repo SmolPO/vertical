@@ -1,25 +1,14 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import Qt
 import datetime as dt
-import os
-import docxtpl
 from pass_template import TempPass
+from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
-
 designer_file = '../designer_ui/pass_drive.ui'
 
 
-class DrivePass(QDialog):
+class DrivePass(TempPass):
     def __init__(self, parent):
-        super(DrivePass, self).__init__()
-        uic.loadUi(designer_file, self)
-        # pass
-        self.parent = parent
-        self.table = "drivers"
-        self.b_ok.clicked.connect(self.ev_ok)
-        self.b_cancel.clicked.connect(self.ev_cancel)
-        self.b_open.clicked.connect(self.my_open_file)
+        super(DrivePass, self).__init__(designer_file, parent, "drivers")
 
         self.cb_contracts.activated[str].connect(self.contract_changed)
         self.cb_auto.activated[str].connect(self.auto_changed)
@@ -30,8 +19,6 @@ class DrivePass(QDialog):
         self.input_text.textChanged.connect(self.change_note)
         self.input_text.textChanged.connect(self.change_note)
 
-        self.d_note.setDate(dt.datetime.now().date())
-        self.number.setValue(self.parent.get_next_number())
         self.data = {"number": "", "date": "", "text_note": "", "auto": "",
                      "gov_number": "", "track_number": " ", "passport": "", "adr": ""}
         self.work = ""
@@ -42,7 +29,6 @@ class DrivePass(QDialog):
         self.init_auto()
         self.init_drivers()
         self.init_contracts()
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.d_arrive.setDate(dt.datetime.now().date())
         self.main_file = "D:/my_helper/drive.docx"
         self.print_file = "D:/my_helper/to_print/drive.docx"
@@ -73,31 +59,17 @@ class DrivePass(QDialog):
             self.cb_contracts.addItem(row[0])
 
     # для заполнения текста
-    def get_data(self):
-        self.data["number"] = "Исх. № " + self.number.text()
-        self.data["date"] = "от. " + self.d_note.text()
+    def _get_data(self):
         self.data["text_note"] = self.note.toPlainText()
         self.data["contract"] = self.cb_contracts.currentText()
         self.data["d_arrive"] = self.d_arrive.text()
-        if "" in self.data:
-            return False
-        return True
 
     # обработчики кнопок
-    def ev_ok(self):
-        if not self.get_data():
-            return
-        doc = docxtpl.DocxTemplate(main_file)
-        doc.render(self.data)
-        doc.save(print_file)
-        self.close()
-        os.startfile(print_file)
+    def _ev_ok(self):
+        return True
 
-    def ev_cancel(self):
-        self.close()
-
-    def my_open_file(self):
-        os.startfile(print_file)
+    def check_inpt(self):
+        return True
 
     def date_changed(self):
         self.data_arrive = self.d_arrive.text()

@@ -4,48 +4,35 @@ from PyQt5.QtCore import Qt
 import datetime as dt
 import os
 import docxtpl
+from pass_template import TempPass
 from my_helper.notebook.sourse.inserts import get_from_db
-
-
+from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
-main_file = "D:/my_helper/pass_auto.docx.docx"
-print_file = "D:/my_helper/to_print/auto_print.docx"
 designer_file = '../designer_ui/pass_auto.ui'
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 
-class AutoPass(QDialog):
+class AutoPass(TempPass):
     def __init__(self, parent):
-        super(AutoPass, self).__init__()
+        super(AutoPass, self).__init__(designer_file, parent, "auto")
         uic.loadUi(designer_file, self)
         # pass
-        self.parent = parent
-        self.table = "auto"
-        self.b_ok.clicked.connect(self.ev_ok)
-        self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_open.clicked.connect(self.my_open_file)
-        self.b_kill.clicked.connect(self.kill_last_auto)
         self.b_clean.clicked.connect(self.clean_data)
         self.add_auto.clicked.connect(self.next_auto)
-
         self.cb_drivers.activated[str].connect(self.driver_changed)
-
         self.cb_activ.stateChanged.connect(self.manual_set)
-
-        self.d_note.setDate(dt.datetime.now().date())
-        self.number.setValue(self.parent.get_next_number())
 
         self.data = {"number": "", "date": "", "start_date": "", "end_date": "",
                      "auto": list(), "gov_numbers": list(), "people": list(list())}
-        self.list_month = ["январь", "февраль", "март", "апрель",
-                           "май", "июнь", "июль", "август", "сентябрь",
-                           "октябрь", "ноябрь", "декабрь"]
+
         self.init_auto()
         self.init_drivers()
         self.list_ui = list([self.driver_1, self.driver_2, self.driver_3, self.driver_4,
                              self.driver_5, self.driver_6, self.driver_7])
         self.count = 0
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
+        self.main_file = self.path + "/patterns/pass_auto.docx"
+        self.print_file = self.path + "/to_print/"
 
     # инициализация
     def init_drivers(self):
@@ -86,13 +73,13 @@ class AutoPass(QDialog):
     def ev_ok(self):
         if not self.get_data():
             return
-        doc = docxtpl.DocxTemplate(main_file)
+        doc = docxtpl.DocxTemplate(self.main_file)
         doc.render(self.data)
         try:
-            doc.save(print_file)
+            doc.save(self.print_file)
         except:
             self.close()
-        os.startfile(print_file)
+        os.startfile(self.print_file)
 
     def my_setEnabled(self, status):
         self.d_note.setEnabled(status)
@@ -122,7 +109,7 @@ class AutoPass(QDialog):
         self.close()
 
     def my_open_file(self):
-        os.startfile(print_file)
+        pass
 
     def manual_set(self, state):
         if state == Qt.Checked:

@@ -6,6 +6,7 @@ import datetime as dt
 import os
 import docx
 import docxtpl
+from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 designer_file = '../designer_ui/pass_drive.ui'
@@ -38,8 +39,8 @@ class DrivePass(QDialog):
                      "post": "", "number": "", "data": ""}
         self.init_workers()
         self.init_cb_month()
-        self.main_file = "D:/my_helper/pass_drive.docx"
-        self.print_file = "D:/my_helper/to_print/pass_drive.docx"
+        self.main_file = self.path + "/patterns/pass_driver.docx"
+        self.print_folder = self.path + "/to_print/"
 
     # инициализация
     def init_cb_month(self):
@@ -106,11 +107,11 @@ class DrivePass(QDialog):
         self.data["data"] = "от. " + self.d_note.text()
 
         self.get_data()
-        doc = docxtpl.DocxTemplate(main_file)
+        doc = docxtpl.DocxTemplate(self.main_file)
         doc.render(self.data)
 
-        doc.save(print_file)
-        doc = docx.Document(print_file)
+        doc.save(self.print_file)
+        doc = docx.Document(self.print_folder)
         # Заполнить таблицу
         workers = []
         if self.cb_all.isChecked():
@@ -130,9 +131,9 @@ class DrivePass(QDialog):
             doc.tables[1].rows[i].cells[5].text = people[7]
             doc.tables[1].rows[i].cells[6].text = people[8]
             i += 1
-        doc.save(print_file)
+        doc.save(self.print_folder)
         self.close()
-        os.startfile(print_file)
+        os.startfile(self.print_folder)
 
     def new_worker(self):
         flag = True

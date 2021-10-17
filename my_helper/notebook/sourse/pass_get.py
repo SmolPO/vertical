@@ -6,6 +6,7 @@ import datetime as dt
 import os
 import docx
 import docxtpl
+from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 main_file = "D:/my_helper/getpass.docx"
@@ -32,8 +33,8 @@ class GetPass(QDialog):
                         self.worker_6, self.worker_7, self.worker_8, self.worker_9, self.worker_10)
         self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
                      "contract": "", "date_contract": "", "number": "", "data": ""}
-        if not self.init_workers() and self.init_contracts():
-            self.close()
+        self.main_file = self.path + "/patterns/get_pass.docx"
+        self.print_file = self.path + "/to_print/"
 
     def init_contracts(self):
         self.cb_contracts.addItem("(нет)")

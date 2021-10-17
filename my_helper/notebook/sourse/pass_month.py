@@ -25,8 +25,8 @@ class MonthPass(TempPass):
         self.init_workers()
         self.init_cb_month()
         self.set_dates(self.cb_manual_set.isChecked())
-        self.main_file = "D:/my_helper/month.docx"
-        self.print_file = "D:/my_helper/to_print/month.docx.docx"
+        self.main_file = self.path + "/patterns/month.docx"
+        self.print_file = self.path + "/to_print/"
 
     # инициализация
     def init_cb_month(self):

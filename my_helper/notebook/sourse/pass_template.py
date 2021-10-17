@@ -30,6 +30,9 @@ class TempPass(QDialog):
                            "май", "июнь", "июль", "август", "сентябрь",
                            "октябрь", "ноябрь", "декабрь"]
         self.data = dict()
+        conf = ConfigParser()
+        conf.read('config.ini')
+        self.path = conf.get('config', 'main_path')
 
     # флаг на выбор всех
     def set_dates(self, state):
@@ -49,13 +52,14 @@ class TempPass(QDialog):
 
         doc = docxtpl.DocxTemplate(self.main_file)
         doc.render(self.data)
-        doc.save(self.print_file)
+        print_file = self.print_folder + self.number.text() + "_" + self.d_note.text() + ".docx"
+        doc.save(print_file)
 
-        doc = docx.Document(self.print_file)
+        doc = docx.Document(print_file)
         self._create_data(doc)
-        doc.save(self.print_file)
+        doc.save(print_file)
         self.close()
-        os.startfile(self.print_file)
+        os.startfile(print_file)
 
     def new_worker(self):
         flag = True

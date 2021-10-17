@@ -6,6 +6,7 @@ import datetime as dt
 import os
 import docx
 import docxtpl
+from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 designer_file = '../designer_ui/pass_drive.ui'

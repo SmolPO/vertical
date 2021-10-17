@@ -20,11 +20,12 @@ class DataBase:
         self.password_db = config.get('config', 'password_db')
 
     def connect_to_db(self):
+        self.conn = psycopg2.connect(dbname="Company",
+                                     user="postgres",
+                                     password="pol_ool_123",
+                                     host="localhost")
         try:
-            self.conn = psycopg2.connect(dbname=self.name_db,
-                                     user=self.name_db,
-                                     password=self.password_db,
-                                     host=self.ip)
+
             if not self.conn:
                 return False
             self.cursor = self.conn.cursor()

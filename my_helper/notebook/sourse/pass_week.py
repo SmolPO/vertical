@@ -20,8 +20,8 @@ class WeekPass(TempPass):
         self.cb_sub.stateChanged.connect(self.week_days)
         self.d_from.setEnabled(False)
         self.d_to.setEnabled(False)
-        self.main_file = "D:/my_helper/week.docx"
-        self.print_file = "D:/my_helper/to_print/week.docx"
+        self.main_file = self.path + "/patterns/week.docx"
+        self.print_folder = self.path + "/to_print"
 
         self.data = {"number": "", "date": "", "week_day": "", "contract": "", "type_work": "",
                      "part": "", "company": "", "customer": "", "post_boss": "", "boss_part": ""}
@@ -95,3 +95,5 @@ class WeekPass(TempPass):
                 doc.tables[1].rows[i].cells[6].text = people[8]
                 i += 1
 
+    def _get_data(self):
+        return True
