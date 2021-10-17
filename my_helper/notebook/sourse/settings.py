@@ -47,16 +47,16 @@ class Settings(QDialog):
         self.name_db.setText(config.get('config', 'name_db'))
         self.user_db.setText(config.get('config', 'user_db'))
         self.password_db.setText(config.get('config', 'password_db'))
-       # self.new_year.setValue(int(config.get('config', 'new_year')))
+        self.new_year.setValue(int(config.get('config', 'new_year')))
 
     def save_data(self, data):
         config = ConfigParser()
         config.read('config.ini')
-        config.set('config', 'main_path', data[0])
+        config.set('config', 'main_path', str(data[0]))
         config.set('config', 'ip', data[1])
         config.set('config', 'name_db', data[2])
         config.set('config', 'user_db', data[3])
         config.set('config', 'password_db', data[4])
-        config.set('config', 'new_year', data[5])
+        config.set('config', 'new_year', str(data[5]))
         with open('config.ini', 'w') as configfile:
             config.write(configfile)

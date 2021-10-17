@@ -15,8 +15,6 @@ class NewBoss(TempForm):
         self.parent = parent
         self.table = "bosses"
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
-        if not self.rows_from_db:
-            self.close()
         self.slice_select = -5
         self.slice_set = 6
         self.slice_get = 6

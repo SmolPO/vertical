@@ -212,10 +212,16 @@ class MainWindow(QMainWindow):
         elif name == "Заказчик":
             wnd, table = NewCompany(self), "company"
         elif name == "Сотрудник":
+            if not self.db.get_data("*", "contracts"):
+                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Объекты", QMessageBox.Ok)
+                return
             wnd, table = NewWorker(self), "workers"
         elif name == "Прораб":
             wnd, table = NewITR(self), "itrs"
         elif name == "Ввоз материалов":
+            if not self.db.get_data("*", "contracts"):
+                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Объекты", QMessageBox.Ok)
+                return
             wnd, table = NewMaterial(self), "materials"
         elif name == "Музыка":
             wnd, table = Music(self), "musics"

@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 import datetime as dt
 from pass_template import TempPass
+from configparser import ConfigParser
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 designer_file = '../designer_ui/pass_month.ui'
 
@@ -62,7 +63,10 @@ class MonthPass(TempPass):
         next_month = self.list_month.index(self.cb_month.currentText()) + 1
         # если конец года: увеличить год и месяц в 1
         if next_month == 13:
-            next_day = "09"
+            config = ConfigParser()
+            config.read('config.ini')
+            self.new_year__week = config.get('config', 'new_year')
+            next_day =  self.new_year__week
             next_month = "01"  # MessageBox для ввода первого дня
             next_year = str(dt.datetime.now().year + 1)
         else:
@@ -71,12 +75,10 @@ class MonthPass(TempPass):
             if int(next_month) < 10:
                 next_month = "0" + next_month
             next_year = str(dt.datetime.now().year)
-
         if int(next_year) / 4 == 0:
             end_next_month = str(count_days[12])
         else:
             end_next_month = str(count_days[int(next_month)])
-
         self.data["start_date"] = ".".join((next_day, next_month, next_year))
         self.data["end_date"] = ".".join((end_next_month, next_month, next_year))
 

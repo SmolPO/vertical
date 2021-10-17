@@ -43,17 +43,22 @@ class NewContact(TempForm):
         self.cb_comp.setCurrentIndex(0)
         self.part.setText("")
         self.number.setText("")
-        self.date.setDate(Date.fromString("01.01.2000", "dd.mm.yyyy"))
+        self.date.setDate(Date(*from_str("01.01.2000")))
         self.my_object.clear()
         self.work.clear()
         self.cb_comp.setCurrentText("(нет)")
 
     def _set_data(self, data):
         self.name.setText(data[0])
-        # self.cb_comp
+        g = iter(range(len(self.rows_from_db) + 1))
+        for item in self.rows_from_db:
+            next(g)
+            if data[-1] == item[-1]:
+                self.cb_comp.setCurrentIndex(next(g))
+                break
         self.part.setText(data[6])
         self.number.setText(data[0])
-        self.date.setDate(Date(from_str(data[3])))
+        self.date.setDate(Date(*from_str(data[3])))
         self.my_object.clear()
         self.work.clear()
         self.my_object.append(data[4])

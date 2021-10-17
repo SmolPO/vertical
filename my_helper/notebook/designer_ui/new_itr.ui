@@ -914,7 +914,7 @@
    <property name="geometry">
     <rect>
      <x>760</x>
-     <y>10</y>
+     <y>60</y>
      <width>121</width>
      <height>22</height>
     </rect>
@@ -1001,16 +1001,6 @@
      <x>20</x>
      <y>180</y>
      <width>110</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="my_auto">
-   <property name="geometry">
-    <rect>
-     <x>760</x>
-     <y>60</y>
-     <width>113</width>
      <height>22</height>
     </rect>
    </property>

@@ -14,6 +14,7 @@ class NewWorker(TempForm):
         self.parent = parent
         self.table = "workers"
         self.cb_auto.stateChanged.connect(self.ev_auto)
+        self.cb_contract.activated[str].connect(self.select_contract)
         self.init_mask()
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
         self.parent.db.init_list(self.cb_contract, "name", "contracts")
@@ -47,6 +48,9 @@ class NewWorker(TempForm):
 
     def _ev_select(self, text):
         return True
+
+    def select_contract(self):
+        self.b_ok.setEnabled(self.cb_contract.currentText() != "(нет)")
 
     def _clean_data(self):
         zero = Date(from_str("01.01.2000"))
@@ -86,7 +90,7 @@ class NewWorker(TempForm):
         self.family.setText(data[0])
         self.name.setText(data[1])
         self.surname.setText(data[2])
-        self.bday.setDate(Date(from_str(data[3])))
+        self.bday.setDate(Date(*from_str(data[3])))
         self.post.setText(data[4])
         self.phone.setText(data[5])
         self.passport.setText(data[6])
@@ -96,16 +100,22 @@ class NewWorker(TempForm):
         self.inn.setText(data[10])
         self.snils.setText(data[11])
         self.n_td.setText(data[12])
-        self.d_td.setDate(Date(from_str(data[13])))
+        self.d_td.setDate(Date(*from_str(data[13])))
         self.n_hght.setText(data[14])
         self.n_group_h.setText(str(data[15]))
-        self.d_height.setDate(Date(from_str(data[16])))
+        self.d_height.setDate(Date(*from_str(data[16])))
         self.n_study.setText(data[17])
         self.n_study_card.setText(data[18])
-        self.d_study.setDate(Date(from_str(data[19])))
+        self.d_study.setDate(Date(*from_str(data[19])))
         self.n_prot.setText(data[20])
         self.n_card.setText(data[21])
-        self.d_prot.setDate(Date(from_str(data[22])))
+        self.d_prot.setDate(Date(*from_str(data[22])))
+        g = iter(range(len(self.rows_from_db) + 1))
+        for item in self.rows_from_db:
+            next(g)
+            if data[-1] == item[-1]:
+                self.cb_contract.setCurrentIndex(next(g))
+                break
 
     def _get_data(self, data):
         data = list([self.family.text(),
@@ -178,9 +188,9 @@ class NewWorker(TempForm):
                 number.append(0)
                 card.append(0)
             self.auto_numbers = max(number), max(card), str(date)
-            self.n_prot.setText(max(number) + 1),
-            self.n_card.setText(max(card) + 1),
-            self.d_prot.setDate(Date(from_str(date)))
+            self.n_prot.setText(str(max(number) + 1))
+            self.n_card.setText(str(max(card) + 1))
+            self.d_prot.setDate(date)
 
             self.n_prot.setEnabled(False)
             self.n_card.setEnabled(False)

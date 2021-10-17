@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.new_template import TempForm
+from my_helper.notebook.sourse.new_template import TempForm, from_str
 designer_file = "../designer_ui/add_company.ui"
 fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank", "family", "name", "surname",
           "post", "count_attorney", "date_attorney", "id"]
@@ -39,14 +39,16 @@ class NewCompany(TempForm):
         self.family.setValidator(symbols)
         self.name.setValidator(symbols)
         self.surname.setValidator(symbols)
-        self.post.setValidator(symbols)
+        self.post.setValidator(QREVal(QRE("[а-яА-Я -]{30}")))
         self.count_dovr.setValidator(number_prot)
 
     def _ev_select(self, text):
         return True
 
     def _set_data(self, data):
-        self.date_dovr.setDate(Date.fromString(data[fields.index("date_attorney")], "dd.mm.yyyy"))
+        print(data[-2])
+        print(from_str(data[-2]))
+        self.date_dovr.setDate(Date(*from_str(data[-2])))
         self.current_id = data[fields.index("id")]
 
     def _clean_data(self):
@@ -67,7 +69,7 @@ class NewCompany(TempForm):
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         else:
-            if self.list_ui[-1].text() == "01.01.2000":
+            if self.list_ui[-2].text() == "01.01.2000":
                 ans = mes.question(self, "Сообщение", "Дата доверенности точно 01.01.2000?", mes.Ok | mes.Cancel)
                 if ans == mes.Ok:
                     return True
@@ -75,3 +77,6 @@ class NewCompany(TempForm):
                     return False
             else:
                 return True
+
+    def _ev_ok(self):
+        return True

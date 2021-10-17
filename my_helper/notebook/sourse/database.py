@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QDialog, QMessageBox
 from my_helper.notebook.sourse.inserts import get_from_db, my_update, add_to_db
 import config
 import psycopg2
+from configparser import ConfigParser
 
 
 class DataBase:
@@ -11,16 +12,19 @@ class DataBase:
         self.db = None
         self.conn = None
         self.cursor = None
-        self.key_for_db = config.ip_address + " dbname=vertical user=office password=9p1LH4i4258*PsxV"
+        config = ConfigParser()
+        config.read('config.ini')
+        self.ip = config.get('config', 'ip')
+        self.name_db = config.get('config', 'name_db')
+        self.user_db = config.get('config', 'user_db')
+        self.password_db = config.get('config', 'password_db')
 
     def connect_to_db(self):
-        print(self.key_for_db)
-        self.conn = psycopg2.connect(dbname='Company',
-                                     user='postgres',
-                                     password='pol_ool_123',
-                                     host='localhost')
         try:
-           # self.conn = psycopg2.connect(self.key_for_db)
+            self.conn = psycopg2.connect(dbname=self.name_db,
+                                     user=self.name_db,
+                                     password=self.password_db,
+                                     host=self.ip)
             if not self.conn:
                 return False
             self.cursor = self.conn.cursor()
@@ -80,17 +84,17 @@ class DataBase:
             print("OK")
 
     def init_list(self, item, fields, table, people=False):
-        rows = self.get_data(fields, table)
+        rows = self.get_data("*", table)
         item.addItems(["(нет)"])
         if not rows and rows != []:
             return False
         if not people:
             for row in rows:
-                item.addItems([row[0]])
+                item.addItems([row[-1] + ". " + row[0]])
             return rows
         else:
             for row in rows:
-                item.addItems([row[0] + " " + ".".join([row[1][0], row[2][0]]) + "."])
+                item.addItems([str(row[-1]) + ". " + str(row[0]) + " " + ".".join([str(row[1][0]), str(row[2][0])]) + "."])
             return rows
 
     def my_update(self, data, table):
@@ -137,7 +141,7 @@ class DataBase:
             "CREATE TABLE workers (family text, name text, surname text, birthday text, post text, phone text, "
             "passport text, passport_got text, adr text, live_adr text, inn text, snils text, numb_contract text, "
             "date_contract text, numb_h text, numb_group_h text, date_h text, numb_study text, numb_study_card text,"
-            "d_study text, numb_protocol text, numb_card text, d_protocol text, id text)",
+            "d_study text, numb_protocol text, numb_card text, d_protocol text, object text, id text)",
             "CREATE TABLE itrs (family text, name text, surname text, post text, passport text, passport_date text, "
             "passport_got text, adr text, live_adr text, auto text, inn text, "
             "snils text, n_employment_contract text, date_employment_contract text, "

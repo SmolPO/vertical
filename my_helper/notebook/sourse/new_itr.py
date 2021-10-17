@@ -17,6 +17,7 @@ class NewITR(TempForm):
         self.table = "itrs"
         self.init_mask()
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
+        self.parent.db.init_list(self.cb_auto, "*", "auto")
         self.slice_set = 0
         self.slice_get = 0
         self.slice_clean = 0
@@ -43,7 +44,7 @@ class NewITR(TempForm):
         self.n_H_g.setValidator(QREVal(QRE("[0-9]{3}")))
 
     def _clean_data(self):
-        list_clean = [[self.family, self.name, self.surname, self.post, self.my_auto, self.passport, self.inn,
+        list_clean = [[self.family, self.name, self.surname, self.post, self.cb_auto.setCurrentIndex(0), self.passport, self.inn,
                        self.snils, self.n_td, self.n_OT_p, self.n_OT_c, self.n_PTM_p, self.n_PTM_c, self.n_ES_p,
                        self.n_ES_c, self.n_ES_g, self.n_H_p, self.n_H_c, self.n_H_g, self.n_ST_p, self.n_ST_c],
                       [self.bday, self.passport_date, self.d_td, self.d_OT, self.d_PTM, self.d_ES, self.d_H,
@@ -68,32 +69,31 @@ class NewITR(TempForm):
         self.post.setText(data[3])
 
         self.passport.setText((data[4]))
-        self.passport_date.setDate(Date(from_str(data[5])))
+        self.passport_date.setDate(Date(*from_str(data[5])))
         self.passport_got.append(data[6])
         self.adr.append(data[7])
         self.live_adr.append(data[8])
-        self.my_auto.setText(data[9])
 
         self.inn.setText((data[10]))
         self.snils.setText((data[11]))
         self.n_td.setText((data[12]))
-        self.d_td.setDate(Date(from_str(data[13])))
+        self.d_td.setDate(Date(*from_str(data[13])))
 
         self.n_OT_p.setText((data[14]))
-        self.d_OT.setDate(Date(from_str(data[15])))
+        self.d_OT.setDate(Date(*from_str(data[15])))
         self.n_OT_c.setText((data[16]))
 
         self.n_PTM_p.setText((data[17]))
-        self.d_PTM.setDate(Date(from_str(data[18])))
+        self.d_PTM.setDate(Date(*from_str(data[18])))
         self.n_PTM_c.setText((data[19]))
 
         self.n_ES_p.setText((data[20]))
         self.n_ES_g.setText((data[21]))
         self.n_ES_c.setText((data[22]))
-        self.d_ES.setDate(Date(from_str(data[23])))
+        self.d_ES.setDate(Date(*from_str(data[23])))
 
         self.n_H_p.setText((data[24]))
-        self.d_H.setDate(Date(from_str(data[25])))
+        self.d_H.setDate(Date(*from_str(data[25])))
         self.n_H_g.setText((data[26]))
         self.n_H_c.setText((data[27]))
 
@@ -101,14 +101,28 @@ class NewITR(TempForm):
 
         self.n_ST_p.setText((data[29]))
         self.n_ST_c.setText((data[30]))
-        self.d_ST.setDate(Date(from_str(data[31])))
-        self.bday.setDate(Date(from_str(data[32])))
+        self.d_ST.setDate(Date(*from_str(data[31])))
+        self.bday.setDate(Date(*from_str(data[32])))
+
+        list_auto = self.parent.db.get_data("*", "auto")
+        g = iter(range(len(list_auto) + 1))
+        for item in list_auto:
+            next(g)
+            print(data[9], item[0])
+            if data[9] == item[0]:
+                self.cb_auto.setCurrentIndex(next(g))
+                break
 
     def _get_data(self, data):
+        if self.cb_auto.currentText() == "(нет)":
+            auto = "(нет)"
+        else:
+            auto = self.cb_auto.currentText().split(". ")[1]
+        print(auto)
         _data = list([self.family.text(), self.name.text(), self.surname.text(),
                       self.post.text(), self.passport.text(), self.passport_date.text(),
                       self.passport_got.toPlainText(), self.adr.toPlainText(),
-                      self.live_adr.toPlainText(), self.my_auto.text(),
+                      self.live_adr.toPlainText(), auto,
                       self.inn.text(), self.snils.text(),
                       self.n_td.text(), self.d_td.text(),
                       self.n_OT_p.text(), self.d_OT.text(), self.n_OT_c.text(),
@@ -118,13 +132,14 @@ class NewITR(TempForm):
                       self.promsave.toPlainText(),
                       self.n_ST_p.text(), self.n_ST_c.text(), self.d_ST.text(),
                       self.bday.text()])
+        print(_data)
         return _data
 
     def check_input(self):
         _data = list([self.family.text(), self.name.text(), self.surname.text(),
                       self.post.text(), self.passport.text(), self.passport_date.text(),
                       self.passport_got.toPlainText(), self.adr.toPlainText(),
-                      self.live_adr.toPlainText(), self.my_auto.text(),
+                      self.live_adr.toPlainText(),
                       self.inn.text(), self.snils.text(),
                       self.n_td.text(), self.d_td.text(),
                       self.n_OT_p.text(), self.n_OT_c.text(), self.d_OT.text(),
@@ -134,6 +149,7 @@ class NewITR(TempForm):
                       self.n_ST_p.text(), self.n_ST_c.text(), self.d_ST.text(),
                       self.promsave.toPlainText(),
                       self.bday.text()])
+        print(_data)
         if "" in _data or "01.01.2000" in _data or "(нет)" in _data:
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False

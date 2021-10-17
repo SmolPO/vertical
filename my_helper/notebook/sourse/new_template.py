@@ -20,8 +20,8 @@ class TempForm (QDialog):
         self.but_status("add")
 
     def ev_ok(self):
-        if not self.check_input():
-            return False
+     #   if not self.check_input():
+     #       return False
         if not self._ev_ok():
             return
         data = self.get_data()
@@ -45,8 +45,7 @@ class TempForm (QDialog):
 
         if self._ev_select(text):
             for row in self.rows_from_db:
-                print(text[:self.slice_select])
-                if text[:self.slice_select] in row:
+                if text.split(".")[0] == str(row[-1]):
                     self.set_data(row)
                     return
 
@@ -60,6 +59,7 @@ class TempForm (QDialog):
     def get_data(self):
         data = list()
         for item in self.list_ui[:self.slice_get]:
+            print(item.text())
             data.append(item.text())
         data = self._get_data(data)
         data.append(str(self.current_id))
@@ -105,8 +105,7 @@ class TempForm (QDialog):
 
 def from_str(date):
     print(date)
-    print(int(date[0:2]), int(date[3:5]), int(date[6:]))
-    return int(date[0:2]), int(date[3:5]), int(date[6:])
+    return int(date[6:]), int(date[3:5]), int(date[0:2])
 
 
 def set_cb_text(combobox, data, rows):

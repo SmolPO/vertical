@@ -38,6 +38,10 @@ class NewMaterial(TempForm):
 
     def _ev_select(self, text):
         self.slice_select = len(text)
+        if text != "(нет)":
+            self.add_new = False
+        else:
+            self.add_new = True
         return True
 
     def _set_data(self, data):

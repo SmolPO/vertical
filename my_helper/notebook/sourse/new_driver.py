@@ -13,7 +13,7 @@ class NewDriver(TempForm):
         self.parent = parent
         self.table = "drivers"
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
-        self.list_ui = [self.family, self.name, self.surname, self.passport, self.adr, self.d_birthday]
+        self.list_ui = [self.family, self.name, self.surname, self.d_birthday, self.passport, self.adr, ]
         self.slice_set = 3
         self.slice_get = 3
         self.slice_clean = len(self.list_ui)
@@ -26,24 +26,20 @@ class NewDriver(TempForm):
             item.setValidator(symbols)
 
     def _ev_select(self, text):
-        family = text[:-5]
-        print(family)
-        for row in self.rows_from_db:
-            if family in row:
-                self.set_data(row)
-        return False
+        return True
 
     def _set_data(self, data):
+        print(data)
         self.passport.clear()
         self.adr.clear()
-        self.passport.append(data[3])
-        self.adr.append(data[4])
-        self.d_birthday.setDate(Date(from_str(data[5])))
+        self.passport.append(data[4])
+        self.adr.append(data[5])
+        self.d_birthday.setDate(Date(*from_str(data[3])))
 
     def _get_data(self, data):
+        data.append(self.d_birthday.text())
         data.append(self.passport.toPlainText())
         data.append(self.adr.toPlainText())
-        data.append(self.d_birthday.text())
         return data
 
     def _clean_data(self):
@@ -68,8 +64,9 @@ class NewDriver(TempForm):
                     return False
             else:
                 return True
+
     def _ev_ok(self):
-        return
+        return True
 
     def _but_status(self, status):
         return True
