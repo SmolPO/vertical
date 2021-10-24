@@ -2,6 +2,7 @@ from PyQt5.QtCore import Qt
 import datetime as dt
 from pass_template import TempPass
 from PyQt5.QtWidgets import QMessageBox as mes
+from PyQt5.QtCore import QDate as Date
 from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
 from database import DataBase, get_path, get_path_ui

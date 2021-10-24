@@ -4,6 +4,9 @@ from PyQt5.QtCore import QDate as Date
 from my_helper.notebook.sourse.new_template import from_str
 #  сделать мессаджбоксы на Сохранить
 from database import DataBase, get_path, get_path_ui
+import openpyxl
+import os
+
 designer_file = get_path_ui("pass_unlock")
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
@@ -31,7 +34,6 @@ class UnlockPass(TempPass):
 
     def _get_data(self):
         family = self.cb_worker.currentText().split(".")[0]
-        # self.count_days = Date(*from_str(self.d_from.text())) - dt.timedelta(days=self.sb_days.value())
         for row in self.parent.db.get_data("family, name, surname, post, live_adr, id", self.table):
             if family == str(row[-1]):  # на форме фамилия в виде Фамилия И.
                 self.data["family"] = row[0]
@@ -41,6 +43,10 @@ class UnlockPass(TempPass):
                 self.data["adr"] = row[4]
                 self.data["start_date"] = self.d_from.text()
                 self.data["end_date"] = self.d_to.text()
+                self.count_days = self.sb_days.value()
+                self.create_covid(self.data["family"] + " " + self.data["name"][0] + "." + self.data["surname"] + ".",
+                                  self.data["post"])
+                return
 
     def check_input(self):
         return True
@@ -56,3 +62,14 @@ class UnlockPass(TempPass):
         self.sb_days.setValue(14)
         self.count_days = 14
         pass
+
+    def create_covid(self, family, post):
+        wb = openpyxl.load_workbook(get_path("path") + get_path("path_covid") + "/covid.xlsx")
+        sheet = wb['unlock']
+        for i in range(self.count_days):
+            sheet['A' + str(i + 3)].value = i + 1
+            sheet['B' + str(i + 3)].value = dt.datetime.now().date() - dt.timedelta(self.count_days - i)
+            sheet['C' + str(i + 3)].value = family
+            sheet['D' + str(i + 3)].value = post
+        wb.save(get_path("path") + get_path("path_covid") + "/" + str(family) + ".xlsx")
+        os.startfile(get_path("path") + get_path("path_covid") + "/" + str(family) + ".xlsx")

@@ -68,7 +68,6 @@ class DataBase:
 
     def init_list(self, item, fields, table, people=False):
         rows = self.get_data("*", table)
-        item.addItems(["(нет)"])
         if not rows and rows != []:
             return False
         if not people:

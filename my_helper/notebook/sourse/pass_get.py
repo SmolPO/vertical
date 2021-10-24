@@ -1,48 +1,44 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMessageBox
-from PyQt5.QtCore import Qt
-from my_helper.notebook.sourse.inserts import get_from_db
+from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
 import os
+from my_helper.notebook.sourse.new_template import from_str
 import docx
 import docxtpl
 from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
 from database import DataBase, get_path, get_path_ui
 import logging
+from PyQt5.QtCore import QDate as Date
+from pass_template import TempPass
 logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_get")
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 
-class GetPass(QDialog):
+class GetPass(TempPass):
     def __init__(self, parent):
-        super(GetPass, self).__init__()
-        uic.loadUi(designer_file, self)
+        super(GetPass, self).__init__(designer_file, parent, "workers")
         # pass
         self.parent = parent
-        self.b_ok.clicked.connect(self.ev_ok)
-        self.b_cancel.clicked.connect(self.ev_cancel)
-        self.b_open.clicked.connect(self.my_open_file)
 
-        self.d_note.setDate(dt.datetime.now().date())
         self.d_from.setDate(dt.datetime.now().date())
-        self.d_to.setDate(dt.datetime.now().date())
-        self.number.setValue(self.parent.get_next_number())
-
+        self.d_to.setDate((Date(*from_str(".".join([str(count_days[dt.datetime.now().month + 1]),
+                                                    str(dt.datetime.now().month),
+                                                    str(dt.datetime.now().year)])))))
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5,
                         self.worker_6, self.worker_7, self.worker_8, self.worker_9, self.worker_10)
         self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
                      "contract": "", "date_contract": "", "number": "", "date": ""}
         self.main_file += "/pass_get.docx"
+        self.init_workers()
+        self.init_contracts()
 
     def init_contracts(self):
-        self.cb_contracts.addItem("(нет)")
-        contracts = self.parent.db.get_data("name, date", "contract")
+        contracts = self.parent.db.get_data("id, name", "contracts")
         if not contracts:
             return False
         for row in contracts:
-            self.cb_contract.addItem(row[0])
+            self.cb_contract.addItem(row[0] + "." + row[1])
         return True
 
     def init_workers(self):
@@ -63,80 +59,47 @@ class GetPass(QDialog):
 
     # получить данные
     # для заполнения текста
-    def get_data(self):
+    def _get_data(self):
         self.data["start_date"] = self.d_from.text()
         self.data["end_date"] = self.d_to.text()
         self.data["customer"] = self.parent.customer
         self.data["company"] = self.parent.company
-        for contract in self.parent.db.get_data("number, date", "contract"):
-            if self.cb_contract.currentText() == contract[0]:
-                self.data["contract"] = contract[0]
-                self.data["date_contract"] = contract[1]
-
-    def get_worker(self, family):
-        rows = self.from_db("family, name, surname, post, passport, "
-                            "passport_got, birthday, adr,  live_adr", "workers")
-        if family == "all":
-            return rows
-        for row in rows:
-            if family[:-5] == row[0]:  # на форме фамилия в виде Фамилия И.О.
-                return row
+        for contract in self.parent.db.get_data("id, number, date", "contracts"):
+            if self.cb_contract.currentText().split(".")[0] == str(contract[0]):
+                self.data["contract"] = contract[1]
+                self.data["date_contract"] = contract[2]
+        return True
 
     # обработчики кнопок
-    def ev_ok(self):
-        self.data["number"] = "Исх. № " + self.number.text()
-        self.data["date"] = "от. " + self.d_note.text()
+    def _ev_ok(self):
+        if self.list_ui[0].currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Добавьте сотрудников", mes.Cancel)
+            return False
+        if self.cb_contract.currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Добавьте договор", mes.Cancel)
+            return False
+        return True
 
-        self.get_data()
-        doc = docxtpl.DocxTemplate(self.main_file)
-        doc.render(self.data)
-
-        doc.save(self.print_file)
-        doc = docx.Document(self.print_file)
+    def _create_data(self, path):
         # Заполнить таблицу
         workers = []
         for elem in self.list_ui:
             if elem.currentText() != "(нет)":
                 workers.append(self.get_worker(elem.currentText()))
         i = 1
+        doc = docx.Document(path)
         for people in workers:
             doc.tables[1].add_row()
             doc.tables[1].rows[i].cells[0].text = str(i)
-            doc.tables[1].rows[i].cells[1].text = " ".join(people[0:2])
+            doc.tables[1].rows[i].cells[1].text = " ".join(people[0:3])
             doc.tables[1].rows[i].cells[2].text = people[3]
             doc.tables[1].rows[i].cells[3].text = people[6]
             doc.tables[1].rows[i].cells[4].text = " ".join(people[4:6])
             doc.tables[1].rows[i].cells[5].text = people[7]
             doc.tables[1].rows[i].cells[6].text = people[8]
             i += 1
-        doc.save(self.print_file)
-        self.close()
-        os.startfile(self.print_file)
+        doc.save(path)
 
-    def new_worker(self):
-        flag = True
-        for item in self.list_ui:
-            if item.currentText() != "(нет)":
-                item.setEnabled(True)
-            else:
-                item.setEnabled(flag)
-                flag = False
-        pass
+    def check_input(self):
 
-    def ev_cancel(self):
-        self.close()
-
-    def save_pattern(self):
-        data = {"who": self.cb_who.text(),
-                "object_name": self.cb_object.text(),
-                "workers": self.get_list()}
-        self.zip_pattern(data)
-        # запоковать в словарь
-        # сохранить в файл
-
-    def my_open_file(self):
-        print("open file")
-        pass
-
-    def kill_pattern(self):
-        pass
+        return True

@@ -275,6 +275,11 @@
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QLabel" name="label_11">
    <property name="geometry">
