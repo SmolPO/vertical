@@ -1,12 +1,15 @@
 from PyQt5.QtWidgets import  QMessageBox
 import webbrowser
 from my_helper.notebook.sourse.new_template import TempForm
-designer_file = '../designer_ui/music.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("web")
 
 
-class Music(TempForm):
+class Web(TempForm):
     def __init__(self, parent=None):
-        super(Music, self).__init__(designer_file)
+        super(Web, self).__init__(designer_file)
         self.parent = parent
         self.table = "musics"
         self.b_start.clicked.connect(self.ev_start)

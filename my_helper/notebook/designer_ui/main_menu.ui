@@ -536,7 +536,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Музыка</string>
+     <string>Сайты</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_new_auto">

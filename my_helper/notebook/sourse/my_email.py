@@ -7,7 +7,10 @@ from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
 from email.utils import formatdate
-import config as conf
+import logging
+from database import DataBase, get_path, get_path_ui
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+
 
 def send_post(subject, body_text, to_email, file_to_attach):
 

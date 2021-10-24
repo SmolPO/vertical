@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>216</width>
-    <height>366</height>
+    <width>297</width>
+    <height>292</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,27 +16,21 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>30</x>
-     <y>30</y>
-     <width>161</width>
-     <height>31</height>
+     <x>90</x>
+     <y>10</y>
+     <width>121</width>
+     <height>16</height>
     </rect>
-   </property>
-   <property name="font">
-    <font>
-     <pointsize>12</pointsize>
-     <bold>true</bold>
-    </font>
    </property>
    <property name="text">
     <string>Добавить машину</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="firma">
+  <widget class="QLineEdit" name="brand">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>90</y>
+     <x>20</x>
+     <y>100</y>
      <width>113</width>
      <height>22</height>
     </rect>
@@ -45,8 +39,28 @@
   <widget class="QLineEdit" name="model">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>140</y>
+     <x>150</x>
+     <y>100</y>
+     <width>113</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="gov_number">
+   <property name="geometry">
+    <rect>
+     <x>20</x>
+     <y>150</y>
+     <width>113</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="track_number">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>150</y>
      <width>113</width>
      <height>22</height>
     </rect>
@@ -55,8 +69,8 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>70</y>
+     <x>20</x>
+     <y>80</y>
      <width>49</width>
      <height>16</height>
     </rect>
@@ -68,8 +82,8 @@
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>120</y>
+     <x>150</x>
+     <y>80</y>
      <width>49</width>
      <height>16</height>
     </rect>
@@ -78,34 +92,37 @@
     <string>Модель</string>
    </property>
   </widget>
-  <widget class="QLineEdit" name="number">
-   <property name="geometry">
-    <rect>
-     <x>50</x>
-     <y>190</y>
-     <width>113</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>170</y>
-     <width>49</width>
+     <x>20</x>
+     <y>130</y>
+     <width>81</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Номер</string>
+    <string>Госномер</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_5">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>130</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Номер прицепа</string>
    </property>
   </widget>
   <widget class="QPushButton" name="b_ok">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>290</y>
+     <x>160</x>
+     <y>220</y>
      <width>75</width>
      <height>24</height>
     </rect>
@@ -114,24 +131,11 @@
     <string>Добавить</string>
    </property>
   </widget>
-  <widget class="QPushButton" name="b_kill">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>320</y>
-     <width>75</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Удалить</string>
-   </property>
-  </widget>
   <widget class="QPushButton" name="b_cancel">
    <property name="geometry">
     <rect>
-     <x>120</x>
-     <y>320</y>
+     <x>160</x>
+     <y>250</y>
      <width>75</width>
      <height>24</height>
     </rect>
@@ -143,8 +147,8 @@
   <widget class="QPushButton" name="b_change">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>290</y>
+     <x>60</x>
+     <y>220</y>
      <width>75</width>
      <height>24</height>
     </rect>
@@ -153,27 +157,53 @@
     <string>Изменить</string>
    </property>
   </widget>
-  <widget class="QComboBox" name="cb_couse">
+  <widget class="QComboBox" name="cb_select">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>250</y>
+     <x>20</x>
+     <y>50</y>
      <width>111</width>
      <height>22</height>
     </rect>
    </property>
   </widget>
-  <widget class="QLabel" name="label_5">
+  <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>50</x>
-     <y>230</y>
+     <x>20</x>
+     <y>30</y>
      <width>49</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
     <string>Выбрать</string>
+   </property>
+  </widget>
+  <widget class="QPushButton" name="b_kill">
+   <property name="geometry">
+    <rect>
+     <x>60</x>
+     <y>250</y>
+     <width>75</width>
+     <height>24</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Удалить</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="is_track">
+   <property name="geometry">
+    <rect>
+     <x>150</x>
+     <y>180</y>
+     <width>76</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Прицеп</string>
    </property>
   </widget>
  </widget>

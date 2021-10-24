@@ -6,8 +6,12 @@ from PyQt5.QtWidgets import QMessageBox as mes
 """
 валидация, защита от ввода в табл в разнобой
 """
-designer_file = '../designer_ui/new_contract.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("new_contract")
 fields = ["name", "customer", "number", "date", "object", "type_work", "place", "id"]
+zero = "01.01.2000"
 
 
 class NewContact(TempForm):
@@ -77,7 +81,7 @@ class NewContact(TempForm):
     def check_input(self):
         if "" in list([self.name.text(), self.number.text(),
                        self.my_object.toPlainText(), self.work.toPlainText(),
-                      self.part.text()]) or self.date.text() == "01.01.2000":
+                      self.part.text()]) or self.date.text() == zero:
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         return True

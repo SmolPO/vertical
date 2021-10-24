@@ -3,7 +3,11 @@ from PyQt5.QtWidgets import *
 from datetime import datetime as dt
 from my_helper.notebook.sourse.new_template import TempForm, from_str, set_cb_text
 import os
-designer_file = '../designer_ui/new_bill.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("new_bill")
+zero = "01.01.2000"
 
 
 class NewBill(TempForm):
@@ -50,13 +54,14 @@ class NewBill(TempForm):
         self._create_filename()
         data.append(self.filename)
         data.append(self.note.toPlainText())
-        os.replace(self.filename, "B:/my_helper/bills/" + str(dt.now())[:10] + "_" + str(self.current_id+1) + ".pdf")
+        os.replace(self.filename, get_path("path") + get_path("bills") +
+                   str(dt.now())[:10] + "_" + str(self.current_id + 1) + ".pdf")
         return data
 
     def check_input(self):
         if self.sb_value.value() == 0:
             return False
-        if self.recipient.currentIndex() == 0:
+        if self.cb_buyer.currentIndex() == 0:
             return False
         if self.filename == "":
             return False
@@ -64,18 +69,13 @@ class NewBill(TempForm):
 
     def _clean_data(self):
         self.current_id = 1
-        self.date.setDate(Date(*from_str("01.01.2000")))
+        self.date.setDate(Date(*from_str(zero)))
         self.cb_buyer.setCurrentIndex(0)
         self.sb_value.setValue(0)
         self.note.clear()
         return True
 
     def _create_filename(self):
-        """
-        найти все по текущей дате
-        найти максимальный id
-        :return:
-        """
         my_list = [[], []]
         list_id = []
 
@@ -89,12 +89,6 @@ class NewBill(TempForm):
         print(list_id)
 
     def ev_bill(self):
-        """
-        выбрать в файловом менеджере
-        перетащить вйл в нужную папку
-        переименовать
-        :return:
-        """
         self.filename, tmp = QFileDialog.getOpenFileName(self,
                                                          "Выбрать файл",
                                                          "B:/my_helper/scan",

@@ -5,9 +5,11 @@ from PyQt5 import uic
 import docx
 import docxtpl
 import os
-designer_file = '../designer_ui/new_TB.ui'
-types_docs = {"1": "/OT_doc.docx", "2": "/PTM_doc.docx", "3": "/ES_doc.docx"}
-types_card = {"1": "/OT_card.docx", "2": "/PTM_card.docx", "3": "/ES_card.docx"}
+from database import DataBase, get_path, get_path_ui
+designer_file = get_path_ui("new_TB")
+types_docs = {"1": "/ot_doc.docx", "2": "/ptm_doc.docx", "3": "/eb_doc.docx"}
+types_card = {"1": "/ot_card.docx", "2": "/ptm_card.docx", "3": "/es_card.docx"}
+zero = "01.01.2000"
 
 
 class NewTB(QDialog):
@@ -22,8 +24,8 @@ class NewTB(QDialog):
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.path = dict()
-        self.path["main_folder"] = ""
-        self.path["print_folder"] = ""
+        self.path["main_folder"] = get_path("path") + get_path("path_pat_tb")
+        self.path["print_folder"] = get_path("path") + get_path("path_tb")
         self.list_ui = list()
         self.init_list()
 
@@ -109,18 +111,18 @@ class NewTB(QDialog):
         doc = docx.Document(self.path["main_folder"] + types_docs[number_type])
         for item in data:
             i = next(g)
-            doc.tables[1].add_row()
-            doc.tables[1].rows[i].cells[0].text = str(i)
-            doc.tables[1].rows[i].cells[1].text = " ".join(item[:3]) # ФИО
-            doc.tables[1].rows[i].cells[2].text = item[3]   # профессия
-            doc.tables[1].rows[i].cells[3].text = "Сдал №" + item[5]
+            doc.tables[0].add_row()
+            doc.tables[0].rows[i].cells[0].text = str(i)
+            doc.tables[0].rows[i].cells[1].text = " ".join(item[:3]) # ФИО
+            doc.tables[0].rows[i].cells[2].text = item[3]   # профессия
+            doc.tables[0].rows[i].cells[3].text = "Сдал №" + item[5]
         doc.save(self.path["print_folder"] + types_docs[number_type])
 
 
 class CountPeople(QDialog):
     def __init__(self, parent=None):
         super(CountPeople, self).__init__(parent)
-        ui_file = '../designer_ui/count.ui'
+        ui_file = get_path_ui("count")
         # pass
         uic.loadUi(ui_file, self)
         self.parent = parent

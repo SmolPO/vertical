@@ -3,8 +3,12 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import QDate as Date
 from my_helper.notebook.sourse.new_template import TempForm, from_str
-designer_file = '../designer_ui/new_driver.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("new_driver")
 fields = ["family", "name", "surname", "birthday", "passport", "id"]
+zero = "01.01.2000"
 
 
 class NewDriver(TempForm):
@@ -56,8 +60,8 @@ class NewDriver(TempForm):
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         else:
-            if self.d_birthday.text() == "01.01.2000":
-                ans = mes.question(self, "Сообщение", "Дата рождения точно 01.01.2000?", mes.Ok | mes.Cancel)
+            if self.d_birthday.text() == zero:
+                ans = mes.question(self, "Сообщение", "Дата рождения точно " + zero + "?", mes.Ok | mes.Cancel)
                 if ans == mes.Ok:
                     return True
                 else:

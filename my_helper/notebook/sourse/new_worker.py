@@ -4,7 +4,10 @@ from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.new_template import TempForm, from_str
 from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
-designer_file = '../designer_ui/new_worker.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("new_worker")
 
 
 class NewWorker(TempForm):

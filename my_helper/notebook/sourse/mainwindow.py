@@ -25,12 +25,10 @@ from my_helper.notebook.sourse.pass_get import GetPass
 from my_helper.notebook.sourse.pass_auto import AutoPass
 from my_helper.notebook.sourse.pass_drive import DrivePass
 from my_helper.notebook.sourse.settings import Settings
-from database import DataBase
+from database import DataBase, get_path, get_config, get_from_ini
 from my_tools import Notepad
-from music import Music
+from music import Web
 from get_money import GetMoney
-import inserts as ins
-import config as conf
 """
 План
 1. Добавление в БД сотрудника (изменил форму)
@@ -46,6 +44,7 @@ import config as conf
 Срок к концу недели
 """
 key_for_db = "host=95.163.249.246 dbname=Vertical_db user=office password=9024EgrGvz#m87Y1"
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 
 
 class MainWindow(QMainWindow):
@@ -83,7 +82,7 @@ class MainWindow(QMainWindow):
         self.b_create_act.clicked.connect(self.ev_create_act)
         self.b_pdf_check.clicked.connect(self.ev_pdf_check)
         self.b_send_covid.clicked.connect(self.ev_send_covid)
-        self.b_connect.clicked.connect(self.ev_connect)
+        # self.b_connect.clicked.connect(self.ev_connect)
 
         self.b_journal.clicked.connect(self.ev_btn_start_file)
         self.b_tabel.clicked.connect(self.ev_btn_start_file)
@@ -112,6 +111,9 @@ class MainWindow(QMainWindow):
         self.db = DataBase()
         self.db.connect_to_db()
         self.get_weather()
+        # logging
+
+        logging.debug("This is a debug message")
 
     def ev_settings(self):
         wnd = Settings(self)
@@ -162,34 +164,34 @@ class MainWindow(QMainWindow):
         name = self.sender().text()
         if name == "Доверенность":
             try:
-                os.startfile(conf.path_default + "/attourney.xlsx", "print")
+                os.startfile(get_path("path") + get_path("path_pat_patterns") + "/attorney.xlsx", "print")
             except:
                 print("Not found")
         if name == "Сканировать":
             try:
-                os.startfile("C:\Program Files\Pantum\ptm6500\PushScan\ptm6500app.exe")
+                os.startfile(get_path("path_scaner"))
             except:
                 print("Not found")
         elif name == "Накладная":
             try:
-                os.startfile(conf.path_default + "/invoice.xlsx", "print")
+                os.startfile(get_path("path") + get_path("path_pat_patterns") + "/invoice.xlsx", "print")
             except:
                 print("Not found")
         elif name == "Журнал-ковид":
             try:
-                os.startfile(conf.path_default + "/covid.xls", "print")
+                os.startfile(get_path("path") + get_path("path_pat_patterns") + "/covid.xls", "print")
             except:
                 print("Not found")
         elif name == "Табель":
             try:
-                os.startfile(conf.path_default + "/table.xlsx")
+                os.startfile(get_path("path") + get_path("path_pat_patterns") + "/table.xls")
             except:
                 print("Not found")
         elif name == "Блокнот":
             wnd = Notepad()
             wnd.exec_()
-        elif name == "Музыка":
-            wnd = Music(self)
+        elif name == "Сайты":
+            wnd = Web(self)
             wnd.exec_()
         pass
 
@@ -223,12 +225,14 @@ class MainWindow(QMainWindow):
                 QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Объекты", QMessageBox.Ok)
                 return
             wnd, table = NewMaterial(self), "materials"
-        elif name == "Музыка":
-            wnd, table = Music(self), "musics"
+        elif name == "Сайты":
+            wnd, table = Web(self), "musics"
         elif name == "Чек":
             wnd, table = NewBill(self), "biils"
         elif name == "Заявка на деньги":
             wnd, table = GetMoney(self), "finances"
+        else:
+            return
         wnd.exec_()
 
     def ev_create_act(self):
@@ -250,51 +254,33 @@ class MainWindow(QMainWindow):
         отправить
         """
         try:
-            covid = open(conf.path + conf.path_to_covid + "/covid{0}_{1}".format(dt.now().day, dt.now().month))
+            covid = open(get_path("path_covid") + "/" + self.company + "{0}_{1}".format(dt.now().day, dt.now().month))
         except:
             print("not found file")
             try:
-                os.startfile(conf.path_scan)
+                os.startfile(get_path("path_scaner"))
             except:
                 print("not start scaner")
                 return
             return
         # отправить письмо
         create_covid()
-        to_email = "kalent_ivan@mail.ru"
-        if not send_post("Ковидный журнал", "Доброе утро", to_email, conf.path_OCR + "/covid/covid_01_01.pdf"):
+        if not send_post("Ковидный журнал", "Доброе утро", get_config("my_email"), get_path("covid") + "/" +
+                                                                                   self.company + "01_01.pdf"):
             QMessageBox(self, "Сообщение не отправилось").show()
         print("send covid")
 
-    def ev_connect(self):
-        # подключиться к серверу
-        try:
-            self.handle.connect_to_server()
-            self.r_connect.setChecked(True)
-            print("connect")
-        except:
-            print("not connect")
-            self.r_connect.setChecked(False)
-
     """____________________________________"""
 
-    # работа с Excel
     def get_new_data(self, data):
         self.data_to_db = data
-
-    # Прочее
-    def get_number_doc(self):
-        self.config.read(conf.path_conf_ini)
-        next_number = int(self.config.get("conf", "next_number"))
-        return str(next_number)
 
     def on_click_notif(self):  # TODO переделать в XML
         # read
         sender = self.sender()
         notif = sender.get_text()
-        f = open(conf.path + "/notif.txt", "r")
+        f = open(get_path("main_path") + "/notif.txt", "r")
         buffer = ""
-        mes = ""
         for line in f.readlines():
             if notif in line and line[1] == "0":
                 mes = line[0] + "1" + line[2:]
@@ -302,7 +288,7 @@ class MainWindow(QMainWindow):
                 mes = line
             buffer = buffer + mes
         f.close()
-        f = open(conf.path + "/notif.txt", "w")
+        f = open(get_config("main_path") + "/notif.txt", "w")
         f.write(buffer)
         f.close()
 
@@ -313,25 +299,23 @@ class MainWindow(QMainWindow):
         r_butt = QCheckBox(message)
         r_butt.clicked.connect(self.on_click_notif)
         self.ui_notification.addWidget(r_butt)
-        f = open(conf.path + "/notif.txt", "a")
+        f = open(get_config("main_path") + "/notif.txt", "a")
         f.write(str([mode, message]) + "\n")
 
     def get_weather(self):
-        s_city = "Dorogobuzh"
+        s_city = get_from_ini("city", "weather")
         city_id = 0
-        appid = "38462e21b3c595cfa5d4da0a88687dbe"
+        appid = get_from_ini("appid", "weather")
         try:
-            res = requests.get("http://api.openweathermap.org/data/2.5/find",
+            res = requests.get(get_from_ini("site_find", "weather"),
                                params={'q': s_city, 'type': 'like', 'units': 'metric', 'APPID': appid})
             data = res.json()
-            cities = ["{} ({})".format(d['name'], d['sys']['country'])
-                      for d in data['list']]
             city_id = data['list'][0]['id']
         except Exception as e:
             print("Exception (find):", e)
             pass
         try:
-            res = requests.get("http://api.openweathermap.org/data/2.5/weather",
+            res = requests.get(get_from_ini("site_weather", "weather"),
                                params={'id': city_id, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
             data = res.json()
             self.l_weather.setText(data['weather'][0]['description'])
@@ -346,8 +330,8 @@ class MainWindow(QMainWindow):
             return False
         return True
 
+
 if __name__ == "__main__":
-    # app = Notebook()
     app = QApplication(sys.argv)
     ex = MainWindow()
     ex.show()

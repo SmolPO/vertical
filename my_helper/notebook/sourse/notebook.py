@@ -7,7 +7,6 @@ import threading
 import webbrowser
 import os
 import sys
-# import mainwindow
 from threading import Thread
 
 

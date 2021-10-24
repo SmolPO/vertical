@@ -3,9 +3,13 @@ from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.new_template import TempForm, from_str
-designer_file = "../designer_ui/add_company.ui"
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("add_company")
 fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank", "family", "name", "surname",
           "post", "count_attorney", "date_attorney", "id"]
+zero = "01.01.2000"
 
 
 class NewCompany(TempForm):
@@ -54,7 +58,7 @@ class NewCompany(TempForm):
     def _clean_data(self):
         for item in self.list_ui[:-1]:
                 item.setText("")
-        self.list_ui[-1].setDate(Date.fromString("01.01.2000"))
+        self.list_ui[-1].setDate(Date.fromString(zero))
         return False
 
     def _get_data(self, data):
@@ -69,8 +73,8 @@ class NewCompany(TempForm):
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         else:
-            if self.list_ui[-2].text() == "01.01.2000":
-                ans = mes.question(self, "Сообщение", "Дата доверенности точно 01.01.2000?", mes.Ok | mes.Cancel)
+            if self.list_ui[-2].text() == zero:
+                ans = mes.question(self, "Сообщение", "Дата доверенности точно " + zero + "?", mes.Ok | mes.Cancel)
                 if ans == mes.Ok:
                     return True
                 else:

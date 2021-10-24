@@ -6,9 +6,10 @@ from PyQt5.QtWidgets import QMessageBox as mes
 import docxtpl
 import os
 import inserts as ins
-main_file = "B:/my_helper/getmoney.docx"
-print_file = "B:/my_helper/to_print/get_money.docx"
-designer_file = '../designer_ui/get_money_2.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("get_money")
 
 
 class GetMoney(QDialog):
@@ -51,6 +52,9 @@ class GetMoney(QDialog):
         self.my_id.setValue(self.next_id)
         self.data = {"date": "", "post": "", "family": "", "text": ""}
         self.change_note()
+        self.main_file = get_path("path") + get_path("path_pat_notes") + "/get_money.docx"
+        self.print_folder = get_path("path") + get_path("path_bills") + "/" + str(dt.datetime.now().year) + \
+                                                                        "/" + str(dt.datetime.now().month)
 
     def ev_ok(self):
         if not self.check_input():
@@ -60,16 +64,20 @@ class GetMoney(QDialog):
             return
 
         self.parent.db.my_commit(ins.add_to_db(data, self.table))
-
-        rows = self.parent.db.get_data("post, family, name, surname", "itrs")
+        rows = self.parent.db.get_data("post, family, name, surname, id", "itrs")
         for row in rows:
-            if self.cb_customer.currentText() == row[1] + " " + row[2][0] + "." + row[3][0] + ".":
+            if self.cb_customer.currentText().split(".")[0] == str(row[-1]):
                 self.data["post"] = row[0]
-                self.data["family"] = self.cb_customer.currentText()
+                self.data["family"] = self.cb_customer.currentText().split(".")[1] + "." + \
+                                      self.cb_customer.currentText().split(".")[2] + "."
                 self.data["text"] = self.note_result.toPlainText()
                 self.data["date"] = self.date.text()
-
-        doc = docxtpl.DocxTemplate(main_file)
+        print_file = self.print_folder + "/" + str(dt.datetime.now().date()) + "_" + \
+                                               str(self.sb_value.value()) + ".docx"
+        if not self.data:
+            mes.question(self, "Сообщение", "Данные не добавились", mes.Ok)
+            return False
+        doc = docxtpl.DocxTemplate(self.main_file)
         doc.render(self.data)
         doc.save(print_file)
         self.close()
@@ -95,16 +103,17 @@ class GetMoney(QDialog):
         self.sb_some_value.setEnabled(True) if self.cb_some.isChecked() else self.sb_some_value.setEnabled(False)
         self.day_money(self.cb_day.isChecked())
         itr = ""
-        people = self.parent.db.get_data("post, family, name", "itrs")
+        people = self.parent.db.get_data("post, family, name, surname, id", "itrs")
         for boss in people:
-            if self.cb_recipient.currentText()[:-5] in boss:
+            print(self.cb_recipient.currentText().split(".")[0])
+            if self.cb_recipient.currentText().split(".")[0] == str(boss[-1]):
                 itr = boss
                 break
         text = list()
         text.append("Прошу Вас выслать ")
         text.append(str(self.sb_value.value()))
         text.append("р. на банковскую карту ")
-        text.append(" ".join(itr[0:2]))
+        text.append(" ".join(itr[:4]))
         text.append(" для:\n")
         if self.cb_day.isChecked():
             cost = self.sb_days.value() * self.sb_emploeeyrs.value() * self.sb_cost.value()
@@ -173,7 +182,9 @@ class GetMoney(QDialog):
         data = list()
         data.append(self.date.text())
         data.append(str(self.sb_value.value()))
-        data.append(self.cb_customer.currentText())
+        print(self.cb_customer.currentText().split(".")[1:])
+        data.append(self.cb_customer.currentText().split(".")[1] + "." +
+                    self.cb_customer.currentText().split(".")[2] + ".")
 
         if self.cb_day.isChecked():
             data.append("суточные {0} чел {1} дней {2}р. ставка".format(self.sb_days.value(),

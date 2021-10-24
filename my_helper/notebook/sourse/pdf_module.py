@@ -2,7 +2,6 @@ from PIL import Image
 import pytesseract
 import os
 from datetime import datetime as dt
-import config as conf
 import cv2
 import img2pdf
 

@@ -3,7 +3,10 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
 from my_helper.notebook.sourse.new_template import TempForm, from_str
-designer_file = '../designer_ui/new_auto_2.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("new_auto")
 fields = ["model", "brand", "gov_number", "track_number", "id"]
 
 
@@ -50,7 +53,7 @@ class NewAuto(TempForm):
 
     def check_input(self):
         data = self.get_data()
-        if "" in data: # "(gov_number, model, brand, track_number, id)"
+        if "" in data:
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         if self.is_track.isChecked() and self.track_number.text() == "":

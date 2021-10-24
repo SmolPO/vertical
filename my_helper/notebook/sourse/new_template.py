@@ -6,6 +6,8 @@ from PyQt5.QtCore import Qt
 from my_helper.notebook.sourse.inserts import get_from_db
 from PyQt5.QtWidgets import QMessageBox as mes
 import inserts as ins
+import logging
+from database import DataBase, get_path, get_path_ui
 
 
 class TempForm (QDialog):
@@ -20,8 +22,8 @@ class TempForm (QDialog):
         self.but_status("add")
 
     def ev_ok(self):
-     #   if not self.check_input():
-     #       return False
+        if not self.check_input():
+            return False
         if not self._ev_ok():
             return
         data = self.get_data()

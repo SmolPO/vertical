@@ -8,10 +8,11 @@ import docx
 import docxtpl
 from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("pass_get")
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-main_file = "D:/my_helper/getpass.docx"
-print_file = "D:/my_helper/to_print/getpass.docx"
-designer_file = '../designer_ui/pass_get.ui'
 
 
 class GetPass(QDialog):
@@ -32,9 +33,8 @@ class GetPass(QDialog):
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5,
                         self.worker_6, self.worker_7, self.worker_8, self.worker_9, self.worker_10)
         self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
-                     "contract": "", "date_contract": "", "number": "", "data": ""}
-        self.main_file = self.path + "/patterns/get_pass.docx"
-        self.print_file = self.path + "/to_print/"
+                     "contract": "", "date_contract": "", "number": "", "date": ""}
+        self.main_file += "/pass_get.docx"
 
     def init_contracts(self):
         self.cb_contracts.addItem("(нет)")
@@ -88,11 +88,11 @@ class GetPass(QDialog):
         self.data["date"] = "от. " + self.d_note.text()
 
         self.get_data()
-        doc = docxtpl.DocxTemplate(main_file)
+        doc = docxtpl.DocxTemplate(self.main_file)
         doc.render(self.data)
 
-        doc.save(print_file)
-        doc = docx.Document(print_file)
+        doc.save(self.print_file)
+        doc = docx.Document(self.print_file)
         # Заполнить таблицу
         workers = []
         for elem in self.list_ui:
@@ -109,9 +109,9 @@ class GetPass(QDialog):
             doc.tables[1].rows[i].cells[5].text = people[7]
             doc.tables[1].rows[i].cells[6].text = people[8]
             i += 1
-        doc.save(print_file)
+        doc.save(self.print_file)
         self.close()
-        os.startfile(print_file)
+        os.startfile(self.print_file)
 
     def new_worker(self):
         flag = True
@@ -140,6 +140,3 @@ class GetPass(QDialog):
 
     def kill_pattern(self):
         pass
-
-
-

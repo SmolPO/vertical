@@ -1,9 +1,13 @@
 from PyQt5.QtCore import Qt
 import datetime as dt
 from pass_template import TempPass
+from PyQt5.QtWidgets import QMessageBox as mes
 from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
-designer_file = '../designer_ui/pass_drive.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("pass_driver")
 
 
 class DrivePass(TempPass):
@@ -30,8 +34,7 @@ class DrivePass(TempPass):
         self.init_drivers()
         self.init_contracts()
         self.d_arrive.setDate(dt.datetime.now().date())
-        self.main_file = "D:/my_helper/drive.docx"
-        self.print_file = "D:/my_helper/to_print/drive.docx"
+        self.main_file += "/pass_drive.docx"
 
     # инициализация
     def init_drivers(self):
@@ -44,7 +47,7 @@ class DrivePass(TempPass):
 
     def init_auto(self):
         self.cb_auto.addItem("(нет)")
-        auto = self.parent.db.get_data("model, gov_number", "auto")
+        auto = self.parent.db.get_data("gov_number", "auto")
         if not auto:
             return
         for row in auto:
@@ -66,9 +69,6 @@ class DrivePass(TempPass):
 
     # обработчики кнопок
     def _ev_ok(self):
-        return True
-
-    def check_inpt(self):
         return True
 
     def date_changed(self):
@@ -111,10 +111,11 @@ class DrivePass(TempPass):
 
     def auto_changed(self):
         for row in self.parent.db.get_data("*", "auto"):
+            print(self.cb_auto.currentText(), row[0])
             if self.cb_auto.currentText() == row[0]:
-                self.data["auto"] = " ".join(row[:2])
-                self.data["gov_number"] = row[2]
-                self.data["track_number"] = "п/п " + row[-1] if row[-1] else " "
+                self.data["auto"] = " ".join(row[1:3])
+                self.data["gov_number"] = row[0]
+                self.data["track"] = " " if row[-2] == "(нет)" else "п/п " + row[-2]
 
     def driver_changed(self):
         people = self.parent.db.get_data("*", self.table)
@@ -122,5 +123,15 @@ class DrivePass(TempPass):
             return
         for row in people:
             if self.cb_drivers.currentText()[:-3] == row[0]:
-                self.data["passport"] = " ".join(row[:])
-                self.data["adr"] = row[-1]
+                self.data["passport"] = " ".join(row[:-1])
+                self.data["adr"] = row[-2]
+
+    def _create_data(self, doc):
+        pass
+
+    def check_input(self):
+        for key in self.data.keys():
+            if self.data[key] == "(нет)" or self.data[key] == "":
+                mes.question(self, "Сообщение", "Заполните все поля. Незаполнено поле " + key, mes.Cancel)
+                return False
+        return True

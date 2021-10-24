@@ -2,8 +2,13 @@ from PyQt5.QtCore import Qt
 import datetime as dt
 from pass_template import TempPass
 from configparser import ConfigParser
+from database import DataBase, get_path, get_path_ui
+import logging
+import docx
+from PyQt5.QtWidgets import QMessageBox as mes
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("pass_month")
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
-designer_file = '../designer_ui/pass_month.ui'
 
 
 class MonthPass(TempPass):
@@ -20,13 +25,11 @@ class MonthPass(TempPass):
 
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5, self.worker_6,
                         self.worker_7, self.worker_8, self.worker_9, self.worker_10)
-        self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
-                     "post": "", "number": "", "data": ""}
+        self.data = {"customer": "", "company": "", "start_date": "", "end_date": "", "number": "", "date": ""}
         self.init_workers()
         self.init_cb_month()
         self.set_dates(self.cb_manual_set.isChecked())
-        self.main_file = self.path + "/patterns/month.docx"
-        self.print_file = self.path + "/to_print/"
+        self.main_file += "/pass_month.docx"
 
     # инициализация
     def init_cb_month(self):
@@ -83,7 +86,7 @@ class MonthPass(TempPass):
         self.data["end_date"] = ".".join((end_next_month, next_month, next_year))
 
     # обработчики кнопок
-    def _create_data(self, doc):
+    def _create_data(self, path):
         # Заполнить таблицу
         workers = []
         if self.cb_all.isChecked():
@@ -93,16 +96,24 @@ class MonthPass(TempPass):
                 if elem.currentText() != "(нет)":
                     workers.append(self.get_worker(elem.currentText()))
         i = 1
+        doc = docx.Document(path)
         for people in workers:
             doc.tables[1].add_row()
             doc.tables[1].rows[i].cells[0].text = str(i)
-            doc.tables[1].rows[i].cells[1].text = " ".join(people[0:2])
+            doc.tables[1].rows[i].cells[1].text = " ".join(people[0:3])
             doc.tables[1].rows[i].cells[2].text = people[3]
             doc.tables[1].rows[i].cells[3].text = people[6]
             doc.tables[1].rows[i].cells[4].text = " ".join(people[4:6])
             doc.tables[1].rows[i].cells[5].text = people[7]
             doc.tables[1].rows[i].cells[6].text = people[8]
             i += 1
+        doc.save(path)
 
     def check_input(self):
+        if self.list_ui[0].currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Укажите сотрудников", mes.Cancel)
+            return False
+        return True
+
+    def _ev_ok(self):
         return True

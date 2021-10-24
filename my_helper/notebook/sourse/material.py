@@ -4,8 +4,10 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.new_template import TempForm
 from PyQt5.QtWidgets import QMessageBox as mes
-
-designer_file = '../designer_ui/materials.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("materials")
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 
 
@@ -81,8 +83,6 @@ class NewMaterial(TempForm):
 
     def _but_status(self, status):
         return True
-
-        # str(int(self.summ.text()) + int(self.value.text())), self.table))
 
     def provider_select(self):
         self.provider_ = "Заказчик" if self.provider.isChecked() else "Подрядчик"

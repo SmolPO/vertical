@@ -29,7 +29,7 @@
     </font>
    </property>
    <property name="text">
-    <string>Музыка</string>
+    <string>Открыть</string>
    </property>
   </widget>
   <widget class="QComboBox" name="cb_select">

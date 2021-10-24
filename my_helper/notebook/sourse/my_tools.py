@@ -1,8 +1,10 @@
 import os
 from PyQt5.QtWidgets import QDialog
 from PyQt5 import uic
-import config as conf
 import requests
+import logging
+from database import DataBase, get_path, get_path_ui
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 
 
 class Notepad(QDialog):
@@ -10,7 +12,7 @@ class Notepad(QDialog):
         super(Notepad, self).__init__(parent)
         uic.loadUi('../designer_ui/notepad.ui', self)
         self.b_close.clicked.connect(self.ev_close)
-        self.file_note = conf.path + "/notepad.txt"
+        self.file_note = get_path("path") + "/notepad.txt"
         self.ui_text_area.appendPlainText(self.get_text())
         self.show()
 

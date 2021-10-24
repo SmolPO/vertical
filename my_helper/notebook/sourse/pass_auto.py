@@ -8,7 +8,10 @@ from pass_template import TempPass
 from my_helper.notebook.sourse.inserts import get_from_db
 from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
-designer_file = '../designer_ui/pass_auto.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("pass_auto")
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 
@@ -31,8 +34,8 @@ class AutoPass(TempPass):
         self.list_ui = list([self.driver_1, self.driver_2, self.driver_3, self.driver_4,
                              self.driver_5, self.driver_6, self.driver_7])
         self.count = 0
-        self.main_file = self.path + "/patterns/pass_auto.docx"
-        self.print_file = self.path + "/to_print/"
+        self.main_file = get_path("path") + get_path("path_pat_notes") + "/pass_auto.docx"
+        self.print_file = get_path("path") + get_path("path_notes_docs")
 
     # инициализация
     def init_drivers(self):
@@ -81,7 +84,7 @@ class AutoPass(TempPass):
             self.close()
         os.startfile(self.print_file)
 
-    def my_setEnabled(self, status):
+    def _set_enabled(self, status):
         self.d_note.setEnabled(status)
         self.number.setEnabled(status)
         self.cb_month.setEnabled(status)
@@ -98,7 +101,7 @@ class AutoPass(TempPass):
         self.data["people"].pop()
         self.list_auto.pop()
         if len(self.date["auto"]) == 1:
-            self.my_setEnabled(True)
+            self._set_enabled(True)
 
     def clean_data(self):
         self.data = {"number": "", "date": "", "start_date": "", "end_date": "",
@@ -146,4 +149,7 @@ class AutoPass(TempPass):
             self.data["start_date"] = self.d_from.text()
             self.data["end_date"] = self.d_to.text()
 
+    def check_input(self):
+
+        pass
 

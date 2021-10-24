@@ -3,9 +3,12 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import Qt
 import datetime as dt
 import os
-import docx
 import docxtpl
 from configparser import ConfigParser
+from PyQt5.QtWidgets import QMessageBox as mes
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 #  сделать мессаджбоксы на Сохранить
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
@@ -30,9 +33,8 @@ class TempPass(QDialog):
                            "май", "июнь", "июль", "август", "сентябрь",
                            "октябрь", "ноябрь", "декабрь"]
         self.data = dict()
-        conf = ConfigParser()
-        conf.read('config.ini')
-        self.path = conf.get('config', 'main_path')
+        self.main_file = get_path("path") + get_path("path_pat_notes")
+        self.print_folder = get_path("path") + get_path("path_notes_docs")
 
     # флаг на выбор всех
     def set_dates(self, state):
@@ -42,22 +44,22 @@ class TempPass(QDialog):
 
     # обработчики кнопок
     def ev_ok(self):
-        self._get_data()
-        if not self.check_input():
+        if not self._ev_ok():
             return False
+        self._get_data()
         self.data["number"] = "Исх. № " + self.number.text()
-        self.data["data"] = "от. " + self.d_note.text()
+        self.data["date"] = "от. " + self.d_note.text()
         self.data["customer"] = self.parent.customer
         self.data["company"] = self.parent.company
+        if not self.check_input():
+            return False
+        print_file = self.print_folder + "/" + self.number.text() + "_" + self.d_note.text() + ".docx"
 
         doc = docxtpl.DocxTemplate(self.main_file)
         doc.render(self.data)
-        print_file = self.print_folder + self.number.text() + "_" + self.d_note.text() + ".docx"
         doc.save(print_file)
-
-        doc = docx.Document(print_file)
-        self._create_data(doc)
-        doc.save(print_file)
+        self._create_data(print_file)
+        set_next_number(int(self.number.text()) + 1)
         self.close()
         os.startfile(print_file)
 
@@ -160,7 +162,17 @@ def get_next_number():
     config.read('config.ini')
     number_note = config.get('config', 'number')
     next_number = int(number_note) + 1
+    return int(number_note)
+
+
+def set_next_number(n):
+    config = ConfigParser()
+    config.read('config.ini')
+    number_note = config.get('config', 'number')
+    next_number = n
     config.set('config', 'number', str(next_number))
     with open('config.ini', 'w') as configfile:
         config.write(configfile)
     return int(number_note)
+
+

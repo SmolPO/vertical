@@ -1,8 +1,4 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog
-from PyQt5.QtWidgets import QDialog, QMessageBox
 from my_helper.notebook.sourse.inserts import get_from_db, my_update, add_to_db
-import config
 import psycopg2
 from configparser import ConfigParser
 
@@ -14,18 +10,14 @@ class DataBase:
         self.cursor = None
         config = ConfigParser()
         config.read('config.ini')
-        self.ip = config.get('config', 'ip')
-        self.name_db = config.get('config', 'name_db')
-        self.user_db = config.get('config', 'user_db')
-        self.password_db = config.get('config', 'password_db')
+        self.ip = config.get('database', 'ip')
+        self.name_db = config.get('database', 'name_db')
+        self.user_db = config.get('database', 'user_db')
+        self.password_db = config.get('database', 'password_db')
 
     def connect_to_db(self):
-        self.conn = psycopg2.connect(dbname="Company",
-                                     user="postgres",
-                                     password="pol_ool_123",
-                                     host="localhost")
+        self.conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
         try:
-
             if not self.conn:
                 return False
             self.cursor = self.conn.cursor()
@@ -33,22 +25,12 @@ class DataBase:
         except:
             print("Нет соединения с базой данных по интернету")
             return False
-            # QMessageBox.question(self, "Внимание", "Нет соединения с базой данных по интернету", QMessageBox.Ok)
 
     def get_data(self, fields, table):
-        """        except:
-            print("Разрыв соединения, пробуем переподключиться...")
-            try:
-                self.connect_to_db()
-                self.execute(get_from_db(fields, table))
-                return self.db.fetchall()
-            except:
-                print("Внимание, нет соединения с базой данных по интернету")
-                return None"""
         row = get_from_db(fields, table)
         self.execute(row)
         try:
-           # self.execute(row)
+            self.execute(row)
             return self.cursor.fetchall()
         except:
             print(row)
@@ -58,7 +40,7 @@ class DataBase:
     def execute(self, text):
         self.cursor.execute(text)
         try:
-           # self.cursor.execute(text)
+            self.cursor.execute(text)
             pass
         except:
             print(text)
@@ -115,10 +97,7 @@ class DataBase:
         self.my_commit(add_to_db((date, name, number), "notes"))
 
     def create_db(self):
-        conn = psycopg2.connect(dbname='Company',
-                                user='postgres',
-                                password='pol_ool_123',
-                                host='localhost')
+        conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
         db = conn.cursor()
         list_db_ = [
             "CREATE TABLE contracts (name text, customer text, number text, date text, object text, type_work text, "
@@ -164,3 +143,25 @@ class DataBase:
             except:
                 print("ERROR " + item)
         print("Create " + str(next(g)) + " database!")
+
+
+def get_path(my_type):
+    config = ConfigParser()
+    config.read('config.ini')
+    return config.get('path', my_type)
+
+
+def get_config(my_type):
+    config = ConfigParser()
+    config.read('config.ini')
+    return config.get('config', my_type)
+
+
+def get_from_ini(my_type, part):
+    config = ConfigParser()
+    config.read('config.ini')
+    return config.get(part, my_type)
+
+
+def get_path_ui(my_type):
+    return  get_from_ini("ui_files", "ui_files") + get_from_ini(my_type, "ui_files")

@@ -6,7 +6,11 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.new_template import TempForm, from_str
 from PyQt5.QtWidgets import QMessageBox as mes
-designer_file = '../designer_ui/new_itr.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("new_itr")
+zero = "01.01.2000"
 
 
 class NewITR(TempForm):
@@ -32,7 +36,7 @@ class NewITR(TempForm):
                                                                             self.n_H_p, self.n_H_c, self.n_ST_p,
                                                                             self.n_ST_c]]
         for item in list_valid[0]:
-            item.setValidator(QREVal(QRE("[а-яА-Я]{30}")))
+            item.setValidator(QREVal(QRE("[а-яА-Я ]{30}")))
         for item in list_valid[1]:
             item.setValidator(QREVal(QRE("[А-Яа-я /- 0-9]{10}")))
 
@@ -44,15 +48,16 @@ class NewITR(TempForm):
         self.n_H_g.setValidator(QREVal(QRE("[0-9]{3}")))
 
     def _clean_data(self):
-        list_clean = [[self.family, self.name, self.surname, self.post, self.cb_auto.setCurrentIndex(0), self.passport, self.inn,
+        list_clean = [[self.family, self.name, self.surname, self.post, self.passport, self.inn,
                        self.snils, self.n_td, self.n_OT_p, self.n_OT_c, self.n_PTM_p, self.n_PTM_c, self.n_ES_p,
                        self.n_ES_c, self.n_ES_g, self.n_H_p, self.n_H_c, self.n_H_g, self.n_ST_p, self.n_ST_c],
                       [self.bday, self.passport_date, self.d_td, self.d_OT, self.d_PTM, self.d_ES, self.d_H,
                        self.d_ST], [self.passport_got, self.live_adr, self.promsave]]
+        self.cb_auto.setCurrentIndex(0)
         for item in list_clean[0]:
             item.setText("")
         for item in list_clean[1]:
-            item.setDate(Date(from_str("01.01.2000")))
+            item.setDate(Date(*from_str(zero)))
         for item in list_clean[2]:
             item.clear()
 
@@ -150,7 +155,7 @@ class NewITR(TempForm):
                       self.promsave.toPlainText(),
                       self.bday.text()])
         print(_data)
-        if "" in _data or "01.01.2000" in _data or "(нет)" in _data:
+        if "" in _data or zero in _data or "(нет)" in _data:
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         else:

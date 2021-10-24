@@ -5,7 +5,10 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.inserts import get_from_db
 from my_helper.notebook.sourse.new_template import TempForm, from_str
-designer_file = '../designer_ui/new_boss.ui'
+from database import DataBase, get_path, get_path_ui
+import logging
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("new_boss")
 fields = ["family", "name", "surname", "post", "email", "phone", "id"]
 
 

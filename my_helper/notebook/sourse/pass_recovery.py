@@ -39,8 +39,7 @@ class DrivePass(QDialog):
                      "post": "", "number": "", "data": ""}
         self.init_workers()
         self.init_cb_month()
-        self.main_file = "D:/my_helper/pass_drive.docx"
-        self.print_file = "D:/my_helper/to_print/pass_drive.docx"
+        self.main_file += "/pass_drive.docx"
 
     # инициализация
     def init_cb_month(self):
