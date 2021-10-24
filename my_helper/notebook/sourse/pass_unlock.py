@@ -31,7 +31,7 @@ class UnlockPass(TempPass):
 
     def _get_data(self):
         family = self.cb_worker.currentText().split(".")[0]
-        self.count_days = Date(*from_str(self.d_from.text())) - dt.timedelta(days=self.sb_days.value())
+        # self.count_days = Date(*from_str(self.d_from.text())) - dt.timedelta(days=self.sb_days.value())
         for row in self.parent.db.get_data("family, name, surname, post, live_adr, id", self.table):
             if family == str(row[-1]):  # на форме фамилия в виде Фамилия И.
                 self.data["family"] = row[0]
