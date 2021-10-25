@@ -8,6 +8,7 @@ import os
 import inserts as ins
 from database import DataBase, get_path, get_path_ui
 import logging
+import pymorphy2
 logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("get_money")
 
@@ -103,6 +104,7 @@ class GetMoney(QDialog):
         self.sb_some_value.setEnabled(True) if self.cb_some.isChecked() else self.sb_some_value.setEnabled(False)
         self.day_money(self.cb_day.isChecked())
         itr = ""
+        morph = pymorphy2.MorphAnalyzer()
         people = self.parent.db.get_data("post, family, name, surname, id", "itrs")
         for boss in people:
             print(self.cb_recipient.currentText().split(".")[0])
@@ -113,7 +115,9 @@ class GetMoney(QDialog):
         text.append("Прошу Вас выслать ")
         text.append(str(self.sb_value.value()))
         text.append("р. на банковскую карту ")
-        text.append(" ".join(itr[:4]))
+        for item in itr[:4]:
+            morph.parse(item)[0].inflect({'gent'})[0].capitalize()
+            text.append(morph.parse(item)[0].inflect({'gent'})[0].capitalize())
         text.append(" для:\n")
         if self.cb_day.isChecked():
             cost = self.sb_days.value() * self.sb_emploeeyrs.value() * self.sb_cost.value()

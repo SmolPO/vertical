@@ -6,6 +6,7 @@ from my_helper.notebook.sourse.new_template import from_str
 from database import DataBase, get_path, get_path_ui
 import openpyxl
 import os
+import pymorphy2
 
 designer_file = get_path_ui("pass_unlock")
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
@@ -28,24 +29,26 @@ class UnlockPass(TempPass):
         self.count_days = 14
 
     def init_workers(self):
-        self.cb_worker.addItem("(нет)")
         for name in self.parent.db.get_data("family, name, id", self.table):
-            self.cb_worker.addItem(name[-1] + ". " + " ".join((name[0], name[1][0])) + ".")
+            self.cb_worker.addItem(str(name[-1]) + ". " + " ".join((name[0], name[1][0])) + ".")
+        for name in self.parent.db.get_data("family, name, id", "itrs"):
+            self.cb_worker.addItem(str(name[-1]) + ". " + " ".join((name[0], name[1][0])) + ".")
 
     def _get_data(self):
         family = self.cb_worker.currentText().split(".")[0]
-        for row in self.parent.db.get_data("family, name, surname, post, live_adr, id", self.table):
+        morph = pymorphy2.MorphAnalyzer()
+        for row in self.parent.db.get_data("family, name, surname, post, live_adr, id", "itrs"):
             if family == str(row[-1]):  # на форме фамилия в виде Фамилия И.
-                self.data["family"] = row[0]
-                self.data["name"] = row[1]
-                self.data["surname"] = row[2]
-                self.data["post"] = row[3]
+                self.data["family"] = morph.parse(row[0])[0].inflect({'datv'})[0].capitalize()
+                self.data["name"] = morph.parse(row[1])[0].inflect({'datv'})[0].capitalize()
+                self.data["surname"] = morph.parse(row[2])[0].inflect({'datv'})[0].capitalize()
+                self.data["post"] = morph.parse(row[3])[0].inflect({'datv'})[0]
                 self.data["adr"] = row[4]
                 self.data["start_date"] = self.d_from.text()
                 self.data["end_date"] = self.d_to.text()
                 self.count_days = self.sb_days.value()
-                self.create_covid(self.data["family"] + " " + self.data["name"][0] + "." + self.data["surname"] + ".",
-                                  self.data["post"])
+                self.create_covid(self.data["family"].capitalize() + " " + self.data["name"][0].upper()
+                                  + "." + self.data["surname"][0].upper() + ".", self.data["post"].capitalize())
                 return
 
     def check_input(self):

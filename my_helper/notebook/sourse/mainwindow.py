@@ -228,7 +228,7 @@ class MainWindow(QMainWindow):
         elif name == "Сайты":
             wnd, table = Web(self), "musics"
         elif name == "Чек":
-            wnd, table = NewBill(self), "biils"
+            wnd, table = NewBill(self), "bills"
         elif name == "Заявка на деньги":
             wnd, table = GetMoney(self), "finances"
         else:
