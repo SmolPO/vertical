@@ -93,7 +93,7 @@
     </rect>
    </property>
    <property name="text">
-    <string>Включить</string>
+    <string>Открыть</string>
    </property>
   </widget>
   <widget class="QPushButton" name="b_ok">
