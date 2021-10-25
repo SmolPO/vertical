@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from datetime import datetime as dt
 from my_helper.notebook.sourse.new_template import TempForm, from_str, set_cb_text
 import os
+import openpyxl
 from database import DataBase, get_path, get_path_ui
 import logging
 logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
@@ -54,8 +55,11 @@ class NewBill(TempForm):
         self._create_filename()
         data.append(self.filename)
         data.append(self.note.toPlainText())
-        os.replace(self.filename, get_path("path") + get_path("bills") +
-                   str(dt.now())[:10] + "_" + str(self.current_id + 1) + ".pdf")
+        path = get_path("path") + get_path("path_bills") + "/" + \
+               str(str(dt.now())[:10].replace("-", ".") + "_" + str(self.current_id + 1) + ".pdf")
+        print(path)
+        os.replace(self.filename, path)
+        self.create_note(self.sb_value.value(), self.date.text().replace("-", "."), self.cb_buyer.currentText()[:-5])
         return data
 
     def check_input(self):
@@ -93,7 +97,10 @@ class NewBill(TempForm):
                                                          "Выбрать файл",
                                                          "B:/my_helper/scan",
                                                          "PDF Files(*.pdf)")
-
+        if self.filename:
+            self.rb_isfile.setChecked(True)
+        else:
+            self.rb_isfile.setChecked(False)
         return
 
     def _ev_select(self, text):
@@ -109,4 +116,27 @@ class NewBill(TempForm):
 
     def _but_status(self, status):
         return True
+
+    def create_note(self, value, date, people):
+        wb = openpyxl.load_workbook(get_path("path") + get_path("path_bills") +
+                                    "/" + str(dt.now().year) +
+                                    "/" + str(dt.now().month) +
+                                    "/" + str(dt.now().month) + str(dt.now().year) + ".xlsx")
+        sheet = wb['bills']
+        row = sheet['F2'].value
+        sheet['A' + str(row + 3)].value = int(row) + 1
+        sheet['B' + str(row + 3)].value = date
+        sheet['C' + str(row + 3)].value = value
+        sheet['D' + str(row + 3)].value = people
+        sheet['F2'].value = int(row) + 1
+        wb.save(get_path("path") + get_path("path_bills") +
+                        "/" + str(dt.now().year) +
+                        "/" + str(dt.now().month) +
+                        "/" + str(dt.now().month) + str(dt.now().year) + ".xlsx")
+
+        os.startfile(get_path("path") + get_path("path_bills") +
+                        "/" + str(dt.now().year) +
+                        "/" + str(dt.now().month) +
+                        "/" + str(dt.now().month) + str(dt.now().year) + ".xlsx")
+
 
