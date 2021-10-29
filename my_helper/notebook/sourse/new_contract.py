@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 """
 from database import DataBase, get_path, get_path_ui
 import logging
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_contract")
 fields = ["name", "customer", "number", "date", "object", "type_work", "place", "id"]
 zero = "01.01.2000"

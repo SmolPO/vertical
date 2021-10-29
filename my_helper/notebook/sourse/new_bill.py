@@ -7,7 +7,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 import openpyxl
 from database import DataBase, get_path, get_path_ui
 import logging
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+#  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_bill")
 zero = "01.01.2000"
 

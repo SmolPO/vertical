@@ -6,7 +6,7 @@ from my_helper.notebook.sourse.new_template import TempForm
 from PyQt5.QtWidgets import QMessageBox as mes
 from database import DataBase, get_path, get_path_ui
 import logging
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("materials")
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 

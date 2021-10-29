@@ -5,7 +5,7 @@ from PyQt5.QtCore import Qt
 from my_helper.notebook.sourse.new_template import TempForm, from_str
 from database import DataBase, get_path, get_path_ui
 import logging
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+#  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_auto")
 fields = ["model", "brand", "gov_number", "track_number", "id"]
 

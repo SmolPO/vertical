@@ -5,7 +5,7 @@ from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.new_template import TempForm, from_str
 from database import DataBase, get_path, get_path_ui
 import logging
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+
 designer_file = get_path_ui("add_company")
 fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank", "family", "name", "surname",
           "post", "count_attorney", "date_attorney", "id"]
