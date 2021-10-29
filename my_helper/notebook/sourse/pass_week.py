@@ -48,8 +48,7 @@ class WeekPass(TempPass):
         return data
 
     def init_object(self):
-        self.cb_object.addItem("(нет)")
-        for row in self.rows_from_db:
+       for row in self.rows_from_db:
             self.cb_object.addItem(row[0])
 
     def init_boss(self):

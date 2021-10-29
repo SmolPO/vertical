@@ -5,6 +5,7 @@ from configparser import ConfigParser
 from database import DataBase, get_path, get_path_ui
 import logging
 import docx
+from PyQt5.QtCore import QDate as Date
 from PyQt5.QtWidgets import QMessageBox as mes
 logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_month")
@@ -19,7 +20,9 @@ class MonthPass(TempPass):
         self.b_open.clicked.connect(self.my_open_file)
         self.count_people = 0
         self.d_from.setDate(dt.datetime.now().date())
-        self.d_to.setDate(dt.datetime.now().date())
+        self.d_to.setDate(Date(*from_str(".".join([str(count_days[dt.datetime.now().month + 1]),
+                                                   str(dt.datetime.now().month),
+                                                   str(dt.datetime.now().year)]))))
         self.cb_all.stateChanged.connect(self.set_enabled_workers)
         self.cb_manual_set.stateChanged.connect(self.set_dates)
 
@@ -84,7 +87,7 @@ class MonthPass(TempPass):
             end_next_month = str(count_days[int(next_month)])
         self.data["start_date"] = ".".join((next_day, next_month, next_year))
         self.data["end_date"] = ".".join((end_next_month, next_month, next_year))
-
+     
     # обработчики кнопок
     def _create_data(self, path):
         # Заполнить таблицу

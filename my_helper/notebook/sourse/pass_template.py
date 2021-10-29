@@ -157,9 +157,12 @@ class TempPass(QDialog):
         return (end_next_month, next_month, next_year)
 
 
+path_conf = "B:/my_config.ini"
+
+
 def get_next_number():
     config = ConfigParser()
-    config.read('config.ini')
+    config.read(path_conf)
     number_note = config.get('config', 'number')
     next_number = int(number_note) + 1
     return int(number_note)
@@ -167,11 +170,11 @@ def get_next_number():
 
 def set_next_number(n):
     config = ConfigParser()
-    config.read('config.ini')
+    config.read(path_conf)
     number_note = config.get('config', 'number')
     next_number = n
-    config.set('config', 'number', str(next_number))
-    with open('config.ini', 'w') as configfile:
+    config.set(path_conf, 'number', str(next_number))
+    with open(path_conf, 'w') as configfile:
         config.write(configfile)
     return int(number_note)
 

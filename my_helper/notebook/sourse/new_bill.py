@@ -3,6 +3,7 @@ from PyQt5.QtWidgets import *
 from datetime import datetime as dt
 from my_helper.notebook.sourse.new_template import TempForm, from_str, set_cb_text
 import os
+from PyQt5.QtWidgets import QMessageBox as mes
 import openpyxl
 from database import DataBase, get_path, get_path_ui
 import logging
@@ -58,7 +59,12 @@ class NewBill(TempForm):
         path = get_path("path") + get_path("path_bills") + "/" + \
                str(str(dt.now())[:10].replace("-", ".") + "_" + str(self.current_id + 1) + ".pdf")
         print(path)
-        os.replace(self.filename, path)
+        try:
+            os.replace(self.filename, path)
+        except:
+            mes.question(self, "Сообщение", "Проблема с правом доступа. 1. - вручную скопируйте файл в папку со счетами,"
+                                            " 2 - Снова нажмите Выбрать файл и укажите файл чека в новом месте", mes.Cancel)
+            return False
         self.create_note(self.sb_value.value(), self.date.text().replace("-", "."), self.cb_buyer.currentText()[:-5])
         return data
 

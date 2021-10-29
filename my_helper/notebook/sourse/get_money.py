@@ -63,13 +63,14 @@ class GetMoney(QDialog):
         data = self.get_data()
         if not data:
             return
-
+        morph = pymorphy2.MorphAnalyzer()
         self.parent.db.my_commit(ins.add_to_db(data, self.table))
         rows = self.parent.db.get_data("post, family, name, surname, id", "itrs")
         for row in rows:
             if self.cb_customer.currentText().split(".")[0] == str(row[-1]):
                 self.data["post"] = row[0]
-                self.data["family"] = self.cb_customer.currentText().split(".")[1] + "." + \
+                family = self.cb_customer.currentText().split(".")[1]
+                self.data["family"] = morph.parse(family)[0].inflect({'gent'})[0].capitalize() + "." + \
                                       self.cb_customer.currentText().split(".")[2] + "."
                 self.data["text"] = self.note_result.toPlainText()
                 self.data["date"] = self.date.text()

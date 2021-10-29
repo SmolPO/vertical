@@ -64,6 +64,8 @@ class TempForm (QDialog):
             print(item.text())
             data.append(item.text())
         data = self._get_data(data)
+        if not data:
+            return False
         data.append(str(self.current_id))
         return data
 

@@ -4,6 +4,7 @@ import sys
 import os
 import requests
 import logging
+from PyQt5.QtWidgets import QMessageBox as mes
 from datetime import datetime as dt
 from configparser import ConfigParser
 from my_helper.notebook.sourse.new_boss import NewBoss
@@ -50,7 +51,7 @@ logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.I
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        uic.loadUi('../designer_ui/main_menu.ui', self)
+        uic.loadUi(get_path("ui_files") + '/main_menu.ui', self)
         print("pass")
         self.b_pass_week.clicked.connect(self.ev_btn_create_pass)
         self.b_pass_month.clicked.connect(self.ev_btn_create_pass)
@@ -93,6 +94,7 @@ class MainWindow(QMainWindow):
         self.b_notepad.clicked.connect(self.ev_btn_start_file)
         self.b_music.clicked.connect(self.ev_btn_add_to_db)
         self.b_get_money.clicked.connect(self.ev_btn_add_to_db)
+        self.b_empty.clicked.connect(self.ev_btn_add_to_db)
         # self.menu.setting.settings.exitAction.triggered.connect(self.settings)
         self.b_scan.setEnabled(False)
 
@@ -166,17 +168,19 @@ class MainWindow(QMainWindow):
             try:
                 os.startfile(get_path("path") + get_path("path_pat_patterns") + "/attorney.xlsx", "print")
             except:
-                print("Not found")
+                mes.question(self, "Сообщение", "Файл по пути " + get_path("path") + get_path("path_pat_patterns") +
+                             "/attorney.xlsx" + "не найден", mes.Cancel)
         if name == "Сканировать":
             try:
                 os.startfile(get_path("path_scaner"))
             except:
-                print("Not found")
+                mes.question(self, "Сообщение", "Сканер не открывается")
         elif name == "Накладная":
             try:
                 os.startfile(get_path("path") + get_path("path_pat_patterns") + "/invoice.xlsx", "print")
             except:
-                print("Not found")
+                mes.question(self, "Сообщение", "Файл по пути " + get_path("path") + get_path("path_pat_patterns") +
+                             "/invoice.xlsx" + "не открывается")
         elif name == "Журнал-ковид":
             try:
                 os.startfile(get_path("path") + get_path("path_pat_patterns") + "/covid.xls", "print")
@@ -187,12 +191,20 @@ class MainWindow(QMainWindow):
                 os.startfile(get_path("path") + get_path("path_pat_patterns") + "/table.xls")
             except:
                 print("Not found")
+        elif name == "Бланк>":
+            try:
+                os.replace(get_path("path") + get_path("path_pat_patterns") + "/blank.doc", get_path("path") +
+                           "/Исходящие/1.docx")
+                os.startfile(get_path("path") + "/Исходящие/1.docx")
+            except:
+                print("Not found")
         elif name == "Блокнот":
             wnd = Notepad()
             wnd.exec_()
         elif name == "Сайты":
             wnd = Web(self)
             wnd.exec_()
+
         pass
 
     def ev_btn_add_to_db(self):
@@ -313,6 +325,8 @@ class MainWindow(QMainWindow):
             city_id = data['list'][0]['id']
         except Exception as e:
             print("Exception (find):", e)
+            self.l_weather.setText("погода")
+            self.l_temp.setText("температура")
             pass
         try:
             res = requests.get(get_from_ini("site_weather", "weather"),
@@ -321,6 +335,8 @@ class MainWindow(QMainWindow):
             self.l_weather.setText(data['weather'][0]['description'])
             self.l_temp.setText(str(round(data['main']['temp_max'])) + " C")
         except Exception as e:
+            self.l_weather.setText("погода")
+            self.l_temp.setText("температура")
             print("Exception (weather):", e)
 
     def is_have_some(self, table):
