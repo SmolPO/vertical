@@ -2,6 +2,7 @@ from my_helper.notebook.sourse.inserts import get_from_db, my_update, add_to_db
 import psycopg2
 from configparser import ConfigParser
 path_conf = "B:/my_config.ini"
+path_text = "B:/texts.ini"
 
 
 class DataBase:
@@ -148,20 +149,38 @@ class DataBase:
 def get_path(my_type):
     config = ConfigParser()
     config.read(path_conf)
-    return config.get('path', my_type)
+    try:
+        return str(config.get('path', my_type)).decode
+    except:
+        print("get_path")
+        return False
 
 
 def get_config(my_type):
     config = ConfigParser()
     config.read(path_conf)
-    return config.get('config', my_type)
+    try:
+        return config.get('config', my_type)
+    except:
+        print("get_config")
+        return False
 
 
 def get_from_ini(my_type, part):
     config = ConfigParser()
     config.read(path_conf)
-    return config.get(part, my_type)
+    try:
+        return config.get(part, my_type)
+    except:
+        print("get_from_ini")
+        return False
 
 
 def get_path_ui(my_type):
-    return  get_from_ini("ui_files", "ui_files") + get_from_ini(my_type, "ui_files")
+    return get_from_ini("ui_files", "ui_files") + get_from_ini(my_type, "ui_files")
+
+
+def get_text(text):
+    config = ConfigParser()
+    config.read(path_text)
+    return config.get("mes", text)

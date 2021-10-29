@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 import docxtpl
 import os
 import inserts as ins
-from database import DataBase, get_path, get_path_ui
+from database import DataBase, get_path, get_path_ui, get_from_ini
 import logging
 import pymorphy2
 logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
@@ -53,7 +53,7 @@ class GetMoney(QDialog):
         self.my_id.setValue(self.next_id)
         self.data = {"date": "", "post": "", "family": "", "text": ""}
         self.change_note()
-        self.main_file = get_path("path") + get_path("path_pat_notes") + "/get_money.docx"
+        self.main_file = get_path("path") + get_path("path_pat_notes") + get_from_ini("get_money", "patterns")
         self.print_folder = get_path("path") + get_path("path_bills") + "/" + str(dt.datetime.now().year) + \
                                                                         "/" + str(dt.datetime.now().month)
 

@@ -1,6 +1,7 @@
 from PyQt5.QtCore import Qt
 import datetime as dt
 from pass_template import TempPass
+from my_helper.notebook.sourse.new_template import from_str
 from configparser import ConfigParser
 from database import DataBase, get_path, get_path_ui
 import logging

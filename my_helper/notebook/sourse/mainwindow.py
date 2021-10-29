@@ -51,6 +51,19 @@ logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.I
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+        try:
+            print(get_path("ui_files"))
+        except:
+            f = open("text.txt")
+            f.write("нет файла с настройками")
+            return
+        try:
+            self.db = DataBase()
+            self.db.connect_to_db()
+        except:
+            f = open("text.txt")
+            f.write("нет связи с базой данных")
+            return
         uic.loadUi(get_path("ui_files") + '/main_menu.ui', self)
         print("pass")
         self.b_pass_week.clicked.connect(self.ev_btn_create_pass)
