@@ -36,14 +36,14 @@ def check_file():
         elif "выдать" in text:
             os.replace(file, conf.path + conf.path_OCR + "/выдача_" + str(dt.now().date()))
         elif "разблокировать" in text:
-            os.replace(file, conf.path + conf.path_OCR + "/pass" + "/раблокировка_" + str(dt.now().date()))
+            os.replace(file, conf.path + conf.path_OCR + "/my_pass" + "/раблокировка_" + str(dt.now().date()))
         elif "продлить " in text:
-            os.replace(file, conf.path + conf.path_OCR + "/pass" + "/продление_" + str(dt.now().date()))
+            os.replace(file, conf.path + conf.path_OCR + "/my_pass" + "/продление_" + str(dt.now().date()))
         elif "ИТОГ" in text:
             date = next_bill(text, "B:\my_helper\scan\scan.jpg")
             return date
         elif "выходные" or "выходной" in text:
-            os.replace(file, conf.path + conf.path_OCR + "/pass" + "/выходные_" + str(dt.now().date()))
+            os.replace(file, conf.path + conf.path_OCR + "/my_pass" + "/выходные_" + str(dt.now().date()))
 
 
 def create_covid():

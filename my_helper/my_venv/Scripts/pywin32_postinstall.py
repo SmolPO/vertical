@@ -212,7 +212,7 @@ def RegisterPythonwin(register=True):
 
     lib_dir = distutils.sysconfig.get_python_lib(plat_specific=1)
     classes_root=get_root_hkey()
-    ## Installer executable doesn't seem to pass anything to postinstall script indicating if it's a debug build,
+    ## Installer executable doesn't seem to my_pass anything to postinstall script indicating if it's a debug build,
     pythonwin_exe = os.path.join(lib_dir, "Pythonwin", "Pythonwin.exe")
     pythonwin_edit_command=pythonwin_exe + ' -edit "%1"'
 

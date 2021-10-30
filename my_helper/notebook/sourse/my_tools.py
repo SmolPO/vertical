@@ -4,7 +4,7 @@ from PyQt5 import uic
 import requests
 import logging
 from database import DataBase, get_path, get_path_ui
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 
 
 class Notepad(QDialog):

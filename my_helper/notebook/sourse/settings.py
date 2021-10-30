@@ -8,7 +8,7 @@ class Settings(QDialog):
         super(Settings, self).__init__()
         uic.loadUi('../designer_ui/settings.ui', self)
         self.parent = parent
-        # pass
+        # my_pass
         self.b_ok.clicked.connect(self.ev_OK)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_explorer.clicked.connect(self.ev_explorer)

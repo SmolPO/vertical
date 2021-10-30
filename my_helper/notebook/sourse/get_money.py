@@ -17,7 +17,7 @@ class GetMoney(QDialog):
     def __init__(self, parent):
         super(GetMoney, self).__init__()
         uic.loadUi(designer_file, self)
-        # pass
+        # my_pass
         self.parent = parent
         self.table = "finance"
         self.b_ok.clicked.connect(self.ev_ok)

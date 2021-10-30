@@ -7,24 +7,25 @@ import logging
 from PyQt5.QtWidgets import QMessageBox as mes
 from datetime import datetime as dt
 from configparser import ConfigParser
-from my_helper.notebook.sourse.new_boss import NewBoss
-from my_helper.notebook.sourse.new_itr import NewITR
-from my_helper.notebook.sourse.new_worker import NewWorker
-from my_helper.notebook.sourse.nw_company import NewCompany
-from my_helper.notebook.sourse.new_auto import NewAuto
-from my_helper.notebook.sourse.new_driver import NewDriver
-from my_helper.notebook.sourse.new_bill import NewBill
+from my_helper.notebook.sourse.create.new_boss import NewBoss
+from my_helper.notebook.sourse.create.new_itr import NewITR
+from my_helper.notebook.sourse.create.new_worker import NewWorker
+from my_helper.notebook.sourse.create.nw_company import NewCompany
+from my_helper.notebook.sourse.create.new_auto import NewAuto
+from my_helper.notebook.sourse.create.new_driver import NewDriver
+from my_helper.notebook.sourse.create.new_bill import NewBill
 from pdf_module import check_file, create_covid
-from my_helper.notebook.sourse.new_contract import NewContact
-from my_helper.notebook.sourse.material import NewMaterial
-from my_helper.notebook.sourse.new_TB import NewTB, CountPeople
+from my_helper.notebook.sourse.create.new_contract import NewContact
+from my_helper.notebook.sourse.create.material import NewMaterial
+from my_helper.notebook.sourse.create.new_TB import NewTB, CountPeople
+from my_helper.notebook.sourse.acts.acts import Acts
 from my_email import send_post
-from my_helper.notebook.sourse.pass_week import WeekPass
-from my_helper.notebook.sourse.pass_unlock import UnlockPass
-from my_helper.notebook.sourse.pass_month import MonthPass
-from my_helper.notebook.sourse.pass_get import GetPass
-from my_helper.notebook.sourse.pass_auto import AutoPass
-from my_helper.notebook.sourse.pass_drive import DrivePass
+from my_helper.notebook.sourse.my_pass.pass_week import WeekPass
+from my_helper.notebook.sourse.my_pass.pass_unlock import UnlockPass
+from my_helper.notebook.sourse.my_pass.pass_month import MonthPass
+from my_helper.notebook.sourse.my_pass.pass_get import GetPass
+from my_helper.notebook.sourse.my_pass.pass_auto import AutoPass
+from my_helper.notebook.sourse.my_pass.pass_drive import DrivePass
 from my_helper.notebook.sourse.settings import Settings
 from database import DataBase, get_path, get_config, get_from_ini
 from my_tools import Notepad
@@ -65,7 +66,7 @@ class MainWindow(QMainWindow):
             f.write("нет связи с базой данных")
             return
         uic.loadUi(get_path("ui_files") + '/main_menu.ui', self)
-        print("pass")
+        print("my_pass")
         self.b_pass_week.clicked.connect(self.ev_btn_create_pass)
         self.b_pass_month.clicked.connect(self.ev_btn_create_pass)
         self.b_pass_auto.clicked.connect(self.ev_btn_create_pass)
@@ -217,6 +218,9 @@ class MainWindow(QMainWindow):
         elif name == "Сайты":
             wnd = Web(self)
             wnd.exec_()
+        elif name == "Исполнительная":
+            wnd = Acts(self)
+            wnd.exec_()
 
         pass
 
@@ -262,7 +266,7 @@ class MainWindow(QMainWindow):
 
     def ev_create_act(self):
         pass
-        print("pass create act")
+        print("my_pass create act")
 
     def ev_pdf_check(self):
         """
