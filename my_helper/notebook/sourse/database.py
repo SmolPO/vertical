@@ -134,7 +134,9 @@ class DataBase:
             "st_protocol text, st_card text, st_date text, birthday text, id text)",
             "CREATE TABLE finance (id text, date text, value text, recipient text, comment text, id text)",
             "CREATE TABLE bills (date text, value text, buyer text, name_file text, comment text, id text)",
-            "CREATE TABLE notes (date text, name text, id text)"]
+            "CREATE TABLE notes (date text, name text, id text)",
+            "CREATE TABLE asrs (work text, value text, si text, material text, days text, month text, year text, "
+            "boss_1 text, boss_2 text, boss_3 text, boss_4 text, contract text, id text)"]
         g = iter(range(len(list_db_)))
         for item in list_db_:
             try:
