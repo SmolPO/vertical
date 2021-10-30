@@ -9,7 +9,7 @@ import inserts as ins
 from database import DataBase, get_path, get_path_ui, get_from_ini
 import logging
 import pymorphy2
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("get_money")
 
 

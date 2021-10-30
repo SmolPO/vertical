@@ -19,6 +19,7 @@ class Asr(QDialog):
         self.b_close.clicked.connect(self.ev_close)
         self.cb_select.activated[str].connect(self.ev_select)
         self.init_bosses()
+        self.init_SI()
         self.ind = 0
         self.path = ""
         self.my_id = 0
@@ -29,6 +30,10 @@ class Asr(QDialog):
         self.parent.parent.db.init_list(self.boss_3, "id, family, name, surname", "bosses", people=True)
         self.parent.parent.db.init_list(self.boss_4, "id, family, name, surname", "bosses", people=True)
         pass
+
+    def init_SI(self):
+        for item in si:
+            self.cb_SI.addItem(item)
 
     def create_data(self, day):
         data = dict()
@@ -49,7 +54,7 @@ class Asr(QDialog):
         data.append(self.boss_3.currentText() + self.get_post(self.boss_3.currentText().split(".")[0], "bosses"))
         data.append(self.boss_4.currentText() + self.get_post(self.boss_4.currentText().split(".")[0], "bosses"))
         data.append(self.work.toPlainText() + "_" * 10 + self.cb_SI.currentText())
-        data.append(self.material.text())
+        data.append(self.material.currentText())
         data.append(self.next_work.text())
         return data
 
@@ -62,6 +67,8 @@ class Asr(QDialog):
         return "."
 
     def ev_print(self):
+        if not self.check_input():
+            return False
         for day in self.dates.toPlainText().split(", "):
             doc = docxtpl.DocxTemplate(self.path)
             self.set_data(day)
@@ -109,3 +116,35 @@ class Asr(QDialog):
 
     def ev_close(self):
         self.close()
+
+    def check_input(self):
+        if len(self.work.toPlainText()) < 3:
+            mes.question(self, "Сообщение", "Укажите вид работ", mes.Ok)
+            return False
+        elif len(self.next_work.toPlainText()) < 3:
+            mes.question(self, "Сообщение", "Укажите следующие работы", mes.Ok)
+            return False
+        elif self.cb_SI.currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Укажите единицы измерения", mes.Ok)
+            return False
+        elif self.month.currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Укажите месяц", mes.Ok)
+            return False
+        elif self.boss_1.currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Укажите первого босса", mes.Ok)
+            return False
+        elif self.boss_2.currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Укажите второго босса", mes.Ok)
+            return False
+        elif self.boss_3.currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Укажите третьего босса", mes.Ok)
+            return False
+        elif self.boss_4.currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Укажите четвертого босса", mes.Ok)
+            return False
+        elif len(self.days.toPlainText().split(",")) != len(self.numbers.toPlainText().split(",")):
+            mes.question(self, "Сообщение", "Не совпадает кол-во дней и кол-во номеров актов. Проверьте. Дней " +
+                         str(len(self.days.toPlainText().split(","))) + ", Номеров" +
+                         str(len(self.numbers.toPlainText().split(","))), mes.Ok)
+            return False
+        return True

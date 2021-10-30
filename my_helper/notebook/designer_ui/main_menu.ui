@@ -139,9 +139,9 @@
      <string>Быстрые действия</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b_create_act">
+   <widget class="QPushButton" name="b_act">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
@@ -152,7 +152,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Оформить исполнительную</string>
+     <string>Исполнительная</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_pass_month">

@@ -11,26 +11,33 @@ designer_file = get_path_ui("acts")
 
 
 class Acts(QDialog):
-    def __init__(self, designer_file):
+    def __init__(self, parent):
         super(Acts, self).__init__()
+        self.parent = parent
         uic.loadUi(designer_file, self)
         self.b_journal.clicked.connect(self.ev_start)
         self.b_save.clicked.connect(self.ev_save)
-        self.b_acts.clicked.connect(self.ev_start)
+        self.b_asr.clicked.connect(self.ev_start)
         self.b_add.clicked.connect(self.ev_add)
         self.b_contract.clicked.connect(self.ev_start)
         self.b_latter.clicked.connect(self.ev_latter)
         self.b_month.clicked.connect(self.ev_month)
-        self.b_xlsx.clicked.connect(self.ev_xlsx)
+        self.b_xlxs.clicked.connect(self.ev_xlsx)
         self.b_exit.clicked.connect(self.ev_exit)
         self.cb_select.activated[str].connect(self.ev_select)
         self.path = "B:/my_helper/Исполнительные"
         self.contract = ""
+        self.init_contracts()
+
+    def init_contracts(self):
+        rows = self.parent.db.get_data("id, number", "contracts")
+        for item in rows:
+            self.cb_select.addItem(". ".join(item))
 
     def ev_start(self):
         name = self.sender().text()
         if name == "Журнал":
-            wnd = Journal()
+            wnd = Journal(self)
             wnd.exec_()
         elif name == "АСР":
             wnd = Asr(self)
@@ -76,7 +83,4 @@ class Acts(QDialog):
         self.close()
 
     def ev_select(self):
-        pass
-
-    def init_contracts(self):
         pass

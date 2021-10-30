@@ -1,5 +1,6 @@
 from my_helper.notebook.sourse.inserts import get_from_db, my_update, add_to_db
 import psycopg2
+import os
 from configparser import ConfigParser
 path_conf = "B:/my_config.ini"
 path_text = "B:/texts.ini"
@@ -152,7 +153,7 @@ def get_path(my_type):
     config = ConfigParser()
     config.read(path_conf)
     try:
-        return str(config.get('path', my_type)).decode
+        return str(config.get('path', my_type))
     except:
         print("get_path")
         return False

@@ -46,7 +46,7 @@ from get_money import GetMoney
 Срок к концу недели
 """
 key_for_db = "host=95.163.249.246 dbname=Vertical_db user=office password=9024EgrGvz#m87Y1"
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 
 
 class MainWindow(QMainWindow):
@@ -94,7 +94,7 @@ class MainWindow(QMainWindow):
         fileMenu = menu.addMenu("Настройки")
         fileMenu.addAction(exitAction)
 
-        self.b_create_act.clicked.connect(self.ev_create_act)
+        self.b_act.clicked.connect(self.ev_btn_start_file)
         self.b_pdf_check.clicked.connect(self.ev_pdf_check)
         self.b_send_covid.clicked.connect(self.ev_send_covid)
         # self.b_connect.clicked.connect(self.ev_connect)
