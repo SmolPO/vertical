@@ -1,13 +1,9 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMessageBox
-from PyQt5.QtCore import QRegExp as QRE
-from PyQt5.QtGui import QRegExpValidator as QREVal
-from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QDialog
 import my_helper.notebook.sourse.inserts as ins
-from my_helper.notebook.sourse.inserts import get_from_db
 from PyQt5.QtWidgets import QMessageBox as mes
 import logging
-from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui
+from my_helper.notebook.sourse.database import empty
 
 
 class TempForm (QDialog):
@@ -37,7 +33,7 @@ class TempForm (QDialog):
         self.close()
 
     def ev_select(self, text):
-        if text == "(нет)":
+        if text == empty:
             self.clean_data()
             self.but_status("add")
             self.current_id = self.next_id

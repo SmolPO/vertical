@@ -1,12 +1,14 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QDialog, QFileDialog
+from PyQt5.QtWidgets import QDialog, QFileDialog
 from configparser import ConfigParser
+from database import get_path_ui
+designer_file = get_path_ui("settings")
 
 
 class Settings(QDialog):
     def __init__(self, parent=None):
         super(Settings, self).__init__()
-        uic.loadUi('../designer_ui/settings.ui', self)
+        uic.loadUi(designer_file, self)
         self.parent = parent
         # my_pass
         self.b_ok.clicked.connect(self.ev_OK)

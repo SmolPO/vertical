@@ -1,8 +1,9 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
-import docxtpl
 from PyQt5.QtWidgets import QMessageBox as mes
-from my_helper.notebook.sourse.database import get_path_ui
+import docxtpl
+import datetime as dt
+from my_helper.notebook.sourse.database import get_path_ui, get_path, get_config
 designer_file = get_path_ui("journal")
 
 
@@ -14,7 +15,7 @@ class Journal(QDialog):
         self.b_print.clicked.connect(self.ev_print)
         self.count_p2 = 0
         self.count_p5 = 0
-        self.path = ""
+        self.path = get_path("path") + get_path("path_pat_patterns") + "/journal.docx"
         self.data = dict()
         self.init_bosses()
 
@@ -28,16 +29,19 @@ class Journal(QDialog):
     def get_data(self):
         data = dict()
         data["name"] = self.name.toPlainText()
-        data["number"] = self.number.value()
+        data["numb"] = self.number.value()
         data["boss_1"] = self.boss_1.currentText()
         data["boss_2"] = self.boss_2.currentText()
         data["boss_3"] = self.boss_3.currentText()
         data["boss_4"] = self.boss_4.currentText()
-        data["boss_1_post"] = self.get_post(self.boss_1.currentText().split(".")[0], "itrs")
-        data["boss_2_post"] = self.get_post(self.boss_2.currentText().split(".")[0], "itrs")
-        data["boss_3_post"] = self.get_post(self.boss_3.currentText().split(".")[0], "bosses")
-        data["boss_4_post"] = self.get_post(self.boss_4.currentText().split(".")[0], "bosses")
+        data["post_1"] = self.get_post(self.boss_1.currentText().split(".")[0], "itrs")
+        data["post_2"] = self.get_post(self.boss_2.currentText().split(".")[0], "itrs")
+        data["post_3"] = self.get_post(self.boss_3.currentText().split(".")[0], "bosses")
+        data["post_4"] = self.get_post(self.boss_4.currentText().split(".")[0], "bosses")
         data["date"] = self.date.text()
+        data["year"] = str(dt.datetime.now().year)
+        data["company"] = get_config("company")
+        data["customer"] = get_config("customer")
         self.count_p2 = self.sb_p2.value()
         self.count_p5 = self.sb_p5.value()
         return data
@@ -45,22 +49,24 @@ class Journal(QDialog):
     def get_post(self, my_id, table):
         rows = self.parent.parent.db.get_data("*", table)
         for item in rows:
-            if item[-1] == my_id:
+            if str(item[-1]) == my_id:
                 print(item)
-                return item[4]
+                return item[3]
         return "."
 
     def ev_print(self):
         self.data = self.get_data()
         if not self.check_input():
             return False
+        print(self.path, get_path("path_contracts") + "/993/102021/journal.docx")
         try:
             doc = docxtpl.DocxTemplate(self.path)
-            doc.render(self.data)
-            path = self.path
-            doc.save(path)
         except:
-            pass
+            mes.question(self, "Сообщение", "Файл " + self.path + " не найден", mes.Ok)
+            return False
+        doc.render(self.data)
+        path = get_path("path_contracts") + "/993/102021/journal.docx"
+        doc.save(path)
         self.close()
 
     def check_input(self):

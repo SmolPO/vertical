@@ -3,11 +3,10 @@ from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.create.new_template import TempForm, from_str
-from my_helper.notebook.sourse.database import get_path_ui
+from my_helper.notebook.sourse.database import get_path_ui, zero
 designer_file = get_path_ui("add_company")
 fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank", "family", "name", "surname",
           "post", "count_attorney", "date_attorney", "id"]
-zero = "01.01.2000"
 
 
 class NewCompany(TempForm):

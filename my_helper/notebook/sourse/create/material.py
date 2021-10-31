@@ -1,13 +1,12 @@
-
+import logging
 from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.create.new_template import TempForm
-from my_helper.notebook.sourse.database import get_path_ui
+from my_helper.notebook.sourse.database import get_path_ui, get_path, empty, si
 
-# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("materials")
-si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 
 
 class NewMaterial(TempForm):
@@ -88,7 +87,7 @@ class NewMaterial(TempForm):
 
     def check_input(self):
         data = [self.value.text(), self.name.text(), self.cb_contracts.currentText(), self.cb_si.currentText()]
-        if "" in data or "(нет)" in data:
+        if "" in data or empty in data:
             QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
             return False
         return True

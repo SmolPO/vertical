@@ -1,17 +1,13 @@
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.create.new_template import TempForm, from_str
 from PyQt5.QtWidgets import QMessageBox as mes
-"""
-валидация, защита от ввода в табл в разнобой
-"""
-from my_helper.notebook.sourse.database import get_path_ui
+from my_helper.notebook.sourse.create.new_template import TempForm, from_str
+from my_helper.notebook.sourse.database import get_path_ui, empty, zero
 
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_contract")
 fields = ["name", "customer", "number", "date", "object", "type_work", "place", "id"]
-zero = "01.01.2000"
 
 
 class NewContact(TempForm):
@@ -47,10 +43,10 @@ class NewContact(TempForm):
         self.cb_comp.setCurrentIndex(0)
         self.part.setText("")
         self.number.setText("")
-        self.date.setDate(Date(*from_str("01.01.2000")))
+        self.date.setDate(Date(*from_str(zero)))
         self.my_object.clear()
         self.work.clear()
-        self.cb_comp.setCurrentText("(нет)")
+        self.cb_comp.setCurrentText(empty)
 
     def _set_data(self, data):
         self.name.setText(data[0])

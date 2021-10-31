@@ -14,12 +14,12 @@ from my_helper.notebook.sourse.create.nw_company import NewCompany
 from my_helper.notebook.sourse.create.new_auto import NewAuto
 from my_helper.notebook.sourse.create.new_driver import NewDriver
 from my_helper.notebook.sourse.create.new_bill import NewBill
-from pdf_module import check_file, create_covid
+from pdf_module import PDFModule
 from my_helper.notebook.sourse.create.new_contract import NewContact
 from my_helper.notebook.sourse.create.material import NewMaterial
 from my_helper.notebook.sourse.create.new_TB import NewTB, CountPeople
 from my_helper.notebook.sourse.acts.acts import Acts
-from my_email import send_post
+from my_email import send
 from my_helper.notebook.sourse.my_pass.pass_week import WeekPass
 from my_helper.notebook.sourse.my_pass.pass_unlock import UnlockPass
 from my_helper.notebook.sourse.my_pass.pass_month import MonthPass
@@ -31,6 +31,7 @@ from database import DataBase, get_path, get_config, get_from_ini
 from my_tools import Notepad
 from music import Web
 from get_money import GetMoney
+import shutil
 """
 План
 1. Добавление в БД сотрудника (изменил форму)
@@ -65,7 +66,7 @@ class MainWindow(QMainWindow):
             f = open("text.txt")
             f.write("нет связи с базой данных")
             return
-        uic.loadUi(get_path("ui_files") + '/main_menu.ui', self)
+        uic.loadUi(get_path("path") + get_path("ui_files") + '/main_menu.ui', self)
         print("my_pass")
         self.b_pass_week.clicked.connect(self.ev_btn_create_pass)
         self.b_pass_month.clicked.connect(self.ev_btn_create_pass)
@@ -95,8 +96,7 @@ class MainWindow(QMainWindow):
         fileMenu.addAction(exitAction)
 
         self.b_act.clicked.connect(self.ev_btn_start_file)
-        self.b_pdf_check.clicked.connect(self.ev_pdf_check)
-        self.b_send_covid.clicked.connect(self.ev_send_covid)
+        self.b_pdf_check.clicked.connect(self.ev_btn_start_file)
         # self.b_connect.clicked.connect(self.ev_connect)
 
         self.b_journal.clicked.connect(self.ev_btn_start_file)
@@ -108,14 +108,14 @@ class MainWindow(QMainWindow):
         self.b_notepad.clicked.connect(self.ev_btn_start_file)
         self.b_music.clicked.connect(self.ev_btn_add_to_db)
         self.b_get_money.clicked.connect(self.ev_btn_add_to_db)
-        self.b_empty.clicked.connect(self.ev_btn_add_to_db)
+        self.b_empty.clicked.connect(self.ev_btn_start_file)
         # self.menu.setting.settings.exitAction.triggered.connect(self.settings)
         self.b_scan.setEnabled(False)
 
         self.get_param_from_widget = None
         self.current_build = "Объект"
-        self.company = 'ООО "Вертикаль"'
-        self.customer = 'ПАО "Дорогобуж"'
+        self.company = get_config("company")
+        self.customer = get_config("customer")
         self.new_worker = []
         self.data_to_db = None
 
@@ -180,38 +180,46 @@ class MainWindow(QMainWindow):
         name = self.sender().text()
         if name == "Доверенность":
             try:
-                os.startfile(get_path("path") + get_path("path_pat_patterns") + "/attorney.xlsx", "print")
+                path = get_path("path") + get_path("path_pat_patterns") + "/attorney.xlsx"
+                os.startfile(path, "print")
             except:
-                mes.question(self, "Сообщение", "Файл по пути " + get_path("path") + get_path("path_pat_patterns") +
-                             "/attorney.xlsx" + "не найден", mes.Cancel)
+                mes.question(self, "Сообщение", "Файл по пути " + path + "не найден", mes.Cancel)
+                return
         if name == "Сканировать":
             try:
                 os.startfile(get_path("path_scaner"))
             except:
                 mes.question(self, "Сообщение", "Сканер не открывается")
+                return
         elif name == "Накладная":
             try:
-                os.startfile(get_path("path") + get_path("path_pat_patterns") + "/invoice.xlsx", "print")
+                path = get_path("path") + get_path("path_pat_patterns") + "/invoice.xlsx"
+                os.startfile(path , "print")
             except:
-                mes.question(self, "Сообщение", "Файл по пути " + get_path("path") + get_path("path_pat_patterns") +
-                             "/invoice.xlsx" + "не открывается")
+                mes.question(self, "Сообщение", "Файл по пути " + path + "не открывается")
+                return
         elif name == "Журнал-ковид":
             try:
-                os.startfile(get_path("path") + get_path("path_pat_patterns") + "/covid.xls", "print")
+                path = get_path("path") + get_path("path_pat_patterns") + "/covid.xls"
+                os.startfile(path, "print")
             except:
-                print("Not found")
+                mes.question(self, "Сообщение", "Файл по пути " + path + "не открывается")
         elif name == "Табель":
             try:
-                os.startfile(get_path("path") + get_path("path_pat_patterns") + "/table.xls")
+                path = get_path("path") + get_path("path_pat_patterns") + "/table.xls"
+                os.startfile(path)
             except:
-                print("Not found")
-        elif name == "Бланк>":
+                mes.question(self, "Сообщение", "Файл по пути " + path + "не найден", mes.Cancel)
+        elif name == "Бланк":
+            path_blank = ""
             try:
-                os.replace(get_path("path") + get_path("path_pat_patterns") + "/blank.doc", get_path("path") +
-                           "/Исходящие/1.docx")
-                os.startfile(get_path("path") + "/Исходящие/1.docx")
+                path_blank = get_path("path") + get_path("path_pat_patterns") + "/blank.doc"
+                path_to = get_path("path") + get_path("path_send") + "/" + str(dt.now()) + ".docx"
+                shutil.copy2(path_blank, path_to)
+                os.startfile(path_to)
             except:
-                print("Not found")
+                mes.question(self, "Сообщение", "Файл по пути " + path_blank + " не найден", mes.Cancel)
+                return
         elif name == "Блокнот":
             wnd = Notepad()
             wnd.exec_()
@@ -221,7 +229,9 @@ class MainWindow(QMainWindow):
         elif name == "Исполнительная":
             wnd = Acts(self)
             wnd.exec_()
-
+        elif name == "Сканер":
+            wnd = PDFModule(self)
+            wnd.exec_()
         pass
 
     def ev_btn_add_to_db(self):
@@ -263,43 +273,6 @@ class MainWindow(QMainWindow):
         else:
             return
         wnd.exec_()
-
-    def ev_create_act(self):
-        pass
-        print("my_pass create act")
-
-    def ev_pdf_check(self):
-        """
-        открыть директорию
-        рассортировать все отсканированные файлы по папкам
-        """
-        check_file()
-
-    def ev_send_covid(self):
-        """
-        если нет соответствующего файла, то открыть окно для сканирования
-        сформировать письмо
-        взять ковид из папки
-        отправить
-        """
-        try:
-            covid = open(get_path("path_covid") + "/" + self.company + "{0}_{1}".format(dt.now().day, dt.now().month))
-        except:
-            print("not found file")
-            try:
-                os.startfile(get_path("path_scaner"))
-            except:
-                print("not start scaner")
-                return
-            return
-        # отправить письмо
-        create_covid()
-        if not send_post("Ковидный журнал", "Доброе утро", get_config("my_email"), get_path("covid") + "/" +
-                                                                                   self.company + "01_01.pdf"):
-            QMessageBox(self, "Сообщение не отправилось").show()
-        print("send covid")
-
-    """____________________________________"""
 
     def get_new_data(self, data):
         self.data_to_db = data

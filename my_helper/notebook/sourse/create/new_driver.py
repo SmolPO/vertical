@@ -3,12 +3,11 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import QDate as Date
 from my_helper.notebook.sourse.create.new_template import TempForm, from_str
-from my_helper.notebook.sourse.database import get_path_ui
+from my_helper.notebook.sourse.database import get_path_ui, zero
 
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_driver")
 fields = ["family", "name", "surname", "birthday", "passport", "id"]
-zero = "01.01.2000"
 
 
 class NewDriver(TempForm):

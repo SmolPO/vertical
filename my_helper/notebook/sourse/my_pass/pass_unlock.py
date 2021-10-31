@@ -1,15 +1,12 @@
-from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-import datetime as dt
 from PyQt5.QtCore import QDate as Date
-from my_helper.notebook.sourse.create.new_template import from_str
-#  сделать мессаджбоксы на Сохранить
-from my_helper.notebook.sourse.database import get_path, get_path_ui
+import datetime as dt
 import openpyxl
 import os
 import pymorphy2
-
-designer_file = get_path_ui("pass_unlock")
-count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+from my_helper.notebook.sourse.database import get_path, get_path_ui, count_days
+from my_helper.notebook.sourse.create.new_template import from_str
+from my_helper.notebook.sourse.my_pass.pass_template import TempPass
+designer_file = get_path("path") + get_path_ui("pass_unlock")
 
 
 class UnlockPass(TempPass):

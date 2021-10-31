@@ -2,11 +2,11 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QDialog
 import os
-from my_helper.notebook.sourse.database import get_path_ui
+from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.acts.journal import Journal
 from my_helper.notebook.sourse.acts.asr import Asr
 from my_helper.notebook.sourse.acts.contract import Contract
-from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui
+from my_helper.notebook.sourse.database import get_path, get_path_ui
 designer_file = get_path_ui("acts")
 
 
@@ -25,7 +25,7 @@ class Acts(QDialog):
         self.b_xlxs.clicked.connect(self.ev_xlsx)
         self.b_exit.clicked.connect(self.ev_exit)
         self.cb_select.activated[str].connect(self.ev_select)
-        self.path = "B:/my_helper/Исполнительные"
+        self.path = get_path("path") + get_path("contracts")
         self.contract = ""
         self.init_contracts()
 
@@ -36,13 +36,13 @@ class Acts(QDialog):
 
     def ev_start(self):
         name = self.sender().text()
-        if name == "Журнал":
+        if name == self.b_journal.text():
             wnd = Journal(self)
             wnd.exec_()
-        elif name == "АСР":
-            wnd = Asr(self)
+        elif name == self.b_asr.text():
+            wnd = Asr(self, self.contract)
             wnd.exec_()
-        elif name == "Договор":
+        elif name == self.b_contract.text():
             wnd = Contract(self)
             wnd.exec_()
         return
@@ -57,18 +57,20 @@ class Acts(QDialog):
     def ev_add(self):
         self.filename, tmp = QFileDialog.getOpenFileName(self,
                                                          "Выбрать файл",
-                                                         "B:/my_helper/scan",
+                                                         get_path("path"),
                                                          "PDF Files(*.pdf)")
         os.replace(self.filename, self.filename)
         pass
 
     def ev_latter(self):
         try:
-            os.replace(get_path("path") + get_path("path_pat_patterns") + "/blank.doc",
-                       self.path + "Письма/Письмо.doc")
-            os.startfile(self.path + "Письма/Письмо.doc")
+            path_from = get_path("path") + get_path("path_pat_patterns") + "/blank.doc"
+            path_to = self.path + "Письма/Письмо.doc"
+            os.replace(path_from, path_to)
+            os.startfile(path_to)
         except:
-            print("Not found")
+            mes.question(self, "Сообщение", "Файл " + path_from + " не найден", mes.Ok)
+            return False
         pass
 
     def ev_month(self):
@@ -83,4 +85,5 @@ class Acts(QDialog):
         self.close()
 
     def ev_select(self):
+        self.contract = self.cb_select.currentText().split(".")[1]
         pass

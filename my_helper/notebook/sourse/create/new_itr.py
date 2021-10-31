@@ -1,12 +1,11 @@
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.create.new_template import TempForm, from_str
 from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.database import get_path_ui
+from my_helper.notebook.sourse.create.new_template import TempForm, from_str
 
 designer_file = get_path_ui("new_itr")
-zero = "01.01.2000"
 
 
 class NewITR(TempForm):
@@ -115,8 +114,8 @@ class NewITR(TempForm):
                 break
 
     def _get_data(self, data):
-        if self.cb_auto.currentText() == "(нет)":
-            auto = "(нет)"
+        if self.cb_auto.currentText() == empty:
+            auto = empty
         else:
             auto = self.cb_auto.currentText().split(". ")[1]
         print(auto)
@@ -151,7 +150,7 @@ class NewITR(TempForm):
                       self.promsave.toPlainText(),
                       self.bday.text()])
         print(_data)
-        if "" in _data or zero in _data or "(нет)" in _data:
+        if "" in _data or zero in _data or empty in _data:
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         else:

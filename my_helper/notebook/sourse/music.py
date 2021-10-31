@@ -1,7 +1,7 @@
 from PyQt5.QtWidgets import  QMessageBox
 import webbrowser
 from my_helper.notebook.sourse.create.new_template import TempForm
-from database import get_path, get_path_ui
+from database import get_path_ui
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("web")

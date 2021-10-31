@@ -1,28 +1,38 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
-from my_helper.notebook.sourse.database import get_path_ui
+from PyQt5.QtWidgets import QMessageBox as mes
+from my_helper.notebook.sourse.database import get_path_ui, get_path, get_config
 import docxtpl
 import os
-from PyQt5.QtWidgets import QMessageBox as mes
+import datetime as dt
+import pymorphy2
+
 designer_file = get_path_ui("asr")
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 
 
 class Asr(QDialog):
-    def __init__(self, parent):
+    def __init__(self, parent, contract):
         super(Asr, self).__init__()
         uic.loadUi(designer_file, self)
         self.parent = parent
+        self.year.setCurrentIndex(dt.datetime.now().year-2021)
         self.b_print.clicked.connect(self.ev_print)
         self.b_change.clicked.connect(self.ev_change)
         self.b_kill.clicked.connect(self.ev_kill)
         self.b_close.clicked.connect(self.ev_close)
         self.cb_select.activated[str].connect(self.ev_select)
+        self.numbers.textChanged.connect(self.change_count)
         self.init_bosses()
         self.init_SI()
         self.ind = 0
-        self.path = ""
+        self.path = get_path("path") + get_path("path_pat_patterns")
         self.my_id = 0
+        self.contract = contract
+
+    def change_count(self):
+        print(len(self.numbers.toPlainText().split(",")))
+        self.count.setValue(len(self.numbers.toPlainText().split(",")))
 
     def init_bosses(self):
         self.parent.parent.db.init_list(self.boss_1, "id, family, name, surname", "itrs", people=True)
@@ -35,16 +45,33 @@ class Asr(QDialog):
         for item in si:
             self.cb_SI.addItem(item)
 
-    def create_data(self, day):
+    def create_data(self, day_start, day_end, number):
+        if len(day_end) == 1:
+            day_end = "0" + day_end
+        if len(day_start) == 1:
+            day_start = "0" + day_start
+        morph = pymorphy2.MorphAnalyzer()
         data = dict()
-        data["boss_1"] = self.boss_1.currentText() + self.get_post(self.boss_1.currentText().split(".")[0], "itrs")
-        data["boss_2"] = self.boss_2.currentText() + self.get_post(self.boss_2.currentText().split(".")[0], "itrs")
-        data["boss_3"] = self.boss_3.currentText() + self.get_post(self.boss_3.currentText().split(".")[0], "bosses")
-        data["boss_4"] = self.boss_4.currentText() + self.get_post(self.boss_4.currentText().split(".")[0], "bosses")
-        data["work"] = self.work.toPlainText() + "_" * 10 + self.cb_SI.currentText()
-        data["material"] = self.material.text()
-        data["next_work"] = self.next_work.text()
-        data["date"] = day
+        bosses = [self.boss_1, self.boss_2, self.boss_3, self.boss_4]
+        tables = ["itrs", "itrs", "bosses", "bosses"]
+        for ind in range(1, 5):
+            boss = bosses[ind-1].currentText()
+            post = self.get_post(boss.split(".")[0], tables[ind-1])
+            family = boss[boss.index(".")+2:]
+            val = post + "__" + family + "_"*(100-len(post + "__" + family))
+            data["boss_" + str(ind)] = val
+        val = "_______" if self.sb_value.value() == 0 else "__" + str(self.sb_value.value()) + "__"
+        data["work"] = self.work.toPlainText() + val + self.cb_SI.currentText()
+        print(data["work"])
+        materials = self.material.currentText() if self.material.currentText() != "(нет)" else "_"*40
+        data["material"] = materials
+        data["next_work"] = self.next_work.toPlainText()
+        data["day_end"] = day_end
+        data["day_start"] = day_start
+        data["month"] = morph.parse(self.month.currentText())[0].inflect({'gent'})[0].capitalize().lower()
+        data["year"] = self.year.currentText()
+        data["number"] = number
+        data["company"] = get_config("company")
         return data
 
     def get_data(self):
@@ -61,21 +88,53 @@ class Asr(QDialog):
     def get_post(self, my_id, table):
         rows = self.parent.parent.db.get_data("*", table)
         for item in rows:
-            if item[-1] == my_id:
+            if str(item[-1]) == my_id:
                 print(item)
-                return item[4]
+                return item[3]
         return "."
 
     def ev_print(self):
         if not self.check_input():
             return False
-        for day in self.dates.toPlainText().split(", "):
-            doc = docxtpl.DocxTemplate(self.path)
-            self.set_data(day)
-            doc.render(self.data)
-            path = self.path + "/" + day + ".docx"
-            doc.save(path)
-            os.startfile(path, "print")
+        ind = 1
+        if self.days_start.toPlainText() == "":
+            day_end = "______"
+            day_start = "______"
+        else:
+            day_end = self.days_end.toPlainText().split(",")[ind]
+            day_start = self.days_start.toPlainText().split(",")[ind]
+        if self.numbers.toPlainText() == "":
+            number = "______"
+        else:
+            number = self.numbers.toPlainText().split(",")[ind]
+        self.data = self.create_data(day_start, day_end, number)
+        path = self.path + "/asr.docx"
+        try:
+            doc = docxtpl.DocxTemplate(path)
+        except:
+            mes.question(self, "Сообщение", "Файл " + path + " не найден", mes.Ok)
+            return False
+        doc.render(self.data)
+        path = get_path("path") + get_path("contract") + "/102021" + "/1.docx"
+        doc.save(path)
+        os.startfile(path)
+        self.save_pattern()
+
+    def save_pattern(self):
+        data = list()
+        data.append(self.data["work"])
+        data.append(self.data["value"])
+        data.append(self.data["si"])
+        data.append(self.data["material"])
+        data.append(self.data["day_start"])
+        data.append(self.data["day_end"])
+        data.append(self.data["month"])
+        data.append(self.data["year"])
+        data.append(self.data["boss_1"])
+        data.append(self.data["boss_2"])
+        data.append(self.data["boss_3"])
+        data.append(self.data["boss_4"])
+        return data
 
     def ev_select(self):
         rows = self.parent.parent.db.get_data("*", "asrs")
@@ -118,6 +177,9 @@ class Asr(QDialog):
         self.close()
 
     def check_input(self):
+        print(len(self.numbers.toPlainText().split(",")),
+              len(self.days_start.toPlainText().split(",")),
+              len(self.numbers.toPlainText().split(",")))
         if len(self.work.toPlainText()) < 3:
             mes.question(self, "Сообщение", "Укажите вид работ", mes.Ok)
             return False
@@ -142,9 +204,26 @@ class Asr(QDialog):
         elif self.boss_4.currentText() == "(нет)":
             mes.question(self, "Сообщение", "Укажите четвертого босса", mes.Ok)
             return False
-        elif len(self.days.toPlainText().split(",")) != len(self.numbers.toPlainText().split(",")):
-            mes.question(self, "Сообщение", "Не совпадает кол-во дней и кол-во номеров актов. Проверьте. Дней " +
-                         str(len(self.days.toPlainText().split(","))) + ", Номеров" +
-                         str(len(self.numbers.toPlainText().split(","))), mes.Ok)
+        elif self.count.value() == 0:
+            mes.question(self, "Сообщение", "Укажите количество актов", mes.Ok)
+            return False
+        elif len(self.days_start.toPlainText().split(",")) != \
+                len(self.days_end.toPlainText().split(",")):
+            mes.question(self, "Сообщение", "Количесттво дней начала не совпадает с количеством дней окончания",
+                         mes.Ok)
+            return False
+
+        elif self.numbers.toPlainText().split(",") != "" and \
+             len(self.days_start.toPlainText().split(",")) != \
+             len(self.numbers.toPlainText().split(",")):
+            mes.question(self, "Сообщение",
+                         "Не совпадает кол-во дней и кол-во номеров актов. Проверьте. Дней начала: " +
+                         str(len(self.days_start.toPlainText().split(","))) + ", Номеров: " +
+                         str(len(self.numbers.toPlainText().split(","))),
+                         mes.Ok)
+            return False
+        elif self.days_start.toPlainText().split(",") != "" and \
+             len(self.days_start.toPlainText().split(",")) != self.count.value():
+            mes.question(self, "Сообщение", "Количество бланков не совпадает с количеством дат", mes.Ok)
             return False
         return True

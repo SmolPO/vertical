@@ -3,7 +3,7 @@ import datetime as dt
 from PyQt5.QtWidgets import QMessageBox as mes
 import docx
 #  сделать мессаджбоксы на Сохранить
-from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui
+from my_helper.notebook.sourse.database import get_path_ui, empty
 designer_file = get_path_ui("pass_week")
 
 
@@ -61,7 +61,7 @@ class WeekPass(TempPass):
 
     def init_workers(self):
         for item in self.list_ui:
-            item.addItem("(нет)")
+            item.addItem(empty)
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
@@ -76,10 +76,10 @@ class WeekPass(TempPass):
         if not self.cb_sun.isChecked() and not self.cb_sub.isChecked() and not self.cb_other.isChecked():
             mes.question(self, "Сообщение", "Укажите в какой день будете работать ", mes.Cancel)
             return False
-        if self.cb_object.currentText() == "(нет)":
+        if self.cb_object.currentText() == empty:
             mes.question(self, "Сообщение", "Выберите объект", mes.Cancel)
             return False
-        if self.cb_boss_part.currentText() == "(нет)":
+        if self.cb_boss_part.currentText() == empty:
             mes.question(self, "Сообщение", "Выберите Босса", mes.Cancel)
             return False
         self.data["boss_part"] = self.cb_boss_part.currentText()
@@ -112,7 +112,7 @@ class WeekPass(TempPass):
         return True
 
     def check_input(self):
-        if self.list_ui[0].currentText() == "(нет)":
+        if self.list_ui[0].currentText() == empty:
             mes.question(self, "Сообщение", "Укажите сотрудников", mes.Cancel)
             return False
         return True

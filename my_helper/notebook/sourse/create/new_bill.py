@@ -1,15 +1,13 @@
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtWidgets import *
-from datetime import datetime as dt
-from my_helper.notebook.sourse.create.new_template import TempForm, from_str, set_cb_text
-import os
 from PyQt5.QtWidgets import QMessageBox as mes
+from datetime import datetime as dt
+import os
 import openpyxl
-from my_helper.notebook.sourse.database import get_path, get_path_ui
-
+from my_helper.notebook.sourse.database import get_path, get_path_ui, empty, zero
+from my_helper.notebook.sourse.create.new_template import TempForm, from_str, set_cb_text
 #  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_bill")
-zero = "01.01.2000"
 
 
 class NewBill(TempForm):
@@ -35,7 +33,7 @@ class NewBill(TempForm):
 
     def init_operations(self):
         rows = self.parent.db.get_data("*", self.table)
-        self.cb_select.addItem("(нет)")
+        self.cb_select.addItem(empty)
         print(rows)
         for row in rows:
             self.cb_select.addItems([", ".join((row[0], row[-1]))])
@@ -101,7 +99,7 @@ class NewBill(TempForm):
     def ev_bill(self):
         self.filename, tmp = QFileDialog.getOpenFileName(self,
                                                          "Выбрать файл",
-                                                         "B:/my_helper/scan",
+                                                         get_path("path") + get_path("scan"),
                                                          "PDF Files(*.pdf)")
         if self.filename:
             self.rb_isfile.setChecked(True)

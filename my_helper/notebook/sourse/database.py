@@ -1,10 +1,12 @@
 from my_helper.notebook.sourse.inserts import get_from_db, my_update, add_to_db
 import psycopg2
-import os
 from configparser import ConfigParser
 path_conf = "B:/my_config.ini"
 path_text = "B:/texts.ini"
-
+zero = "01.01.2000"
+empty = "(нет)"
+si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
+count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 class DataBase:
     def __init__(self):
@@ -151,17 +153,14 @@ class DataBase:
 
 def get_path(my_type):
     config = ConfigParser()
-    config.read(path_conf)
-    try:
-        return str(config.get('path', my_type))
-    except:
-        print("get_path")
-        return False
+    config.read(path_conf, encoding="utf-8")
+    print(str(config.get('path', my_type)))
+    return str(config.get('path', my_type))
 
 
 def get_config(my_type):
     config = ConfigParser()
-    config.read(path_conf)
+    config.read(path_conf, encoding="utf-8")
     try:
         return config.get('config', my_type)
     except:
@@ -171,7 +170,7 @@ def get_config(my_type):
 
 def get_from_ini(my_type, part):
     config = ConfigParser()
-    config.read(path_conf)
+    config.read(path_conf, encoding="utf-8")
     try:
         return config.get(part, my_type)
     except:
@@ -185,5 +184,5 @@ def get_path_ui(my_type):
 
 def get_text(text):
     config = ConfigParser()
-    config.read(path_text)
+    config.read(path_text, encoding="utf-8")
     return config.get("mes", text)

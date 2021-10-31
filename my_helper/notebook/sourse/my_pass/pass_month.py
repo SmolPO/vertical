@@ -1,16 +1,15 @@
 from PyQt5.QtCore import Qt
-import datetime as dt
-from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-from my_helper.notebook.sourse.create.new_template import from_str
-from configparser import ConfigParser
-from my_helper.notebook.sourse.database import get_path, get_path_ui
-import logging
-import docx
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtWidgets import QMessageBox as mes
+import datetime as dt
+from configparser import ConfigParser
+from my_helper.notebook.sourse.my_pass.pass_template import TempPass
+from my_helper.notebook.sourse.create.new_template import from_str
+from my_helper.notebook.sourse.database import get_path, get_path_ui, count_days
+import logging
+import docx
 #  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_month")
-count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 
 class MonthPass(TempPass):

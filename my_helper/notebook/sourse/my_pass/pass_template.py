@@ -1,16 +1,15 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
 import os
 import docxtpl
 from configparser import ConfigParser
-from PyQt5.QtWidgets import QMessageBox as mes
-from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui
+from my_helper.notebook.sourse.database import get_path, count_days
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 #  сделать мессаджбоксы на Сохранить
-count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 
 class TempPass(QDialog):
@@ -54,8 +53,11 @@ class TempPass(QDialog):
         if not self.check_input():
             return False
         print_file = self.print_folder + "/" + self.number.text() + "_" + self.d_note.text() + ".docx"
-
-        doc = docxtpl.DocxTemplate(self.main_file)
+        try:
+            doc = docxtpl.DocxTemplate(self.main_file)
+        except:
+            mes.question(self, "Сообщение", "Файл не найден" + self.main_file, mes.Cancel)
+            return
         doc.render(self.data)
         doc.save(print_file)
         self._create_data(print_file)
@@ -173,7 +175,7 @@ def set_next_number(n):
     config.read(path_conf)
     number_note = config.get('config', 'number')
     next_number = n
-    config.set(path_conf, 'number', str(next_number))
+    config.set("config", 'number', str(next_number))
     with open(path_conf, 'w') as configfile:
         config.write(configfile)
     return int(number_note)

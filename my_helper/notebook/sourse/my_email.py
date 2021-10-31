@@ -1,60 +1,45 @@
 import os
 import smtplib
-import sys
-from configparser import ConfigParser
 from email import encoders
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
-from email.utils import formatdate
+from my_helper.notebook.sourse.database import get_from_ini
 import logging
-from database import DataBase, get_path, get_path_ui
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 
 
-def send_post(subject, body_text, to_email, file_to_attach):
+def send(subject, body_text, to_email, file_to_attach):
+    server = get_from_ini("smtp", "post")
+    user = get_from_ini("my_email", "post")
+    password = get_from_ini("password", "post")
 
-    base_path = os.path.dirname(conf.path + conf.path_to_covid)
-    config_path = os.path.join(base_path, "email.ini")
-    header = 'Content-Disposition', 'attachment; filename="%s"' % file_to_attach
+    recipients = to_email
+    sender = user
+    subject = subject
+    text = body_text
 
-    # get the config
-    if os.path.exists(conf.path_conf_ini):
-        cfg = ConfigParser()
-        cfg.read(conf.path_conf_ini)
-    else:
-        print("Config not found! Exiting!")
-        return False
+    filepath = file_to_attach
+    basename = os.path.basename(filepath)
+    filesize = os.path.getsize(filepath)
 
-    # extract server and from_addr from config
-    host = cfg.get("smtp", "server")
-    from_addr = cfg.get("smtp", "from_addr")
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = subject
+    msg['From'] = user
+    msg['To'] = recipients
 
-    # create the message
-    msg = MIMEMultipart()
-    msg["From"] = from_addr
-    msg["Subject"] = subject
-    msg["Date"] = formatdate(localtime=True)
+    part_text = MIMEText(text, 'plain')
+    part_file = MIMEBase('application', 'octet-stream; name="{}"'.format(basename))
+    part_file.set_payload(open(filepath, "rb").read())
+    part_file.add_header('Content-Description', basename)
+    part_file.add_header('Content-Disposition', 'attachment; filename="{}"; size={}'.format(basename, filesize))
+    encoders.encode_base64(part_file)
 
-    if body_text:
-        msg.attach(MIMEText(body_text))
+    msg.attach(part_text)
+    msg.attach(part_file)
 
-    attachment = MIMEBase('application', "octet-stream")
-
-    try:
-        with open(file_to_attach, "rb") as fh:
-            data = fh.read()
-
-        attachment.set_payload(data)
-        encoders.encode_base64(attachment)
-        attachment.add_header(*header)
-        msg.attach(attachment)
-    except IOError:
-        msg = "Error opening attachment file %s" % file_to_attach
-        print(msg)
-        return False
-
-    server = smtplib.SMTP(host)
-    server.sendmail(from_addr, to_email, msg.as_string())
-    server.quit()
-    return True
+    mail = smtplib.SMTP_SSL('smtp.mail.ru', 465)
+    mail.login(user, password)
+    mail.sendmail(sender, recipients, msg.as_string())
+    mail.quit()
+    return

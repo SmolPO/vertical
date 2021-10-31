@@ -1,18 +1,13 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import Qt
 import datetime as dt
 import os
 import docxtpl
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-from my_helper.notebook.sourse.inserts import get_from_db
-from configparser import ConfigParser
-#  сделать мессаджбоксы на Сохранить
-from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui
+from my_helper.notebook.sourse.database import get_path, get_path_ui, get_config, empty, count_days
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_auto")
-count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
 
 class AutoPass(TempPass):
@@ -41,7 +36,7 @@ class AutoPass(TempPass):
     def init_drivers(self):
         drivers = self.parent.db.get_data("family, name", self.table)
         for item in self.list_ui:
-            item.addItem("(нет)")
+            item.addItem(empty)
         for row in drivers:
             for item in self.list_ui:
                 item.addItem(" ".join((row[0], row[1][0] + ".")))
@@ -50,7 +45,7 @@ class AutoPass(TempPass):
     def init_auto(self):
         auto = list()
         auto = self.parent.db.get_data("model, gov_number", "auto")
-        auto.append(["(нет)"])
+        auto.append([empty])
         for row in auto:
             self.cb_auto.addItem(row[0])
 
@@ -127,7 +122,7 @@ class AutoPass(TempPass):
     def new_worker(self):
         flag = True
         for item in self.list_ui:
-            if item.currentText() != "(нет)":
+            if item.currentText() != empty:
                 item.setEnabled(True)
             else:
                 item.setEnabled(flag)
@@ -137,7 +132,7 @@ class AutoPass(TempPass):
         if not self.cb_chouse.isChecked():
             month = self.list_month.index(self.cb_month.currentText()) + 1
             if month == 13:
-                day, month, year = "09", "01", str(dt.datetime.now().year + 1)  # работаем с 9 января
+                day, month, year = get_config("new_year"), "01", str(dt.datetime.now().year + 1)  # работаем с 9 января
             else:
                 day, month, year = "01", str(month), str(dt.datetime.now().year)
                 if int(month) < 10:
@@ -150,6 +145,4 @@ class AutoPass(TempPass):
             self.data["end_date"] = self.d_to.text()
 
     def check_input(self):
-
-        pass
-
+        return True

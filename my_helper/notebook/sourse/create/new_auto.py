@@ -3,7 +3,7 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
 from my_helper.notebook.sourse.create.new_template import TempForm
-from my_helper.notebook.sourse.database import get_path_ui
+from my_helper.notebook.sourse.database import get_path_ui, empty
 
 #  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_auto")
@@ -25,11 +25,11 @@ class NewAuto(TempForm):
         self.slice_clean = len(self.list_ui)
         self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
-        self.track_number.setText("(нет)")
+        self.track_number.setText(empty)
 
     def init_list(self):
         rows = self.parent.db.get_data("id, gov_number, model", self.table)
-        self.cb_select.addItems(["(нет)"])
+        self.cb_select.addItems([empty])
         if not rows:
             return False
         for row in rows:
@@ -41,11 +41,11 @@ class NewAuto(TempForm):
             item.setValidator(symbols)
 
     def _get_data(self, data):
-        data.append(self.track_number.text()) if self.is_track.isChecked() else data.append("(нет)")
+        data.append(self.track_number.text()) if self.is_track.isChecked() else data.append(empty)
         return data
 
     def _set_data(self, data):
-        if not self.track_number.text() or self.track_number.text() == "(нет)":
+        if not self.track_number.text() or self.track_number.text() == empty:
             self.is_track.setChecked(False)
         else:
             self.is_track.setChecked(True)
@@ -66,7 +66,7 @@ class NewAuto(TempForm):
             self.track_number.setEnabled(True)
         else:
             self.track_number.setEnabled(False)
-            self.track_number.setText("(нет)")
+            self.track_number.setText(empty)
 
     def _clean_data(self):
         self.is_track.setChecked(False)

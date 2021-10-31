@@ -1,12 +1,12 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import QDate as Date
-import datetime as dt
 from PyQt5.QtWidgets import QMessageBox as mes
+import datetime as dt
 import docxtpl
 import os
 import inserts as ins
-from database import DataBase, get_path, get_path_ui, get_from_ini
+from database import get_path, get_path_ui, get_from_ini
 import logging
 import pymorphy2
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
@@ -79,7 +79,11 @@ class GetMoney(QDialog):
         if not self.data:
             mes.question(self, "Сообщение", "Данные не добавились", mes.Ok)
             return False
-        doc = docxtpl.DocxTemplate(self.main_file)
+        try:
+            doc = docxtpl.DocxTemplate(self.main_file)
+        except:
+            mes.question(self, "Сообщение", "Файл не найден" + self.main_file, mes.Cancel)
+            return
         doc.render(self.data)
         doc.save(print_file)
         self.close()

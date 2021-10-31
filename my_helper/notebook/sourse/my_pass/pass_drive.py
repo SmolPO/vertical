@@ -9,6 +9,7 @@ from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_driver")
+empty = "(нет)"
 
 
 class DrivePass(TempPass):
@@ -39,7 +40,7 @@ class DrivePass(TempPass):
 
     # инициализация
     def init_drivers(self):
-        self.cb_drivers.addItem("(нет)")
+        self.cb_drivers.addItem(empty)
         people = self.parent.db.get_data("family, name", self.table)
         if not people:
             return
@@ -47,7 +48,7 @@ class DrivePass(TempPass):
             self.cb_drivers.addItem(" ".join((row[0], row[1][0] + ".")))
 
     def init_auto(self):
-        self.cb_auto.addItem("(нет)")
+        self.cb_auto.addItem(empty)
         auto = self.parent.db.get_data("gov_number", "auto")
         if not auto:
             return
@@ -55,7 +56,7 @@ class DrivePass(TempPass):
             self.cb_auto.addItem(row[0])
 
     def init_contracts(self):
-        self.cb_contracts.addItem("(нет)")
+        self.cb_contracts.addItem(empty)
         contracts = self.parent.db.get_data("name", "contracts")
         if not contracts:
             return
@@ -81,7 +82,7 @@ class DrivePass(TempPass):
             if self.cb_contracts.currentText() == row[0]:
                 self.work = " ".join(row[4:7])
                 self.contract = " от ".join(row[2:4])
-            if self.cb_contracts.currentText() == "(нет)":
+            if self.cb_contracts.currentText() == empty:
                 self.work = ""
                 self.contract = ""
         self.change_note()
@@ -116,7 +117,7 @@ class DrivePass(TempPass):
             if self.cb_auto.currentText() == row[0]:
                 self.data["auto"] = " ".join(row[1:3])
                 self.data["gov_number"] = row[0]
-                self.data["track"] = " " if row[-2] == "(нет)" else "п/п " + row[-2]
+                self.data["track"] = " " if row[-2] == empty else "п/п " + row[-2]
 
     def driver_changed(self):
         people = self.parent.db.get_data("*", self.table)
@@ -132,7 +133,7 @@ class DrivePass(TempPass):
 
     def check_input(self):
         for key in self.data.keys():
-            if self.data[key] == "(нет)" or self.data[key] == "":
+            if self.data[key] == empty or self.data[key] == "":
                 mes.question(self, "Сообщение", "Заполните все поля. Незаполнено поле " + key, mes.Cancel)
                 return False
         return True

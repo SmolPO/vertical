@@ -1,11 +1,10 @@
 from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.create.new_template import TempForm, from_str
 from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
-from my_helper.notebook.sourse.database import get_path_ui
-
+from my_helper.notebook.sourse.database import get_path_ui, zero, empty
+from my_helper.notebook.sourse.create.new_template import TempForm, from_str
 designer_file = get_path_ui("new_worker")
 
 
@@ -52,10 +51,10 @@ class NewWorker(TempForm):
         return True
 
     def select_contract(self):
-        self.b_ok.setEnabled(self.cb_contract.currentText() != "(нет)")
+        self.b_ok.setEnabled(self.cb_contract.currentText() != empty)
 
     def _clean_data(self):
-        zero = Date(from_str("01.01.2000"))
+        zero = Date(from_str(zero))
         self.passport_post.clear()
         self.adr.clear()
         self.live_adr.clear()
@@ -171,7 +170,7 @@ class NewWorker(TempForm):
                      self.n_card.text(),
                      self.d_prot.text(),
                      self.cb_contract.currentText()])
-        if "" in data or "01.01.2000" in data or "(нет)" in data:
+        if "" in data or zero in data or empty in data:
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         else:

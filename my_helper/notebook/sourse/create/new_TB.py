@@ -5,11 +5,10 @@ from PyQt5 import uic
 import docx
 import docxtpl
 import os
-from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui
+from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui, zero
 designer_file = get_path_ui("new_TB")
 types_docs = {"1": "/ot_doc.docx", "2": "/ptm_doc.docx", "3": "/eb_doc.docx"}
 types_card = {"1": "/ot_card.docx", "2": "/ptm_card.docx", "3": "/es_card.docx"}
-zero = "01.01.2000"
 
 
 class NewTB(QDialog):
