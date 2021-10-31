@@ -87,6 +87,11 @@
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QComboBox" name="boss_2">
    <property name="geometry">
@@ -97,6 +102,11 @@
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QComboBox" name="boss_3">
    <property name="geometry">
@@ -107,6 +117,11 @@
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QComboBox" name="boss_4">
    <property name="geometry">
@@ -117,6 +132,11 @@
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QSpinBox" name="sb_p2">
    <property name="geometry">

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>376</width>
-    <height>432</height>
+    <width>497</width>
+    <height>442</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -16,7 +16,7 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>160</x>
+     <x>220</x>
      <y>10</y>
      <width>49</width>
      <height>16</height>
@@ -57,15 +57,15 @@
     <rect>
      <x>30</x>
      <y>240</y>
-     <width>49</width>
+     <width>71</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Дни</string>
+    <string>Дни начала</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="days">
+  <widget class="QTextEdit" name="days_start">
    <property name="geometry">
     <rect>
      <x>30</x>
@@ -79,18 +79,23 @@
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1,2&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QComboBox" name="month">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>330</y>
-     <width>101</width>
+     <width>71</width>
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
    <item>
     <property name="text">
      <string>январь</string>
@@ -155,7 +160,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>310</y>
      <width>49</width>
      <height>16</height>
@@ -168,47 +173,87 @@ p, li { white-space: pre-wrap; }
   <widget class="QComboBox" name="boss_1">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>130</y>
-     <width>101</width>
+     <width>131</width>
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>1. Сорокин В.Л.</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QComboBox" name="boss_2">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>180</y>
-     <width>101</width>
+     <width>131</width>
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>1. Сорокин В.Л.</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QComboBox" name="boss_3">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>230</y>
-     <width>101</width>
+     <width>131</width>
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>1. Щербаков И.А.</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QComboBox" name="boss_4">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>280</y>
-     <width>101</width>
+     <width>131</width>
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>1. Щербаков И.А.</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>110</y>
      <width>81</width>
      <height>16</height>
@@ -221,7 +266,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="label_7">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>160</y>
      <width>81</width>
      <height>16</height>
@@ -234,7 +279,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="label_8">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>210</y>
      <width>101</width>
      <height>16</height>
@@ -247,7 +292,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QLabel" name="label_9">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>260</y>
      <width>81</width>
      <height>16</height>
@@ -262,9 +307,12 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>30</x>
      <y>360</y>
-     <width>81</width>
+     <width>91</width>
      <height>22</height>
     </rect>
+   </property>
+   <property name="minimum">
+    <number>5</number>
    </property>
   </widget>
   <widget class="QLabel" name="label_10">
@@ -283,17 +331,32 @@ p, li { white-space: pre-wrap; }
   <widget class="QComboBox" name="cb_SI">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>130</x>
      <y>360</y>
-     <width>41</width>
+     <width>51</width>
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>тн</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>л</string>
+    </property>
+   </item>
   </widget>
   <widget class="QLabel" name="label_11">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>130</x>
      <y>340</y>
      <width>49</width>
      <height>16</height>
@@ -306,8 +369,8 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="b_print">
    <property name="geometry">
     <rect>
-     <x>270</x>
-     <y>360</y>
+     <x>340</x>
+     <y>370</y>
      <width>75</width>
      <height>24</height>
     </rect>
@@ -321,9 +384,16 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>30</x>
      <y>60</y>
-     <width>201</width>
+     <width>281</width>
      <height>51</height>
     </rect>
+   </property>
+   <property name="html">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;работа&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QTextEdit" name="next_work">
@@ -331,9 +401,16 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>30</x>
      <y>190</y>
-     <width>201</width>
+     <width>281</width>
      <height>41</height>
     </rect>
+   </property>
+   <property name="html">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;допуск&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_12">
@@ -352,17 +429,22 @@ p, li { white-space: pre-wrap; }
   <widget class="QComboBox" name="cb_select">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>60</y>
-     <width>101</width>
+     <width>131</width>
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QLabel" name="label_13">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>340</x>
      <y>40</y>
      <width>49</width>
      <height>16</height>
@@ -388,7 +470,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="b_change">
    <property name="geometry">
     <rect>
-     <x>170</x>
+     <x>120</x>
      <y>400</y>
      <width>75</width>
      <height>24</height>
@@ -401,7 +483,7 @@ p, li { white-space: pre-wrap; }
   <widget class="QPushButton" name="b_close">
    <property name="geometry">
     <rect>
-     <x>270</x>
+     <x>340</x>
      <y>400</y>
      <width>75</width>
      <height>24</height>
@@ -411,10 +493,10 @@ p, li { white-space: pre-wrap; }
     <string>Отмена</string>
    </property>
   </widget>
-  <widget class="QTextEdit" name="days_2">
+  <widget class="QTextEdit" name="numbers">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>230</x>
      <y>260</y>
      <width>81</width>
      <height>71</height>
@@ -425,16 +507,16 @@ p, li { white-space: pre-wrap; }
 &lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
 p, li { white-space: pre-wrap; }
 &lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
-&lt;p style=&quot;-qt-paragraph-type:empty; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;&lt;br /&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;1,2&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_14">
    <property name="geometry">
     <rect>
-     <x>150</x>
+     <x>230</x>
      <y>240</y>
-     <width>49</width>
-     <height>16</height>
+     <width>51</width>
+     <height>21</height>
     </rect>
    </property>
    <property name="text">
@@ -446,9 +528,145 @@ p, li { white-space: pre-wrap; }
     <rect>
      <x>30</x>
      <y>140</y>
-     <width>201</width>
+     <width>281</width>
      <height>22</height>
     </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string> </string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QTextEdit" name="days_end">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>260</y>
+     <width>91</width>
+     <height>71</height>
+    </rect>
+   </property>
+   <property name="html">
+    <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;meta charset=&quot;utf-8&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Segoe UI'; font-size:9pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;4,5&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_15">
+   <property name="geometry">
+    <rect>
+     <x>130</x>
+     <y>240</y>
+     <width>91</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Дни окончания</string>
+   </property>
+  </widget>
+  <widget class="QSpinBox" name="count">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>360</y>
+     <width>81</width>
+     <height>22</height>
+    </rect>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_16">
+   <property name="geometry">
+    <rect>
+     <x>230</x>
+     <y>340</y>
+     <width>81</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Количество</string>
+   </property>
+  </widget>
+  <widget class="QComboBox" name="year">
+   <property name="geometry">
+    <rect>
+     <x>420</x>
+     <y>330</y>
+     <width>51</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <item>
+    <property name="text">
+     <string>2021</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2022</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2023</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2024</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2025</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2026</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2027</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2028</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2029</string>
+    </property>
+   </item>
+   <item>
+    <property name="text">
+     <string>2030</string>
+    </property>
+   </item>
+  </widget>
+  <widget class="QLabel" name="label_17">
+   <property name="geometry">
+    <rect>
+     <x>420</x>
+     <y>310</y>
+     <width>49</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Год</string>
    </property>
   </widget>
  </widget>
