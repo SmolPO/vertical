@@ -2,6 +2,14 @@
 <ui version="4.0">
  <class>form_new_worker</class>
  <widget class="QWidget" name="form_new_worker">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>586</width>
+    <height>582</height>
+   </rect>
+  </property>
   <property name="windowTitle">
    <string>Новый сотрудник</string>
   </property>

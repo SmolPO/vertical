@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>587</width>
-    <height>563</height>
+    <height>556</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -99,7 +99,7 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>280</y>
+      <y>310</y>
       <width>121</width>
       <height>21</height>
      </rect>
@@ -112,7 +112,7 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>430</y>
+      <y>460</y>
       <width>121</width>
       <height>21</height>
      </rect>
@@ -139,9 +139,9 @@
      <string>Быстрые действия</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b_create_act">
+   <widget class="QPushButton" name="b_act">
     <property name="enabled">
-     <bool>false</bool>
+     <bool>true</bool>
     </property>
     <property name="geometry">
      <rect>
@@ -152,7 +152,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>Оформить исполнительную</string>
+     <string>Исполнительная</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_pass_month">
@@ -251,7 +251,7 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>160</y>
+      <y>130</y>
       <width>181</width>
       <height>24</height>
      </rect>
@@ -318,7 +318,7 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>140</y>
+      <y>110</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -332,27 +332,11 @@
      <string>Бухгалтерия</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="b_new_invoice">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>190</y>
-      <width>181</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Новая накладная</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="ui_l_create">
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>260</y>
+      <y>290</y>
       <width>61</width>
       <height>16</height>
      </rect>
@@ -370,7 +354,7 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>250</y>
+      <y>200</y>
       <width>91</width>
       <height>16</height>
      </rect>
@@ -382,22 +366,6 @@
     </property>
     <property name="text">
      <string>ТБ</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b_send_covid">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>220</x>
-      <y>70</y>
-      <width>181</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Отправить ковид</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_pass_drive">
@@ -433,7 +401,7 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>100</y>
+      <y>70</y>
       <width>181</width>
       <height>24</height>
      </rect>
@@ -446,45 +414,13 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>340</y>
+      <y>370</y>
       <width>121</width>
       <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>Босс</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b_connect">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>490</y>
-      <width>121</width>
-      <height>24</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>Соединение</string>
-    </property>
-   </widget>
-   <widget class="QRadioButton" name="r_connect">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
-    <property name="geometry">
-     <rect>
-      <x>570</x>
-      <y>490</y>
-      <width>21</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string/>
     </property>
    </widget>
    <widget class="QPushButton" name="b_notepad">
@@ -504,7 +440,7 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>310</y>
+      <y>340</y>
       <width>121</width>
       <height>21</height>
      </rect>
@@ -517,7 +453,7 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>460</y>
+      <y>490</y>
       <width>121</width>
       <height>21</height>
      </rect>
@@ -543,7 +479,7 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>370</y>
+      <y>400</y>
       <width>121</width>
       <height>24</height>
      </rect>
@@ -556,7 +492,7 @@
     <property name="geometry">
      <rect>
       <x>440</x>
-      <y>400</y>
+      <y>430</y>
       <width>121</width>
       <height>24</height>
      </rect>
@@ -572,7 +508,7 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>270</y>
+      <y>220</y>
       <width>181</width>
       <height>24</height>
      </rect>
@@ -624,13 +560,26 @@
     <property name="geometry">
      <rect>
       <x>220</x>
-      <y>220</y>
+      <y>160</y>
       <width>181</width>
       <height>24</height>
      </rect>
     </property>
     <property name="text">
      <string>Чек</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="b_empty">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>250</y>
+      <width>121</width>
+      <height>24</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>Бланк</string>
     </property>
    </widget>
   </widget>
