@@ -17,7 +17,7 @@ class GetPass(TempPass):
         self.parent = parent
 
         self.d_from.setDate(dt.datetime.now().date())
-        self.d_to.setDate((Date(*from_str(".".join([str(count_days[dt.datetime.now().month + 1]),
+        self.d_to.setDate((Date(*from_str(".".join([str(count_days[dt.datetime.now().month - 1]),
                                                     str(dt.datetime.now().month),
                                                     str(dt.datetime.now().year)])))))
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5,

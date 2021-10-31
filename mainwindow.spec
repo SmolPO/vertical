@@ -4,7 +4,7 @@
 block_cipher = None
 
 
-a = Analysis(['my_helper\\notebook\\sourse\\mainwindow.py'],
+a = Analysis(['B:\\pythonProject\\vertical\\vertical\\my_helper\\notebook\\sourse\\mainwindow.py'],
              pathex=['B:\\pythonProject\\vertical\\vertical'],
              binaries=[],
              datas=[],

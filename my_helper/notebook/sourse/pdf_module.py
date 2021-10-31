@@ -80,6 +80,7 @@ class PDFModule(QDialog):
                 pdf_merger.append(str(folder + "/" + doc))
         pdf_merger.write(path_to)
         wnd = SendPost(self.parent.db, path_to)
+        wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
         wnd.exec_()
         for doc in files:
             os.remove(str(folder + "/" + doc))

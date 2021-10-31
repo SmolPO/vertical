@@ -89,6 +89,9 @@ class GetMoney(QDialog):
         self.close()
         os.startfile(print_file)
         mes.question(self, "Сообщение", "Запись добавлена", mes.Ok)
+        answer = mes.question(self, "Сообщение", "Отправить бухгалтеру?", mes.Ok | mes.Cancel)
+        if answer == mes.Ok:
+            pass
         self.close()
 
     def ev_cancel(self):

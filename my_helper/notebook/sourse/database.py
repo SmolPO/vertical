@@ -1,15 +1,16 @@
 from my_helper.notebook.sourse.inserts import get_from_db, my_update, add_to_db
 import psycopg2
 from configparser import ConfigParser
-path_conf = "B:/my_config.ini"
-path_text = "B:/texts.ini"
+path_conf = "B:/my_helper/my_config.ini"
 zero = "01.01.2000"
 empty = "(нет)"
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 
+
 class DataBase:
-    def __init__(self):
+    def __init__(self, path):
+        path_conf = path
         self.db = None
         self.conn = None
         self.cursor = None
@@ -154,7 +155,6 @@ class DataBase:
 def get_path(my_type):
     config = ConfigParser()
     config.read(path_conf, encoding="utf-8")
-    print(str(config.get('path', my_type)))
     return str(config.get('path', my_type))
 
 
@@ -182,7 +182,20 @@ def get_path_ui(my_type):
     return get_from_ini("ui_files", "ui_files") + get_from_ini(my_type, "ui_files")
 
 
-def get_text(text):
+def get_next_number():
     config = ConfigParser()
-    config.read(path_text, encoding="utf-8")
-    return config.get("mes", text)
+    config.read(path_conf)
+    number_note = config.get('config', 'number')
+    next_number = int(number_note) + 1
+    return int(number_note)
+
+
+def set_next_number(n):
+    config = ConfigParser()
+    config.read(path_conf)
+    number_note = config.get('config', 'number')
+    next_number = n
+    config.set("config", 'number', str(next_number))
+    with open(path_conf, 'w') as configfile:
+        config.write(configfile)
+    return int(number_note)

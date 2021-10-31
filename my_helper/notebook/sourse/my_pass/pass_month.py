@@ -20,7 +20,7 @@ class MonthPass(TempPass):
         self.b_open.clicked.connect(self.my_open_file)
         self.count_people = 0
         self.d_from.setDate(dt.datetime.now().date())
-        self.d_to.setDate(Date(*from_str(".".join([str(count_days[dt.datetime.now().month + 1]),
+        self.d_to.setDate(Date(*from_str(".".join([str(count_days[dt.datetime.now().month - 1]),
                                                    str(dt.datetime.now().month),
                                                    str(dt.datetime.now().year)]))))
         self.cb_all.stateChanged.connect(self.set_enabled_workers)

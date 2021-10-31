@@ -6,7 +6,7 @@ import datetime as dt
 import os
 import docxtpl
 from configparser import ConfigParser
-from my_helper.notebook.sourse.database import get_path, count_days
+from my_helper.notebook.sourse.database import get_path, count_days, get_next_number, set_next_number
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 #  сделать мессаджбоксы на Сохранить
@@ -162,22 +162,5 @@ class TempPass(QDialog):
 path_conf = "B:/my_config.ini"
 
 
-def get_next_number():
-    config = ConfigParser()
-    config.read(path_conf)
-    number_note = config.get('config', 'number')
-    next_number = int(number_note) + 1
-    return int(number_note)
-
-
-def set_next_number(n):
-    config = ConfigParser()
-    config.read(path_conf)
-    number_note = config.get('config', 'number')
-    next_number = n
-    config.set("config", 'number', str(next_number))
-    with open(path_conf, 'w') as configfile:
-        config.write(configfile)
-    return int(number_note)
 
 

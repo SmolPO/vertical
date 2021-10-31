@@ -1,5 +1,5 @@
 from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QCheckBox, QMessageBox, QAction
+from PyQt5.QtWidgets import QMainWindow, QApplication, QCheckBox, QMessageBox, QAction, QInputDialog
 import sys
 import os
 import requests
@@ -53,6 +53,7 @@ key_for_db = "host=95.163.249.246 dbname=Vertical_db user=office password=9024Eg
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
+        self.path = input()
         try:
             print(get_path("ui_files"))
         except:
@@ -60,7 +61,7 @@ class MainWindow(QMainWindow):
             f.write("нет файла с настройками")
             return
         try:
-            self.db = DataBase()
+            self.db = DataBase(self.path)
             self.db.connect_to_db()
         except:
             f = open("text.txt")
@@ -68,24 +69,28 @@ class MainWindow(QMainWindow):
             return
         uic.loadUi(get_path("path") + get_path("ui_files") + '/main_menu.ui', self)
         print("my_pass")
-        self.b_pass_week.clicked.connect(self.ev_btn_create_pass)
-        self.b_pass_month.clicked.connect(self.ev_btn_create_pass)
-        self.b_pass_auto.clicked.connect(self.ev_btn_create_pass)
-        self.b_pass_drive.clicked.connect(self.ev_btn_create_pass)
-        self.b_pass_unlock.clicked.connect(self.ev_btn_create_pass)
-        self.b_pass_issue.clicked.connect(self.ev_btn_create_pass)
-        self.b_tb.clicked.connect(self.ev_btn_create_pass)
-        # create
-        self.b_new_person.clicked.connect(self.ev_btn_add_to_db)
-        self.b_new_build.clicked.connect(self.ev_btn_add_to_db)
-        self.b_new_boss.clicked.connect(self.ev_btn_add_to_db)
-        self.b_new_itr.clicked.connect(self.ev_btn_add_to_db)
-        self.b_new_invoice.clicked.connect(self.ev_btn_start_file)
-        self.b_new_company.clicked.connect(self.ev_btn_add_to_db)
-        self.b_new_auto.clicked.connect(self.ev_btn_add_to_db)
-        self.b_new_driver.clicked.connect(self.ev_btn_add_to_db)
-        self.b_new_material.clicked.connect(self.ev_btn_add_to_db)
-        self.b_new_bill.clicked.connect(self.ev_btn_add_to_db)
+        self.b_pass_week.clicked.connect(self.start_wnd)
+        self.b_pass_month.clicked.connect(self.start_wnd)
+        self.b_pass_auto.clicked.connect(self.start_wnd)
+        self.b_pass_drive.clicked.connect(self.start_wnd)
+        self.b_pass_unlock.clicked.connect(self.start_wnd)
+        self.b_pass_issue.clicked.connect(self.start_wnd)
+        self.b_tb.clicked.connect(self.start_wnd)
+        self.b_new_person.clicked.connect(self.start_wnd)
+        self.b_new_build.clicked.connect(self.start_wnd)
+        self.b_new_boss.clicked.connect(self.start_wnd)
+        self.b_new_itr.clicked.connect(self.start_wnd)
+        # self.b_new_invoice.clicked.connect(self.start_wnd)
+        self.b_new_company.clicked.connect(self.start_wnd)
+        self.b_new_auto.clicked.connect(self.start_wnd)
+        self.b_new_driver.clicked.connect(self.start_wnd)
+        self.b_new_material.clicked.connect(self.start_wnd)
+        self.b_new_bill.clicked.connect(self.start_wnd)
+        self.b_notepad.clicked.connect(self.start_wnd)
+        self.b_music.clicked.connect(self.start_wnd)
+        self.b_get_money.clicked.connect(self.start_wnd)
+        self.b_act.clicked.connect(self.start_wnd)
+        self.b_pdf_check.clicked.connect(self.start_wnd)
 
         exitAction = QAction('Настройки', self)
         exitAction.setStatusTip('Настройки')
@@ -95,21 +100,14 @@ class MainWindow(QMainWindow):
         fileMenu = menu.addMenu("Настройки")
         fileMenu.addAction(exitAction)
 
-        self.b_act.clicked.connect(self.ev_btn_start_file)
-        self.b_pdf_check.clicked.connect(self.ev_btn_start_file)
         # self.b_connect.clicked.connect(self.ev_connect)
-
+        self.b_empty.clicked.connect(self.ev_btn_start_file)
         self.b_journal.clicked.connect(self.ev_btn_start_file)
         self.b_tabel.clicked.connect(self.ev_btn_start_file)
         self.b_scan.clicked.connect(self.ev_btn_start_file)
         self.b_attorney.clicked.connect(self.ev_btn_start_file)
         self.b_invoice.clicked.connect(self.ev_btn_start_file)
-        # self.cb_builds.activated[str].connect(self.change_build)
-        self.b_notepad.clicked.connect(self.ev_btn_start_file)
-        self.b_music.clicked.connect(self.ev_btn_add_to_db)
-        self.b_get_money.clicked.connect(self.ev_btn_add_to_db)
-        self.b_empty.clicked.connect(self.ev_btn_start_file)
-        # self.menu.setting.settings.exitAction.triggered.connect(self.settings)
+
         self.b_scan.setEnabled(False)
 
         self.get_param_from_widget = None
@@ -118,24 +116,14 @@ class MainWindow(QMainWindow):
         self.customer = get_config("customer")
         self.new_worker = []
         self.data_to_db = None
-
-        # self.ui_l_build.setText(self.current_build)
-        self.config = ConfigParser()
         self.init_notif()
-
-        # Database
-        self.db = DataBase()
-        self.db.connect_to_db()
         self.get_weather()
-        # logging
-
-        logging.debug("This is a debug message")
 
     def ev_settings(self):
         wnd = Settings(self)
         wnd.exec_()
 
-    def ev_btn_create_pass(self):
+    def start_wnd(self):
         name = self.sender().text()
         wnd = None
         if name == "Продление на месяц":
@@ -166,14 +154,60 @@ class MainWindow(QMainWindow):
         elif name == "Распечатать ТБ":
             self.count_people_tb = int()
             wnd = CountPeople(self)
+            wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
             wnd.exec_()
             if self.count_people_tb > 0:
                 wnd = NewTB(self)
+            else:
+                return
         elif name == "Разовый пропуск на машину":
             if self.is_have_some("drivers"):
                 wnd = DrivePass(self)
             else:
                 return
+        elif name == "Блокнот":
+            wnd = Notepad()
+        elif name == "Сайты":
+            wnd = Web(self)
+        elif name == "Исполнительная":
+            wnd = Acts(self)
+        elif name == "Сканер":
+            wnd = PDFModule(self)
+        elif name == "Автомобиль":
+            wnd = NewAuto(self)
+        elif name == "Водитель":
+            wnd = NewDriver(self)
+        elif name == "Босс":
+            wnd = NewBoss(self)
+        elif name == "Договор":
+            data = self.db.get_data("*", "company")
+            if not data:
+                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
+                return
+            wnd = NewContact(self)
+        elif name == "Заказчик":
+            wnd = NewCompany(self)
+        elif name == "Сотрудник":
+            if not self.db.get_data("*", "contracts"):
+                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Объекты", QMessageBox.Ok)
+                return
+            wnd = NewWorker(self)
+        elif name == "Прораб":
+            wnd = NewITR(self)
+        elif name == "Ввоз материалов":
+            if not self.db.get_data("*", "contracts"):
+                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Объекты", QMessageBox.Ok)
+                return
+            wnd = NewMaterial(self)
+        elif name == "Сайты":
+            wnd = Web(self)
+        elif name == "Чек":
+            wnd = NewBill(self)
+        elif name == "Заявка на деньги":
+            wnd = GetMoney(self)
+        else:
+            return
+        wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
         wnd.exec_()
 
     def ev_btn_start_file(self):
@@ -220,58 +254,13 @@ class MainWindow(QMainWindow):
             except:
                 mes.question(self, "Сообщение", "Файл по пути " + path_blank + " не найден", mes.Cancel)
                 return
-        elif name == "Блокнот":
-            wnd = Notepad()
-            wnd.exec_()
-        elif name == "Сайты":
-            wnd = Web(self)
-            wnd.exec_()
-        elif name == "Исполнительная":
-            wnd = Acts(self)
-            wnd.exec_()
-        elif name == "Сканер":
-            wnd = PDFModule(self)
-            wnd.exec_()
         pass
 
     def ev_btn_add_to_db(self):
         name = self.sender().text()
         wnd = None
         table = None
-        if name == "Автомобиль":
-            wnd, table = NewAuto(self), "auto"
-        elif name == "Водитель":
-            wnd, table = NewDriver(self), "drivers"
-        elif name == "Босс":
-            wnd, table = NewBoss(self), "bosses"
-        elif name == "Договор":
-            data = self.db.get_data("*", "company")
-            if not data:
-                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
-                return
-            wnd, table = NewContact(self), "contracts"
-        elif name == "Заказчик":
-            wnd, table = NewCompany(self), "company"
-        elif name == "Сотрудник":
-            if not self.db.get_data("*", "contracts"):
-                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Объекты", QMessageBox.Ok)
-                return
-            wnd, table = NewWorker(self), "workers"
-        elif name == "Прораб":
-            wnd, table = NewITR(self), "itrs"
-        elif name == "Ввоз материалов":
-            if not self.db.get_data("*", "contracts"):
-                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Объекты", QMessageBox.Ok)
-                return
-            wnd, table = NewMaterial(self), "materials"
-        elif name == "Сайты":
-            wnd, table = Web(self), "musics"
-        elif name == "Чек":
-            wnd, table = NewBill(self), "bills"
-        elif name == "Заявка на деньги":
-            wnd, table = GetMoney(self), "finances"
-        else:
-            return
+
         wnd.exec_()
 
     def get_new_data(self, data):
@@ -340,5 +329,6 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ex = MainWindow()
+    ex.setFixedSize(587, 591)
     ex.show()
     sys.exit(app.exec())

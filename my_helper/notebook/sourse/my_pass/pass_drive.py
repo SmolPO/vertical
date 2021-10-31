@@ -2,14 +2,11 @@ from PyQt5.QtCore import Qt
 import datetime as dt
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 from PyQt5.QtWidgets import QMessageBox as mes
-from PyQt5.QtCore import QDate as Date
-from configparser import ConfigParser
 #  сделать мессаджбоксы на Сохранить
-from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui
+from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui, empty
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_driver")
-empty = "(нет)"
 
 
 class DrivePass(TempPass):

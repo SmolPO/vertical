@@ -38,12 +38,15 @@ class Acts(QDialog):
         name = self.sender().text()
         if name == self.b_journal.text():
             wnd = Journal(self)
+            wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
             wnd.exec_()
         elif name == self.b_asr.text():
             wnd = Asr(self, self.contract)
+            wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
             wnd.exec_()
         elif name == self.b_contract.text():
             wnd = Contract(self)
+            wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
             wnd.exec_()
         return
 

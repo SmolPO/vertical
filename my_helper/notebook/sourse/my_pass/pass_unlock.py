@@ -6,7 +6,7 @@ import pymorphy2
 from my_helper.notebook.sourse.database import get_path, get_path_ui, count_days
 from my_helper.notebook.sourse.create.new_template import from_str
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-designer_file = get_path("path") + get_path_ui("pass_unlock")
+designer_file = get_path_ui("pass_unlock")
 
 
 class UnlockPass(TempPass):
@@ -14,7 +14,7 @@ class UnlockPass(TempPass):
         super(UnlockPass, self).__init__(designer_file, parent, "workers")
         # my_pass
         self.d_from.setDate(dt.datetime.now().date())
-        self.d_to.setDate(Date(*from_str(".".join([str(count_days[dt.datetime.now().month + 1]),
+        self.d_to.setDate(Date(*from_str(".".join([str(count_days[dt.datetime.now().month - 1]),
                                                    str(dt.datetime.now().month),
                                                    str(dt.datetime.now().year)]))))
         self.cb_all_days.stateChanged.connect(self.all_days)

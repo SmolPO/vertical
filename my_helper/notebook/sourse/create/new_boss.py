@@ -1,5 +1,6 @@
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
+from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.create.new_template import TempForm
 from my_helper.notebook.sourse.database import get_path_ui
 
@@ -41,6 +42,7 @@ class NewBoss(TempForm):
                        self.name.text(),
                        self.surname.text(),
                        self.post.text()]):
+            mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False
         return True
 
