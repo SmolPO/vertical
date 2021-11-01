@@ -16,7 +16,7 @@ db_keys = {"auto": "(gov_number, brand, model, track_number, id)",
                    "name, surname, post, count_attorney, date_attorney, id)",
            "bosses": "(family, name, surname, post, email, phone, sex, id)",
            "materials": "(name, measure, value, provider, contract, id)",
-           "musics": "(name, link, id)",
+           "links": "(name, link, id)",
            "finance": "(date, value, recipient, comment, id)",
            "bills": "(date, value, buyer, name_file, comment, id)"}
 

@@ -3,7 +3,7 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import QDate as Date
 from my_helper.notebook.sourse.create.new_template import TempForm, from_str
-from my_helper.notebook.sourse.database import get_path_ui, zero
+from my_helper.notebook.sourse.database import get_path_ui, zero, my_errors
 
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_driver")
@@ -17,12 +17,15 @@ class NewDriver(TempForm):
             return
         self.parent = parent
         self.table = "drivers"
-        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
+        try:
+            self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
+        except:
+            mes.question(self, "Внимание", my_errors["5_init_list"], mes.Cancel)
+            return
         self.list_ui = [self.family, self.name, self.surname, self.d_birthday, self.passport, self.adr, ]
         self.slice_set = 3
         self.slice_get = 3
         self.slice_clean = len(self.list_ui)
-        self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
 
     def init_mask(self):

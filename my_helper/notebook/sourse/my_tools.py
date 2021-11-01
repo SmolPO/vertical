@@ -4,13 +4,13 @@ from PyQt5 import uic
 from database import get_path, get_path_ui
 from PyQt5.QtWidgets import QMessageBox as mes
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
-designer_file = get_path_ui("notebook")
+designer_file = get_path_ui("notepad")
 
 
 class Notepad(QDialog):
     def __init__(self, parent=None):
         super(Notepad, self).__init__(parent)
-        if not self.status_:
+        if not self.check_start():
             return
         self.b_close.clicked.connect(self.ev_close)
         self.file_note = get_path("path") + "/notepad.txt"

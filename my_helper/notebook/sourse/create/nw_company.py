@@ -3,7 +3,7 @@ from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.create.new_template import TempForm, from_str
-from my_helper.notebook.sourse.database import get_path_ui, zero
+from my_helper.notebook.sourse.database import get_path_ui, zero, my_errors
 designer_file = get_path_ui("add_company")
 fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank", "family", "name", "surname",
           "post", "count_attorney", "date_attorney", "id"]
@@ -16,7 +16,6 @@ class NewCompany(TempForm):
             return
         self.parent = parent
         self.table = "company"
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.init_mask()
         self.list_ui = [self.company, self.ogrn, self.inn, self.kpp, self.adr,
                         self.bik, self.korbill, self.rbill, self.bank, self.family,
@@ -27,7 +26,11 @@ class NewCompany(TempForm):
         self.slice_select = len(self.list_ui) - 1
         self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
-        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
+        try:
+            self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
+        except:
+            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+            return
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я]{30}"))
@@ -49,8 +52,6 @@ class NewCompany(TempForm):
         return True
 
     def _set_data(self, data):
-        print(data[-2])
-        print(from_str(data[-2]))
         self.date_dovr.setDate(Date(*from_str(data[-2])))
         self.current_id = data[fields.index("id")]
 

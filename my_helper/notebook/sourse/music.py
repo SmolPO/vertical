@@ -13,7 +13,7 @@ class Web(TempForm):
         if not self.status_:
             return
         self.parent = parent
-        self.table = "musics"
+        self.table = "links"
         self.b_start.clicked.connect(self.ev_start)
         self.parent.db.init_list(self.cb_select, "name", self.table)
         self.rows_from_db = self.parent.db.get_data("*", self.table)

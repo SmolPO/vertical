@@ -3,7 +3,7 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
 from my_helper.notebook.sourse.create.new_template import TempForm
-from my_helper.notebook.sourse.database import get_path_ui, empty
+from my_helper.notebook.sourse.database import get_path_ui, empty, my_errors
 
 #  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_auto")
@@ -17,7 +17,6 @@ class NewAuto(TempForm):
             return
         self.parent = parent
         self.table = "auto"
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.is_track.stateChanged.connect(self.have_track)
         self.init_list()
         self.track_number.setEnabled(False)
@@ -25,12 +24,15 @@ class NewAuto(TempForm):
         self.slice_set = len(self.list_ui)
         self.slice_get = len(self.list_ui) - 1
         self.slice_clean = len(self.list_ui)
-        self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
         self.track_number.setText(empty)
 
     def init_list(self):
-        rows = self.parent.db.get_data("id, gov_number, model", self.table)
+        try:
+            rows = self.parent.db.get_data("id, gov_number, model", self.table)
+        except:
+            mes.question(self, "Внимание", my_errors["2_get_data"], mes.Cancel)
+            return
         self.cb_select.addItems([empty])
         if not rows:
             return False

@@ -2,6 +2,7 @@ from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 import datetime as dt
 from PyQt5.QtWidgets import QMessageBox as mes
 import docx
+import logging
 #  сделать мессаджбоксы на Сохранить
 from my_helper.notebook.sourse.database import get_path_ui, empty
 designer_file = get_path_ui("pass_week")
@@ -10,6 +11,8 @@ designer_file = get_path_ui("pass_week")
 class WeekPass(TempPass):
     def __init__(self, parent):
         super(WeekPass, self).__init__(designer_file, parent, "contracts")
+        self.parent = parent
+        self.table = "contracts"
         if not self.status_:
             return
         self.rows_from_db = self.parent.db.get_data("*", self.table)
@@ -54,12 +57,16 @@ class WeekPass(TempPass):
             self.cb_object.addItem(row[0])
 
     def init_boss(self):
-        for people in self.parent.db.get_data("family, name, surname, post", "bosses"):
-            try:
-                family = people[0] + " " + people[1][0] + ". " + people[2][0] + "."
-                self.cb_boss_part.addItem(family)       # брать из БД
-            except:
-                pass
+        try:
+            for people in self.parent.db.get_data("family, name, surname, post", "bosses"):
+                try:
+                    family = people[0] + " " + people[1][0] + ". " + people[2][0] + "."
+                    self.cb_boss_part.addItem(family)       # брать из БД
+                except:
+                    pass
+        except:
+            mes.question(self, "Сообщение", "ERROR: get_data в init_boss", mes.Cancel)
+            return False
 
     def init_workers(self):
         for item in self.list_ui:

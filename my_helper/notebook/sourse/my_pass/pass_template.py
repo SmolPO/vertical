@@ -15,10 +15,9 @@ import logging
 class TempPass(QDialog):
     def __init__(self, designer_file, parent, table):
         super(TempPass, self).__init__()
+        self.parent = parent
         if not self.check_start(designer_file):
             return
-
-        self.parent = parent
         self.table = table
         # my_pass
         self.b_ok.clicked.connect(self.ev_ok)
@@ -40,8 +39,10 @@ class TempPass(QDialog):
     def check_start(self, designer_file):
         self.status_ = True
         self.path_ = designer_file
+        print(designer_file)
         try:
             uic.loadUi(designer_file, self)
+            return True
         except:
             mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
             self.status_ = False

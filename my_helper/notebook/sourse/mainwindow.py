@@ -29,7 +29,7 @@ from my_helper.notebook.sourse.my_pass.pass_get import GetPass
 from my_helper.notebook.sourse.my_pass.pass_auto import AutoPass
 from my_helper.notebook.sourse.my_pass.pass_drive import DrivePass
 from my_helper.notebook.sourse.settings import Settings
-from database import DataBase, get_path, get_config, get_from_ini
+from database import DataBase, get_path, get_config, get_from_ini, my_errors
 from my_tools import Notepad
 from music import Web
 from get_money import GetMoney
@@ -49,27 +49,26 @@ import shutil
 Срок к концу недели
 """
 key_for_db = "host=95.163.249.246 dbname=Vertical_db user=office password=9024EgrGvz#m87Y1"
-# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.path = input()
+        # self.path = input()
+        self.path = "B:/my_helper/my_config.ini"
         try:
             uic.loadUi(get_path("path") + get_path("ui_files") + '/main_menu.ui', self)
         except:
-            mes.question(self, "Сообщение", "Нет файла дизайна " +
+            mes.question(self, "Сообщение", my_errors["1_ui"] +
                          get_path("path") + get_path("ui_files") + '/main_menu.ui', mes.Cancel)
             return
         try:
             self.db = DataBase(self.path)
             self.db.connect_to_db()
         except:
-            mes.question(self, "Сообщение", "Не подключения к Базе данных", mes.Cancel)
+            mes.question(self, "Сообщение", my_errors["3_conn"], mes.Cancel)
             return
-        uic.loadUi(get_path("path") + get_path("ui_files") + '/main_menu.ui', self)
-        print("my_pass")
         self.b_pass_week.clicked.connect(self.start_wnd)
         self.b_pass_month.clicked.connect(self.start_wnd)
         self.b_pass_auto.clicked.connect(self.start_wnd)
@@ -127,37 +126,39 @@ class MainWindow(QMainWindow):
 
     def start_wnd(self):
         name = self.sender().text()
-        wnd = None
-        if name == "Продление на месяц":
-            if self.is_have_some("workers"):
-                wnd = MonthPass(self)
+        trans = {"workers": "рабочих", "auto": "авто", "contracts": "договоры"}
+        forms = {"Продление на месяц": (MonthPass, "workers"),
+                 "Пропуск на выходные": (WeekPass, "workers"),
+                 "Разблокировка пропуска": (UnlockPass, "workers"),
+                 "Выдать пропуск": (GetPass, "workers"),
+                 "Продление на машину": (AutoPass, "auto"),
+                 "Блокнот": (Notepad, None),
+                 "Сайты": (Web, None),
+                 "Исполнительная": (Acts, "contracts"),
+                 "Сканер": (PDFModule, None),
+                 "Автомобиль": (NewAuto, None),
+                 "Водитель": (NewDriver, None),
+                 "Босс": (NewBoss, None),
+                 "Прораб": (NewITR, None),
+                 "Чек": (NewBill, None),
+                 "Заявка на деньги": (GetMoney, None),
+                 "Разовый пропуск на машину": (DrivePass, None)}
+        _wnd = forms.get(name, "")
+        if _wnd:
+            if _wnd[1]:
+                if self.is_have_some(_wnd[1]):
+                    wnd = _wnd[0](self)
+                else:
+                    mes.question(self, "Сообщение", "База данных пока не заполнена. Введите " + trans[_wnd[1]],
+                                 mes.Cancel)
+                    return
             else:
-                return
-        elif name == "Пропуск на выходные":
-            if self.is_have_some("workers"):
-                wnd = WeekPass(self)
-            else:
-                return
-        elif name == "Разблокировка пропуска":
-            if self.is_have_some("workers"):
-                wnd = UnlockPass(self)
-            else:
-                return
-        elif name == "Выдать пропуск":
-            if self.is_have_some("workers"):
-                wnd = GetPass(self)
-            else:
-                return
-        elif name == "Продление на машину":
-            if self.is_have_some("auto"):
-                wnd = AutoPass(self)
-            else:
-                return
+                wnd = _wnd[0](self)
         elif name == "Распечатать ТБ":
             self.count_people_tb = int()
             wnd = CountPeople(self)
             if not wnd._status:
-                mes.question(self, "Сообщение", "Не найден файл дизайна " + wnd._path, mes.Cancel)
+                mes.question(self, "Сообщение", my_errors["1_ui"] + wnd._path, mes.Cancel)
                 return
             wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
             wnd.exec_()
@@ -165,51 +166,6 @@ class MainWindow(QMainWindow):
                 wnd = NewTB(self)
             else:
                 return
-        elif name == "Разовый пропуск на машину":
-            if self.is_have_some("drivers"):
-                wnd = DrivePass(self)
-            else:
-                return
-        elif name == "Блокнот":
-            wnd = Notepad()
-        elif name == "Сайты":
-            wnd = Web(self)
-        elif name == "Исполнительная":
-            wnd = Acts(self)
-        elif name == "Сканер":
-            wnd = PDFModule(self)
-        elif name == "Автомобиль":
-            wnd = NewAuto(self)
-        elif name == "Водитель":
-            wnd = NewDriver(self)
-        elif name == "Босс":
-            wnd = NewBoss(self)
-        elif name == "Договор":
-            data = self.db.get_data("*", "company")
-            if not data:
-                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Заказчика", QMessageBox.Ok)
-                return
-            wnd = NewContact(self)
-        elif name == "Заказчик":
-            wnd = NewCompany(self)
-        elif name == "Сотрудник":
-            if not self.db.get_data("*", "contracts"):
-                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Объекты", QMessageBox.Ok)
-                return
-            wnd = NewWorker(self)
-        elif name == "Прораб":
-            wnd = NewITR(self)
-        elif name == "Ввоз материалов":
-            if not self.db.get_data("*", "contracts"):
-                QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте Объекты", QMessageBox.Ok)
-                return
-            wnd = NewMaterial(self)
-        elif name == "Сайты":
-            wnd = Web(self)
-        elif name == "Чек":
-            wnd = NewBill(self)
-        elif name == "Заявка на деньги":
-            wnd = GetMoney(self)
         elif name == "Журнал-ковид":
             wnd = NewCovid(self)
             wnd.create_covid()
@@ -221,57 +177,24 @@ class MainWindow(QMainWindow):
         else:
             return
         if not wnd.status_:
-            mes.question(self, "Сообщение", "Не найден файл дизайна " + wnd._path, mes.Cancel)
+            mes.question(self, "Сообщение", my_errors["1_ui"] + wnd._path, mes.Cancel)
             return
         wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
         wnd.exec_()
 
     def ev_btn_start_file(self):
+        files = {"Доверенность": "/Доверенность.xlsx", "Накладная": "/Накладная.xlsx", "Бланк": "/Бланк.doc"}
         name = self.sender().text()
-        if name == "Доверенность":
-            try:
-                path = get_path("path") + get_path("path_pat_patterns") + "/attorney.xlsx"
-                os.startfile(path, "print")
-            except:
-                mes.question(self, "Сообщение", "Файл по пути " + path + "не найден", mes.Cancel)
-                return
-        if name == "Сканировать":
-            try:
-                os.startfile(get_path("path_scaner"))
-            except:
-                mes.question(self, "Сообщение", "Сканер не открывается")
-                return
-        elif name == "Накладная":
-            try:
-                path = get_path("path") + get_path("path_pat_patterns") + "/invoice.xlsx"
-                os.startfile(path , "print")
-            except:
-                mes.question(self, "Сообщение", "Файл по пути " + path + "не открывается")
-                return
-        elif name == "Табель":
-            try:
-                path = get_path("path") + get_path("path_pat_patterns") + "/table.xls"
-                os.startfile(path)
-            except:
-                mes.question(self, "Сообщение", "Файл по пути " + path + "не найден", mes.Cancel)
-        elif name == "Бланк":
-            path_blank = ""
-            try:
-                path_blank = get_path("path") + get_path("path_pat_patterns") + "/blank.doc"
-                path_to = get_path("path") + get_path("path_send") + "/" + str(dt.now()) + ".docx"
-                shutil.copy2(path_blank, path_to)
-                os.startfile(path_to)
-            except:
-                mes.question(self, "Сообщение", "Файл по пути " + path_blank + " не найден", mes.Cancel)
-                return
-        pass
-
-    def ev_btn_add_to_db(self):
-        name = self.sender().text()
-        wnd = None
-        table = None
-
-        wnd.exec_()
+        try:
+            path = get_path("path") + get_path("path_pat_patterns") + files[name]
+        except:
+            mes.question(self, "Сообщение", my_errors["2_get_path"], mes.Cancel)
+            return
+        try:
+            os.startfile(path, "print")
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
+            return
 
     def get_new_data(self, data):
         self.data_to_db = data
@@ -313,7 +236,6 @@ class MainWindow(QMainWindow):
             data = res.json()
             city_id = data['list'][0]['id']
         except Exception as e:
-            print("Exception (find):", e)
             self.l_weather.setText("погода")
             self.l_temp.setText("температура")
             pass
@@ -326,7 +248,6 @@ class MainWindow(QMainWindow):
         except Exception as e:
             self.l_weather.setText("погода")
             self.l_temp.setText("температура")
-            print("Exception (weather):", e)
 
     def is_have_some(self, table):
         auto = self.db.get_data("*", table)

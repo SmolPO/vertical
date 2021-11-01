@@ -2,7 +2,7 @@ from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtWidgets import QMessageBox as mes
-from my_helper.notebook.sourse.database import get_path_ui
+from my_helper.notebook.sourse.database import get_path_ui, my_errors, zero, empty
 from my_helper.notebook.sourse.create.new_template import TempForm, from_str
 
 designer_file = get_path_ui("new_itr")
@@ -17,13 +17,16 @@ class NewITR(TempForm):
         self.parent = parent
         self.table = "itrs"
         self.init_mask()
-        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
-        self.parent.db.init_list(self.cb_auto, "*", "auto")
+        try:
+            self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
+            self.parent.db.init_list(self.cb_auto, "*", "auto")
+        except:
+            mes.question(self, "Внимание", my_errors["5_init_list"], mes.Cancel)
+            return
         self.slice_set = 0
         self.slice_get = 0
         self.slice_clean = 0
         self.slice_select = -5
-        self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
         self.list_ui = list()
 
@@ -134,7 +137,6 @@ class NewITR(TempForm):
                       self.promsave.toPlainText(),
                       self.n_ST_p.text(), self.n_ST_c.text(), self.d_ST.text(),
                       self.bday.text()])
-        print(_data)
         return _data
 
     def check_input(self):
@@ -151,7 +153,6 @@ class NewITR(TempForm):
                       self.n_ST_p.text(), self.n_ST_c.text(), self.d_ST.text(),
                       self.promsave.toPlainText(),
                       self.bday.text()])
-        print(_data)
         if "" in _data or zero in _data or empty in _data:
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
             return False

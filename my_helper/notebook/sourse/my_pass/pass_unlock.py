@@ -14,6 +14,7 @@ class UnlockPass(TempPass):
         super(UnlockPass, self).__init__(designer_file, parent, "workers")
         if not self.status_:
             return
+        self.parent = parent
         # my_pass
         self.d_from.setDate(dt.datetime.now().date())
         self.d_to.setDate(Date(*from_str(".".join([str(count_days[dt.datetime.now().month - 1]),

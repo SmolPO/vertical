@@ -5,7 +5,7 @@ from PyQt5 import uic
 import docx
 import docxtpl
 import os
-from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui, zero
+from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui, zero, my_errors
 designer_file = get_path_ui("new_TB")
 types_docs = {"1": "/ot_doc.docx", "2": "/ptm_doc.docx", "3": "/eb_doc.docx"}
 types_card = {"1": "/ot_card.docx", "2": "/ptm_card.docx", "3": "/es_card.docx"}
@@ -17,13 +17,11 @@ class NewTB(QDialog):
         if not self.check_start():
             return
             # my_pass
-        uic.loadUi(designer_file, self)
         self.parent = parent
         self.table = "workers"
         self.count = self.parent.count_people_tb
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.path = dict()
         self.path["main_folder"] = get_path("path") + get_path("path_pat_tb")
         self.path["print_folder"] = get_path("path") + get_path("path_tb")
@@ -93,33 +91,60 @@ class NewTB(QDialog):
             data["number"] = worker[21]
             data["date"] = worker[22]
             for name in types_card.keys():
-                doc = docxtpl.DocxTemplate(self.path["main_folder"] + types_card[name])
+                try:
+                    path = self.path["main_folder"] + types_card[name]
+                    doc = docxtpl.DocxTemplate(path)
+                except:
+                    mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
+                    return
                 doc.render(self.data)
                 try:
-                    doc.save(self.path["print_folder"] + types_card[name])
+                    path = self.path["print_folder"] + types_card[name]
+                    doc.save(path)
                 except:
+                    mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
                     self.close()
-                os.startfile(self.path["print_folder"] + types_card[name], "print")
+                    return
+                try:
+                    os.startfile(path, "print")
+                except:
+                    mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
+                    self.close()
+                    return
 
     def print_doc(self, workers, number_type):
         data = dict()
         data["date"] = workers[7] + "/" + str(number_type)  # номер столбца с датой
         data["number_doc"] = workers[6]  # номер протокол
         self.create_table(workers, number_type)
-        doc = docxtpl.DocxTemplate(self.path["main_folder"] + types_docs[number_type])
+        try:
+            path = self.path["main_folder"] + types_docs[number_type]
+            doc = docxtpl.DocxTemplate(path)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
+            self.close()
+            return
         doc.render(self.data)
         try:
             doc.save(self.path["print_folder"] + types_docs[number_type])
         except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
             self.close()
-
-        os.startfile(self.print_file)
+        try:
+            os.startfile(self.print_file)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + self.print_file, mes.Cancel)
+            self.close()
         return
 
     def create_table(self, data, number_type):
         g = iter(range(len(data)))
-        print(data)
-        doc = docx.Document(self.path["main_folder"] + types_docs[number_type])
+        try:
+            path = self.path["main_folder"] + types_docs[number_type]
+            doc = docx.Document(path)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
+            return
         for item in data:
             i = next(g)
             doc.tables[0].add_row()
@@ -127,20 +152,29 @@ class NewTB(QDialog):
             doc.tables[0].rows[i].cells[1].text = " ".join(item[:3]) # ФИО
             doc.tables[0].rows[i].cells[2].text = item[3]   # профессия
             doc.tables[0].rows[i].cells[3].text = "Сдал №" + item[5]
-        doc.save(self.path["print_folder"] + types_docs[number_type])
+        try:
+            path = self.path["print_folder"] + types_docs[number_type]
+            doc.save(path)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
+            return
 
 
 class CountPeople(QDialog):
     def __init__(self, parent=None):
         super(CountPeople, self).__init__(parent)
-        ui_file = get_path_ui("count")
+        if not self.check_start():
+            return
         # my_pass
-        uic.loadUi(ui_file, self)
         self.parent = parent
         self.table = "workers"
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
-        count_people = len(self.parent.db.get_data("*", self.table))
+        try:
+            count_people = len(self.parent.db.get_data("*", self.table))
+        except:
+            mes.question(self, "Сообщение", my_errors["2_get_path"], mes.Cancel)
+            return
         self.count.setMaximum(count_people)
         print(count_people)
 
@@ -152,3 +186,17 @@ class CountPeople(QDialog):
     def ev_cancel(self):
         self.parent.count_people_tb = -1
         self.close()
+
+    def check_start(self):
+        self.status_ = True
+        try:
+            self.path_ = get_path_ui("count")
+        except:
+            mes.question(self, "Сообщение", my_errors["2_get_path"] + self.path_, mes.Cancel)
+            return False
+        try:
+            uic.loadUi(self.path_, self)
+        except:
+            mes.question(self, "Сообщение", my_errors["1_ui"] + self.path_, mes.Cancel)
+            self.status_ = False
+            return False

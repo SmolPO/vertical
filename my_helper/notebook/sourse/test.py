@@ -19,7 +19,7 @@ list_db_ = ["CREATE TABLE contracts (name text, customer text, number text, date
                "place text, id text)",
             "CREATE TABLE bosses (family text, name text, surname text, post text, email text, phone text, sex text,"
             " id text)",
-            "CREATE TABLE musics (name text, link text, id text)",
+            "CREATE TABLE links (name text, link text, id text)",
             "CREATE TABLE materials (name text, measure text, value text, provider text, contract text, id text)",
             "CREATE TABLE workers (family text, name text, surname text, birthday text, post text, phone text, "
             "passport text, passport_got text, adr text, live_adr text, inn text, snils text, numb_contract text, "

@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QDialog
 import my_helper.notebook.sourse.inserts as ins
 from PyQt5.QtWidgets import QMessageBox as mes
 import logging
-from my_helper.notebook.sourse.database import empty
+from my_helper.notebook.sourse.database import empty, my_errors
 
 
 class TempForm (QDialog):
@@ -17,12 +17,23 @@ class TempForm (QDialog):
         self.b_change.clicked.connect(self.ev_change)
         self.cb_select.activated[str].connect(self.ev_select)
         self.but_status("add")
+        try:
+            self.rows_from_db = self.parent.db.get_data("*", self.table)
+        except:
+            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+            return
+        try:
+            self.next_id = self.parent.db.get_next_id(self.table)
+        except:
+            mes.question(self, "Внимание", my_errors["6_get_next_id"], mes.Cancel)
+            return
 
     def check_start(self, designer_file):
         self.status_ = True
         self.path_ = designer_file
         try:
             uic.loadUi(designer_file, self)
+            return True
         except:
             mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
             self.status_ = False
@@ -36,7 +47,10 @@ class TempForm (QDialog):
         data = self.get_data()
         if not data:
             return
-        self.parent.db.my_commit(ins.add_to_db(data, self.table))
+        try:
+            self.parent.db.my_commit(ins.add_to_db(data, self.table))
+        except:
+            mes.question(self, "Сообщение", my_errors["7_commit"], mes.Ok)
         mes.question(self, "Сообщение", "Запись добавлена", mes.Ok)
         self.close()
 

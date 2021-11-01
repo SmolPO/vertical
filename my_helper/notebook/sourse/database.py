@@ -7,6 +7,14 @@ empty = "(нет)"
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 statues = ["работает", "отпуск", "уволен"]
+my_errors = {"1_ui": "Не открывается файл дизайна",
+             "2_get_path": "Не удалось получить данные из get_path",
+             "3_conn": "Нет подключения к базе данных",
+             "4_not_file": " Файл не найден",
+             "5_init_list": "Не удалось получить данные из Базы данных",
+             "6_get_next_id": "Не удлось получить следущий номер",
+             "7_commit": "Не удалось добавить данные в базу данных",
+             "8_get_data": "Не удалось получить данные из get_data"}
 
 
 class DataBase:
@@ -59,6 +67,7 @@ class DataBase:
         rows = self.get_data("id", table)
         if not rows:
             return 1
+        return 1
         return int(max(rows)[0]) + 1
 
     def my_commit(self, data):
@@ -203,4 +212,4 @@ def set_next_number(n):
 
 
 def short_name(data):
-    return data[0] + " " + data[1] + "." + data[2] + "."
+    return data[0] + " " + data[1][0] + "." + data[2][0] + "."

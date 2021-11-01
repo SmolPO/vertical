@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 from datetime import datetime as dt
 import os
 import openpyxl
-from my_helper.notebook.sourse.database import get_path, get_path_ui, empty, zero
+from my_helper.notebook.sourse.database import get_path, get_path_ui, empty, zero, my_errors
 from my_helper.notebook.sourse.create.new_template import TempForm, from_str, set_cb_text
 #  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_bill")
@@ -18,14 +18,16 @@ class NewBill(TempForm):
         self.parent = parent
         self.table = "bills"
         self.b_bill.clicked.connect(self.ev_bill)
-        self.parent.db.init_list(self.cb_buyer, "*", "itrs", people=True)
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
+        try:
+            self.parent.db.init_list(self.cb_buyer, "*", "itrs", people=True)
+        except:
+            QMessageBox.question(self, "Внимание", my_errors["5_init_list"], QMessageBox.Cancel)
+            return
         self.slice_select = 10
         self.slice_set = 0
         self.slice_get = 0
         self.slice_clean = 0
         self.list_ui = list()
-        self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
         self.date.setDate(dt.now().date())
         self.init_operations()

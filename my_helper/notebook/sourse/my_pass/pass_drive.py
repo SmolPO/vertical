@@ -3,7 +3,7 @@ import datetime as dt
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 from PyQt5.QtWidgets import QMessageBox as mes
 #  сделать мессаджбоксы на Сохранить
-from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui, empty
+from my_helper.notebook.sourse.database import DataBase, get_path, get_path_ui, empty, my_errors
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_driver")
@@ -39,7 +39,11 @@ class DrivePass(TempPass):
     # инициализация
     def init_drivers(self):
         self.cb_drivers.addItem(empty)
-        people = self.parent.db.get_data("family, name", self.table)
+        try:
+            people = self.parent.db.get_data("family, name", self.table)
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return False
         if not people:
             return
         for row in people:
@@ -47,7 +51,11 @@ class DrivePass(TempPass):
 
     def init_auto(self):
         self.cb_auto.addItem(empty)
-        auto = self.parent.db.get_data("gov_number", "auto")
+        try:
+            auto = self.parent.db.get_data("gov_number", "auto")
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return False
         if not auto:
             return
         for row in auto:
@@ -55,7 +63,11 @@ class DrivePass(TempPass):
 
     def init_contracts(self):
         self.cb_contracts.addItem(empty)
-        contracts = self.parent.db.get_data("name", "contracts")
+        try:
+            contracts = self.parent.db.get_data("name", "contracts")
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return False
         if not contracts:
             return
         for row in contracts:
@@ -76,7 +88,12 @@ class DrivePass(TempPass):
         self.change_note()
 
     def contract_changed(self):
-        for row in self.parent.db.get_data("*", "contracts"):
+        try:
+            rows = self.parent.db.get_data("*", "contracts")
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return False
+        for row in rows:
             if self.cb_contracts.currentText() == row[0]:
                 self.work = " ".join(row[4:7])
                 self.contract = " от ".join(row[2:4])
@@ -110,7 +127,12 @@ class DrivePass(TempPass):
             self.cb_contracts.setEnabled(True)
 
     def auto_changed(self):
-        for row in self.parent.db.get_data("*", "auto"):
+        try:
+            rows = self.parent.db.get_data("*", "auto")
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return False
+        for row in rows:
             print(self.cb_auto.currentText(), row[0])
             if self.cb_auto.currentText() == row[0]:
                 self.data["auto"] = " ".join(row[1:3])
@@ -118,7 +140,11 @@ class DrivePass(TempPass):
                 self.data["track"] = " " if row[-2] == empty else "п/п " + row[-2]
 
     def driver_changed(self):
-        people = self.parent.db.get_data("*", self.table)
+        try:
+            people = self.parent.db.get_data("*", self.table)
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return False
         if not people:
             return
         for row in people:

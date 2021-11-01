@@ -3,8 +3,9 @@ from PyQt5.QtCore import Qt
 import datetime as dt
 import os
 import docxtpl
+from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-from my_helper.notebook.sourse.database import get_path, get_path_ui, get_config, empty, count_days
+from my_helper.notebook.sourse.database import get_path, get_path_ui, get_config, empty, count_days, my_errors
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_auto")
@@ -29,12 +30,20 @@ class AutoPass(TempPass):
         self.list_ui = list([self.driver_1, self.driver_2, self.driver_3, self.driver_4,
                              self.driver_5, self.driver_6, self.driver_7])
         self.count = 0
-        self.main_file = get_path("path") + get_path("path_pat_notes") + "/pass_auto.docx"
-        self.print_file = get_path("path") + get_path("path_notes_docs")
+        try:
+            self.main_file = get_path("path") + get_path("path_pat_notes") + "/pass_auto.docx"
+            self.print_file = get_path("path") + get_path("path_notes_docs")
+        except:
+            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+            return
 
     # инициализация
     def init_drivers(self):
-        drivers = self.parent.db.get_data("family, name", self.table)
+        try:
+            drivers = self.parent.db.get_data("family, name", self.table)
+        except:
+            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+            return False
         for item in self.list_ui:
             item.addItem(empty)
         for row in drivers:
@@ -44,14 +53,22 @@ class AutoPass(TempPass):
 
     def init_auto(self):
         auto = list()
-        auto = self.parent.db.get_data("model, gov_number", "auto")
+        try:
+            auto = self.parent.db.get_data("model, gov_number", "auto")
+        except:
+            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+            return False
         auto.append([empty])
         for row in auto:
             self.cb_auto.addItem(row[0])
 
     # для заполнения текста
     def get_data(self):
-        rows = self.parent.db.get_data("*", "auto")
+        try:
+            rows = self.parent.db.get_data("*", "auto")
+        except:
+            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+            return False
         for row in rows:
             if self.cb_auto.currentText() in row:
                 self.data["auto"].append(" ".join(row[:2]))
@@ -71,13 +88,22 @@ class AutoPass(TempPass):
     def ev_ok(self):
         if not self.get_data():
             return
-        doc = docxtpl.DocxTemplate(self.main_file)
+        try:
+            doc = docxtpl.DocxTemplate(self.main_file)
+        except:
+            mes.question(self, "Внимание", my_errors["4_not_file"] + self.main_file, mes.Cancel)
+            return False
         doc.render(self.data)
         try:
             doc.save(self.print_file)
         except:
-            self.close()
-        os.startfile(self.print_file)
+            mes.question(self, "Внимание", my_errors["4_not_file"] + self.print_file, mes.Cancel)
+            return False
+        try:
+            os.startfile(self.print_file)
+        except:
+            mes.question(self, "Внимание", my_errors["4_not_file"] + self.print_file, mes.Cancel)
+            return False
 
     def _set_enabled(self, status):
         self.d_note.setEnabled(status)

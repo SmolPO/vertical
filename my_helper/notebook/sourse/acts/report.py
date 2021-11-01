@@ -35,6 +35,7 @@ class CreateReport(QDialog):
         self.path_ = designer_file
         try:
             uic.loadUi(designer_file, self)
+            return True
         except:
             mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
             self.status_ = False

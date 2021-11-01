@@ -4,7 +4,7 @@ import datetime as dt
 import docx
 import logging
 from my_helper.notebook.sourse.create.new_template import from_str
-from my_helper.notebook.sourse.database import get_path_ui, count_days
+from my_helper.notebook.sourse.database import get_path_ui, count_days, my_errors
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_get")
@@ -31,7 +31,11 @@ class GetPass(TempPass):
         self.init_contracts()
 
     def init_contracts(self):
-        contracts = self.parent.db.get_data("id, name", "contracts")
+        try:
+            contracts = self.parent.db.get_data("id, name", "contracts")
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return False
         if not contracts:
             return False
         for row in contracts:
@@ -44,8 +48,12 @@ class GetPass(TempPass):
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
-        people = self.parent.db.get_data("family, name, surname, post, passport, "
+        try:
+            people = self.parent.db.get_data("family, name, surname, post, passport, "
                                          "passport_got, birthday, adr,  live_adr", "workers")
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return False
         if not people:
             return False
         for name in people:
@@ -61,7 +69,12 @@ class GetPass(TempPass):
         self.data["end_date"] = self.d_to.text()
         self.data["customer"] = self.parent.customer
         self.data["company"] = self.parent.company
-        for contract in self.parent.db.get_data("id, number, date", "contracts"):
+        try:
+            rows = self.parent.db.get_data("id, number, date", "contracts")
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return False
+        for contract in rows:
             if self.cb_contract.currentText().split(".")[0] == str(contract[0]):
                 self.data["contract"] = contract[1]
                 self.data["date_contract"] = contract[2]

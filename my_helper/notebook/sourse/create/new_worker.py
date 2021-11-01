@@ -3,7 +3,7 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
-from my_helper.notebook.sourse.database import get_path_ui, zero, empty, statues
+from my_helper.notebook.sourse.database import get_path_ui, zero, empty, statues, my_errors
 from my_helper.notebook.sourse.create.new_template import TempForm, from_str
 designer_file = get_path_ui("new_worker")
 
@@ -19,13 +19,16 @@ class NewWorker(TempForm):
         self.cb_auto.stateChanged.connect(self.ev_auto)
         self.cb_contract.activated[str].connect(self.select_contract)
         self.init_mask()
-        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
-        self.parent.db.init_list(self.cb_contract, "name", "contracts")
+        try:
+            self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
+            self.parent.db.init_list(self.cb_contract, "name", "contracts")
+        except:
+            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+            return
         self.slice_set = 0
         self.slice_get = 0
         self.slice_clean = 0
         self.slice_select = -5
-        self.next_id = self.parent.db.get_next_id(self.table)
         self.current_id = self.next_id
         self.list_ui = list()
         self.auto_numbers = ()
