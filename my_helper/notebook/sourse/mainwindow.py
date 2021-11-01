@@ -14,6 +14,8 @@ from my_helper.notebook.sourse.create.nw_company import NewCompany
 from my_helper.notebook.sourse.create.new_auto import NewAuto
 from my_helper.notebook.sourse.create.new_driver import NewDriver
 from my_helper.notebook.sourse.create.new_bill import NewBill
+from my_helper.notebook.sourse.covid19 import NewCovid
+from my_helper.notebook.sourse.table import NewTable
 from pdf_module import PDFModule
 from my_helper.notebook.sourse.create.new_contract import NewContact
 from my_helper.notebook.sourse.create.material import NewMaterial
@@ -55,17 +57,16 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.path = input()
         try:
-            print(get_path("ui_files"))
+            uic.loadUi(get_path("path") + get_path("ui_files") + '/main_menu.ui', self)
         except:
-            f = open("text.txt")
-            f.write("нет файла с настройками")
+            mes.question(self, "Сообщение", "Нет файла дизайна " +
+                         get_path("path") + get_path("ui_files") + '/main_menu.ui', mes.Cancel)
             return
         try:
             self.db = DataBase(self.path)
             self.db.connect_to_db()
         except:
-            f = open("text.txt")
-            f.write("нет связи с базой данных")
+            mes.question(self, "Сообщение", "Не подключения к Базе данных", mes.Cancel)
             return
         uic.loadUi(get_path("path") + get_path("ui_files") + '/main_menu.ui', self)
         print("my_pass")
@@ -91,6 +92,8 @@ class MainWindow(QMainWindow):
         self.b_get_money.clicked.connect(self.start_wnd)
         self.b_act.clicked.connect(self.start_wnd)
         self.b_pdf_check.clicked.connect(self.start_wnd)
+        self.b_journal.clicked.connect(self.start_wnd)
+        self.b_tabel.clicked.connect(self.start_wnd)
 
         exitAction = QAction('Настройки', self)
         exitAction.setStatusTip('Настройки')
@@ -102,8 +105,7 @@ class MainWindow(QMainWindow):
 
         # self.b_connect.clicked.connect(self.ev_connect)
         self.b_empty.clicked.connect(self.ev_btn_start_file)
-        self.b_journal.clicked.connect(self.ev_btn_start_file)
-        self.b_tabel.clicked.connect(self.ev_btn_start_file)
+
         self.b_scan.clicked.connect(self.ev_btn_start_file)
         self.b_attorney.clicked.connect(self.ev_btn_start_file)
         self.b_invoice.clicked.connect(self.ev_btn_start_file)
@@ -154,6 +156,9 @@ class MainWindow(QMainWindow):
         elif name == "Распечатать ТБ":
             self.count_people_tb = int()
             wnd = CountPeople(self)
+            if not wnd._status:
+                mes.question(self, "Сообщение", "Не найден файл дизайна " + wnd._path, mes.Cancel)
+                return
             wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
             wnd.exec_()
             if self.count_people_tb > 0:
@@ -205,7 +210,18 @@ class MainWindow(QMainWindow):
             wnd = NewBill(self)
         elif name == "Заявка на деньги":
             wnd = GetMoney(self)
+        elif name == "Журнал-ковид":
+            wnd = NewCovid(self)
+            wnd.create_covid()
+            return
+        elif name == "Табель":
+            wnd = NewTable(self)
+            wnd.create_table()
+            return
         else:
+            return
+        if not wnd.status_:
+            mes.question(self, "Сообщение", "Не найден файл дизайна " + wnd._path, mes.Cancel)
             return
         wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
         wnd.exec_()
@@ -232,12 +248,6 @@ class MainWindow(QMainWindow):
             except:
                 mes.question(self, "Сообщение", "Файл по пути " + path + "не открывается")
                 return
-        elif name == "Журнал-ковид":
-            try:
-                path = get_path("path") + get_path("path_pat_patterns") + "/covid.xls"
-                os.startfile(path, "print")
-            except:
-                mes.question(self, "Сообщение", "Файл по пути " + path + "не открывается")
         elif name == "Табель":
             try:
                 path = get_path("path") + get_path("path_pat_patterns") + "/table.xls"

@@ -11,6 +11,8 @@ designer_file = get_path_ui("new_itr")
 class NewITR(TempForm):
     def __init__(self, parent):
         super(NewITR, self).__init__(designer_file)
+        if not self.status_:
+            return
         # my_pass
         self.parent = parent
         self.table = "itrs"

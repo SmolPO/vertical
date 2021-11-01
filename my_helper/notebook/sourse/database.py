@@ -6,6 +6,7 @@ zero = "01.01.2000"
 empty = "(нет)"
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
+statues = ["работает", "отпуск", "уволен"]
 
 
 class DataBase:
@@ -199,3 +200,7 @@ def set_next_number(n):
     with open(path_conf, 'w') as configfile:
         config.write(configfile)
     return int(number_note)
+
+
+def short_name(data):
+    return data[0] + " " + data[1] + "." + data[2] + "."

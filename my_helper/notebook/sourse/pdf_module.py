@@ -22,10 +22,21 @@ class PDFModule(QDialog):
     def __init__(self, parent):
         super(PDFModule, self).__init__()
         self.parent = parent
-        uic.loadUi(designer_file_pdf, self)
+        if not self.check_start():
+            return
         self.b_covid.clicked.connect(self.ev_covid)
         self.b_note.clicked.connect(self.ev_note)
         self.b_other.clicked.connect(self.ev_open)
+
+    def check_start(self):
+        self.status_ = True
+        self.path_ = designer_file_pdf
+        try:
+            uic.loadUi(designer_file_pdf, self)
+        except:
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file_pdf, mes.Cancel)
+            self.status_ = False
+            return False
 
     def ev_covid(self):
         path_file = self.check_input_c19()
@@ -80,6 +91,9 @@ class PDFModule(QDialog):
                 pdf_merger.append(str(folder + "/" + doc))
         pdf_merger.write(path_to)
         wnd = SendPost(self.parent.db, path_to)
+        if not wnd.status_:
+            mes.question(self, "Сообщение", "Не найден файл дизайна " + wnd._path, mes.Cancel)
+            return
         wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
         wnd.exec_()
         for doc in files:
@@ -92,7 +106,8 @@ class PDFModule(QDialog):
 class SendPost(QDialog):
     def __init__(self, db, path):
         super(SendPost, self).__init__()
-        uic.loadUi(designer_file_email, self)
+        if not self.check_start():
+            return
         self.db = db
         self.b_ok.clicked.connect(self.ev_send)
         self.b_cancel.clicked.connect(self.ev_cancel)
@@ -101,6 +116,16 @@ class SendPost(QDialog):
         self.sub = ""
         self.to_email = ""
         self.body_text = ""
+
+    def check_start(self):
+        self.status_ = True
+        self.path_ = designer_file_email
+        try:
+            uic.loadUi(designer_file_email, self)
+        except:
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file_email, mes.Cancel)
+            self.status_ = False
+            return False
 
     def ev_send(self):
         self.my_sub = self.topic.text()

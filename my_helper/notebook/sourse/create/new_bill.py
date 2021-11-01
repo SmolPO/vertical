@@ -13,6 +13,8 @@ designer_file = get_path_ui("new_bill")
 class NewBill(TempForm):
     def __init__(self, parent):
         super(NewBill, self).__init__(designer_file)
+        if not self.status_:
+            return
         self.parent = parent
         self.table = "bills"
         self.b_bill.clicked.connect(self.ev_bill)

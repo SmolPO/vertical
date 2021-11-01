@@ -12,6 +12,8 @@ designer_file = get_path_ui("materials")
 class NewMaterial(TempForm):
     def __init__(self, parent=None):
         super(NewMaterial, self).__init__(designer_file)
+        if not self.status_:
+            return
         self.parent = parent
         self.table = "materials"
         self.provider_ = ""

@@ -10,7 +10,8 @@ designer_file = get_path_ui("journal")
 class Journal(QDialog):
     def __init__(self, parent):
         super(Journal, self).__init__()
-        uic.loadUi(designer_file, self)
+        if not self.check_start():
+            return
         self.parent = parent
         self.b_print.clicked.connect(self.ev_print)
         self.count_p2 = 0
@@ -18,6 +19,16 @@ class Journal(QDialog):
         self.path = get_path("path") + get_path("path_pat_patterns") + "/journal.docx"
         self.data = dict()
         self.init_bosses()
+
+    def check_start(self):
+        self.status_ = True
+        self.path_ = designer_file
+        try:
+            uic.loadUi(designer_file, self)
+        except:
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            self.status_ = False
+            return False
 
     def init_bosses(self):
         self.parent.parent.db.init_list(self.boss_1, "id, family, name, surname", "itrs", people=True)

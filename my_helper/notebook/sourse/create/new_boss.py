@@ -11,6 +11,8 @@ fields = ["family", "name", "surname", "post", "email", "phone", "id"]
 class NewBoss(TempForm):
     def __init__(self, parent):
         super(NewBoss, self).__init__(designer_file)
+        if not self.status_:
+            return
         self.parent = parent
         self.table = "bosses"
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)

@@ -14,7 +14,9 @@ types_card = {"1": "/ot_card.docx", "2": "/ptm_card.docx", "3": "/es_card.docx"}
 class NewTB(QDialog):
     def __init__(self, parent=None):
         super(NewTB, self).__init__()
-        # my_pass
+        if not self.check_start():
+            return
+            # my_pass
         uic.loadUi(designer_file, self)
         self.parent = parent
         self.table = "workers"
@@ -27,6 +29,16 @@ class NewTB(QDialog):
         self.path["print_folder"] = get_path("path") + get_path("path_tb")
         self.list_ui = list()
         self.init_list()
+
+    def check_start(self):
+        self.status_ = True
+        self.path_ = designer_file
+        try:
+            uic.loadUi(designer_file, self)
+        except:
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            self.status_ = False
+            return False
 
     def init_list(self):
         g = iter(range(self.count + 1))

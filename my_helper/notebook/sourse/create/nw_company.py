@@ -12,6 +12,8 @@ fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "ba
 class NewCompany(TempForm):
     def __init__(self, parent=None):
         super(NewCompany, self).__init__(designer_file)
+        if not self.status_:
+            return
         self.parent = parent
         self.table = "company"
         self.rows_from_db = self.parent.db.get_data("*", self.table)

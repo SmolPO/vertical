@@ -12,7 +12,8 @@ designer_file = get_path_ui("pass_driver")
 class DrivePass(TempPass):
     def __init__(self, parent):
         super(DrivePass, self).__init__(designer_file, parent, "drivers")
-
+        if not self.status_:
+            return
         self.cb_contracts.activated[str].connect(self.contract_changed)
         self.cb_auto.activated[str].connect(self.auto_changed)
         self.cb_drivers.activated[str].connect(self.driver_changed)

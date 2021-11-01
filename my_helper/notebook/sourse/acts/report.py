@@ -8,10 +8,12 @@ from my_helper.notebook.sourse.database import get_path_ui, get_path, get_config
 designer_file = get_path_ui("create_report")
 idx_table = 25
 
+
 class CreateReport(QDialog):
     def __init__(self, parent):
         super(CreateReport, self).__init__()
-        uic.loadUi(designer_file, self)
+        if not self.check_start():
+            return
         self.parent = parent
         self.b_ok.clicked.connect(self.ev_ok)
         self.count_p2 = 0
@@ -27,6 +29,16 @@ class CreateReport(QDialog):
                         [self.stor_1, self.stor_2, self.stor_3, self.stor_4]]
         self.init_bosses()
         self.init_contract()
+
+    def check_start(self):
+        self.status_ = True
+        self.path_ = designer_file
+        try:
+            uic.loadUi(designer_file, self)
+        except:
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            self.status_ = False
+            return False
 
     def init_bosses(self):
         for item in self.list_ui:

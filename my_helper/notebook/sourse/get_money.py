@@ -16,7 +16,8 @@ designer_file = get_path_ui("get_money")
 class GetMoney(QDialog):
     def __init__(self, parent):
         super(GetMoney, self).__init__()
-        uic.loadUi(designer_file, self)
+        if not self.check_start():
+            return
         # my_pass
         self.parent = parent
         self.table = "finance"
@@ -56,6 +57,15 @@ class GetMoney(QDialog):
         self.main_file = get_path("path") + get_path("path_pat_notes") + get_from_ini("get_money", "patterns")
         self.print_folder = get_path("path") + get_path("path_bills") + "/" + str(dt.datetime.now().year) + \
                                                                         "/" + str(dt.datetime.now().month)
+    def check_start(self):
+        self.status_ = True
+        self.path_ = designer_file
+        try:
+            uic.loadUi(designer_file, self)
+        except:
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            self.status_ = False
+            return False
 
     def ev_ok(self):
         if not self.check_input():

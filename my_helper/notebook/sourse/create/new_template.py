@@ -9,13 +9,24 @@ from my_helper.notebook.sourse.database import empty
 class TempForm (QDialog):
     def __init__(self, designer_file):
         super(TempForm, self).__init__()
-        uic.loadUi(designer_file, self)
+        if not self.check_start(designer_file):
+            return
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_kill.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
         self.cb_select.activated[str].connect(self.ev_select)
         self.but_status("add")
+
+    def check_start(self, designer_file):
+        self.status_ = True
+        self.path_ = designer_file
+        try:
+            uic.loadUi(designer_file, self)
+        except:
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            self.status_ = False
+            return False
 
     def ev_ok(self):
         if not self.check_input():

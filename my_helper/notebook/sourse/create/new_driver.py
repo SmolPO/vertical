@@ -13,6 +13,8 @@ fields = ["family", "name", "surname", "birthday", "passport", "id"]
 class NewDriver(TempForm):
     def __init__(self, parent=None):
         super(NewDriver, self).__init__(designer_file)
+        if not self.status_:
+            return
         self.parent = parent
         self.table = "drivers"
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)

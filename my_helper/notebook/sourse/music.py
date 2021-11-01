@@ -10,6 +10,8 @@ designer_file = get_path_ui("web")
 class Web(TempForm):
     def __init__(self, parent=None):
         super(Web, self).__init__(designer_file)
+        if not self.status_:
+            return
         self.parent = parent
         self.table = "musics"
         self.b_start.clicked.connect(self.ev_start)

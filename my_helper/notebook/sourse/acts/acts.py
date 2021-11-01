@@ -13,6 +13,8 @@ designer_file = get_path_ui("acts")
 class Acts(QDialog):
     def __init__(self, parent):
         super(Acts, self).__init__()
+        if not self.check_start():
+            return
         self.parent = parent
         uic.loadUi(designer_file, self)
         self.b_journal.clicked.connect(self.ev_start)
@@ -29,6 +31,16 @@ class Acts(QDialog):
         self.contract = ""
         self.init_contracts()
 
+    def check_start(self):
+        self.status_ = True
+        self.path_ = designer_file
+        try:
+            uic.loadUi(designer_file, self)
+        except:
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            self.status_ = False
+            return False
+
     def init_contracts(self):
         rows = self.parent.db.get_data("id, number", "contracts")
         for item in rows:
@@ -38,16 +50,18 @@ class Acts(QDialog):
         name = self.sender().text()
         if name == self.b_journal.text():
             wnd = Journal(self)
-            wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
-            wnd.exec_()
         elif name == self.b_asr.text():
             wnd = Asr(self, self.contract)
-            wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
-            wnd.exec_()
         elif name == self.b_contract.text():
             wnd = Contract(self)
-            wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
-            wnd.exec_()
+        else:
+            return
+        if not wnd.status_:
+            mes.question(self, "Сообщение", "Не найден файл дизайна " + wnd._path, mes.Cancel)
+            return
+        wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
+        wnd.exec_()
+
         return
 
     def ev_save(self):

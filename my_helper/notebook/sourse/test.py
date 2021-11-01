@@ -24,7 +24,7 @@ list_db_ = ["CREATE TABLE contracts (name text, customer text, number text, date
             "CREATE TABLE workers (family text, name text, surname text, birthday text, post text, phone text, "
             "passport text, passport_got text, adr text, live_adr text, inn text, snils text, numb_contract text, "
             "date_contract text, numb_h text, numb_group_h text, date_h text, numb_study text, numb_study_card text,"
-            "d_study text, numb_protocol text, numb_card text, d_protocol text, id text)",
+            "d_study text, numb_protocol text, numb_card text, d_protocol text, status text, id text)",
             "CREATE TABLE itrs (family text, name text, surname text, post text, passport text, passport_date text, "
             "passport_got text, adr text, live_adr text, auto text, inn text, "
             "snils text, n_employment_contract text, date_employment_contract text, "
@@ -33,7 +33,7 @@ list_db_ = ["CREATE TABLE contracts (name text, customer text, number text, date
             "es_protocol text, es_group text, es_card text, es_date text, "
             "h_protocol text, h_date text, h_group text, h_card text, "
             "industrial_save text, "
-            "st_protocol text, st_card text, st_date text, birthday text, id text)",
+            "st_protocol text, st_card text, st_date text, birthday text, status text, id text)",
             "CREATE TABLE finance (id text, date text, value text, recipient text, comment text, id text)",
             "CREATE TABLE bills (date text, value text, buyer text, name_file text, comment text, id text)",
             "CREATE TABLE notes (date text, name text, id text)"]

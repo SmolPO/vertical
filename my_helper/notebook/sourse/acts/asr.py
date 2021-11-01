@@ -14,7 +14,8 @@ si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "
 class Asr(QDialog):
     def __init__(self, parent, contract):
         super(Asr, self).__init__()
-        uic.loadUi(designer_file, self)
+        if not self.check_start():
+            return
         self.parent = parent
         self.year.setCurrentIndex(dt.datetime.now().year-2021)
         self.b_print.clicked.connect(self.ev_print)
@@ -29,6 +30,16 @@ class Asr(QDialog):
         self.path = get_path("path") + get_path("path_pat_patterns")
         self.my_id = 0
         self.contract = contract
+
+    def check_start(self):
+        self.status_ = True
+        self.path_ = designer_file
+        try:
+            uic.loadUi(designer_file, self)
+        except:
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            self.status_ = False
+            return False
 
     def change_count(self):
         print(len(self.numbers.toPlainText().split(",")))

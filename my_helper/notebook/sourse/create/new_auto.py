@@ -13,6 +13,8 @@ fields = ["model", "brand", "gov_number", "track_number", "id"]
 class NewAuto(TempForm):
     def __init__(self, parent=None):
         super(NewAuto, self).__init__(designer_file)
+        if not self.status_:
+            return
         self.parent = parent
         self.table = "auto"
         self.rows_from_db = self.parent.db.get_data("*", self.table)

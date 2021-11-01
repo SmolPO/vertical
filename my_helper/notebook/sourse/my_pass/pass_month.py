@@ -15,6 +15,8 @@ designer_file = get_path_ui("pass_month")
 class MonthPass(TempPass):
     def __init__(self, parent):
         super(MonthPass, self).__init__(designer_file, parent, "workers")
+        if not self.status_:
+            return
         self.b_save.clicked.connect(self.save_pattern)
         self.b_kill.clicked.connect(self.kill_pattern)
         self.b_open.clicked.connect(self.my_open_file)

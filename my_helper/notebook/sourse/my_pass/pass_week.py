@@ -10,6 +10,8 @@ designer_file = get_path_ui("pass_week")
 class WeekPass(TempPass):
     def __init__(self, parent):
         super(WeekPass, self).__init__(designer_file, parent, "contracts")
+        if not self.status_:
+            return
         self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.d_from.setDate(dt.datetime.now().date())
         self.d_to.setDate(dt.datetime.now().date())

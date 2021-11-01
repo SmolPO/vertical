@@ -1,18 +1,31 @@
 import os
 from PyQt5.QtWidgets import QDialog
 from PyQt5 import uic
-from database import get_path
+from database import get_path, get_path_ui
+from PyQt5.QtWidgets import QMessageBox as mes
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+designer_file = get_path_ui("notebook")
 
 
 class Notepad(QDialog):
     def __init__(self, parent=None):
         super(Notepad, self).__init__(parent)
-        uic.loadUi('../designer_ui/notepad.ui', self)
+        if not self.status_:
+            return
         self.b_close.clicked.connect(self.ev_close)
         self.file_note = get_path("path") + "/notepad.txt"
         self.ui_text_area.appendPlainText(self.get_text())
         self.show()
+
+    def check_start(self):
+        self.status_ = True
+        self.path_ = designer_file
+        try:
+            uic.loadUi(designer_file, self)
+        except:
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            self.status_ = False
+            return False
 
     def get_text(self):
         try:

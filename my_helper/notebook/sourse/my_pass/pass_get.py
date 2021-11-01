@@ -13,6 +13,8 @@ designer_file = get_path_ui("pass_get")
 class GetPass(TempPass):
     def __init__(self, parent):
         super(GetPass, self).__init__(designer_file, parent, "workers")
+        if not self.status_:
+            return
         # my_pass
         self.parent = parent
 

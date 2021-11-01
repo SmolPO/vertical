@@ -3,7 +3,7 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
-from my_helper.notebook.sourse.database import get_path_ui, zero, empty
+from my_helper.notebook.sourse.database import get_path_ui, zero, empty, statues
 from my_helper.notebook.sourse.create.new_template import TempForm, from_str
 designer_file = get_path_ui("new_worker")
 
@@ -11,6 +11,8 @@ designer_file = get_path_ui("new_worker")
 class NewWorker(TempForm):
     def __init__(self, parent=None):
         super(NewWorker, self).__init__(designer_file)
+        if not self.status_:
+            return
         # my_pass
         self.parent = parent
         self.table = "workers"
@@ -54,7 +56,7 @@ class NewWorker(TempForm):
         self.b_ok.setEnabled(self.cb_contract.currentText() != empty)
 
     def _clean_data(self):
-        zero = Date(from_str(zero))
+        _zero = Date(from_str(zero))
         self.passport_post.clear()
         self.adr.clear()
         self.live_adr.clear()
@@ -62,7 +64,7 @@ class NewWorker(TempForm):
         self.family.setText("")
         self.name.setText("")
         self.surname.setText("")
-        self.bday.setDate(zero)
+        self.bday.setDate(_zero)
         self.post.setText("")
         self.phone.setText("")
         self.passport.setText("")
@@ -75,14 +77,15 @@ class NewWorker(TempForm):
         self.d_td.setDate(zero)
         self.n_hght.setText("")
         self.n_group_h.setText(str(0))
-        self.d_height.setDate(zero)
+        self.d_height.setDate(_zero)
         self.n_study.setText("")
         self.n_study_card.setText("")
-        self.d_study.setDate(zero)
+        self.d_study.setDate(_zero)
         self.n_prot.setText("")
         self.n_card.setText("")
-        self.d_prot.setDate(zero)
+        self.d_prot.setDate(_zero)
         self.cb_contract.setCurrentIndex(0)
+        self.status.setCurrentIndex(0)
 
     def _set_data(self, data):
         self.passport_post.clear()
@@ -117,9 +120,10 @@ class NewWorker(TempForm):
             if data[-1] == item[-1]:
                 self.cb_contract.setCurrentIndex(next(g))
                 break
+        self.status.setCurrentIndex(statues.index(data[-2]))
 
     def _get_data(self, data):
-        data = list([self.family.text(),
+         data = list([self.family.text(),
                     self.name.text(),
                     self.surname.text(),
                     self.bday.text(),
@@ -142,8 +146,9 @@ class NewWorker(TempForm):
                     self.n_prot.text(),
                     self.n_card.text(),
                     self.d_prot.text(),
+                    self.status.CurrentText(),
                     self.cb_contract.currentText()])
-        return data
+         return data
 
     def check_input(self):
         data = list([self.family.text(),
@@ -169,6 +174,7 @@ class NewWorker(TempForm):
                      self.n_prot.text(),
                      self.n_card.text(),
                      self.d_prot.text(),
+                     self.status.currentText(),
                      self.cb_contract.currentText()])
         if "" in data or zero in data or empty in data:
             mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
