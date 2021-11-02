@@ -2,8 +2,9 @@ from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtWidgets import QMessageBox as mes
+import os
 from my_helper.notebook.sourse.create.new_template import TempForm, from_str
-from my_helper.notebook.sourse.database import get_path_ui, empty, zero, my_errors
+from my_helper.notebook.sourse.database import get_path_ui, empty, zero, my_errors, get_path
 
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_contract")
@@ -74,6 +75,7 @@ class NewContact(TempForm):
         data.append(self.my_object.toPlainText())
         data.append(self.work.toPlainText())
         data.append(self.part.text())
+        os.mkdir(get_path("path") + get_path("path_contracts ") + str(self.number.text()))
         return data
 
     def check_input(self):

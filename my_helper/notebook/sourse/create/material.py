@@ -5,7 +5,7 @@ from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.create.new_template import TempForm
 from my_helper.notebook.sourse.database import get_path_ui, get_path, empty, si, my_errors
 
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("materials")
 
 

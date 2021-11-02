@@ -5,8 +5,6 @@ import os
 import requests
 import logging
 from PyQt5.QtWidgets import QMessageBox as mes
-from datetime import datetime as dt
-from configparser import ConfigParser
 from my_helper.notebook.sourse.create.new_boss import NewBoss
 from my_helper.notebook.sourse.create.new_itr import NewITR
 from my_helper.notebook.sourse.create.new_worker import NewWorker
