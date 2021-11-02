@@ -55,7 +55,6 @@ logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.I
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        # self.path = input()
         self.path = "B:/my_helper/my_config.ini"
         try:
             uic.loadUi(get_path("path") + get_path("ui_files") + '/main_menu.ui', self)

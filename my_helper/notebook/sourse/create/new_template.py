@@ -14,7 +14,7 @@ class TempForm (QDialog):
         self.parent = parent
         self.table = table
         self.b_ok.clicked.connect(self.ev_ok)
-        self.b_cancel.clicked.connect(self.ev_cancel)
+        self.b_cancel.clicked.connect(self.close)
         self.b_kill.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
         self.cb_select.activated[str].connect(self.ev_select)
@@ -55,9 +55,6 @@ class TempForm (QDialog):
         except:
             mes.question(self, "Сообщение", my_errors["7_commit"], mes.Ok)
         mes.question(self, "Сообщение", "Запись добавлена", mes.Ok)
-        self.close()
-
-    def ev_cancel(self):
         self.close()
 
     def ev_select(self, text):

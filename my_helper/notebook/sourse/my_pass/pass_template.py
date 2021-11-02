@@ -21,7 +21,7 @@ class TempPass(QDialog):
         self.table = table
         # my_pass
         self.b_ok.clicked.connect(self.ev_ok)
-        self.b_cancel.clicked.connect(self.ev_cancel)
+        self.b_cancel.clicked.connect(self.close)
         self.b_open.clicked.connect(self.my_open_file)
         # self.b_save.clicked.connect(self.save_pattern)
         # self.b_kill.clicked.connect(self.kill_pattern)
@@ -177,9 +177,6 @@ class TempPass(QDialog):
             self.d_to.setEnabled(False)
         elif not self.cb_sun.isChecked() and not self.cb_sub.isChecked():
             self.cb_other.setEnabled(True)
-
-    def ev_cancel(self):
-        self.close()
 
     def get_end_month(self):
         next_month = dt.datetime.now().month

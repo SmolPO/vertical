@@ -2,6 +2,7 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QMessageBox as mes
 import docxtpl
+import os
 import datetime as dt
 from my_helper.notebook.sourse.database import get_path_ui, get_path, get_config
 designer_file = get_path_ui("journal")
@@ -13,10 +14,12 @@ class Journal(QDialog):
         if not self.check_start():
             return
         self.parent = parent
+        self.path = parent.path + get_path("docs") + "/Журнал.docx"
+        self.path_p2 = get_path("path") + get_path("path_pat_patterns") + "/part2.docx"
+        self.path_p5 = get_path("path") + get_path("path_pat_patterns") + "/part5.docx"
         self.b_print.clicked.connect(self.ev_print)
         self.count_p2 = 0
         self.count_p5 = 0
-        self.path = get_path("path") + get_path("path_pat_patterns") + "/journal.docx"
         self.data = dict()
         self.init_bosses()
 
@@ -70,15 +73,19 @@ class Journal(QDialog):
         self.data = self.get_data()
         if not self.check_input():
             return False
-        print(self.path, get_path("path_contracts") + "/993/102021/journal.docx")
         try:
-            doc = docxtpl.DocxTemplate(self.path)
+            path = get_path("path") + get_path("path_pat_patterns") + "/Журнал.docx"
+            doc = docxtpl.DocxTemplate(path)
         except:
-            mes.question(self, "Сообщение", "Файл " + self.path + " не найден", mes.Ok)
+            mes.question(self, "Сообщение", "Файл " + path + " не найден", mes.Ok)
             return False
         doc.render(self.data)
-        path = get_path("path_contracts") + "/993/102021/journal.docx"
-        doc.save(path)
+        doc.save(self.path)
+        os.startfile(self.path)
+        for i in range(self.count_p2):
+            os.startfile(self.path_p2)
+        for i in range(self.count_p5):
+            os.startfile(self.path_p5)
         self.close()
 
     def check_input(self):

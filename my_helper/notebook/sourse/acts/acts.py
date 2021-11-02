@@ -6,7 +6,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.acts.journal import Journal
 from my_helper.notebook.sourse.acts.asr import Asr
 from my_helper.notebook.sourse.acts.contract import Contract
-from my_helper.notebook.sourse.database import get_path, get_path_ui
+from my_helper.notebook.sourse.database import get_path, get_path_ui, my_errors
 designer_file = get_path_ui("acts")
 
 
@@ -27,7 +27,7 @@ class Acts(QDialog):
         self.b_xlxs.clicked.connect(self.ev_xlsx)
         self.b_exit.clicked.connect(self.ev_exit)
         self.cb_select.activated[str].connect(self.ev_select)
-        self.path = get_path("path") + get_path("contracts")
+        self.path = get_path("path") + get_path("path_contracts")
         self.contract = ""
         self.init_contracts()
 
@@ -48,21 +48,20 @@ class Acts(QDialog):
             self.cb_select.addItem(". ".join(item))
 
     def ev_start(self):
+        if self.cb_select.currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Сначала выберите договор", mes.Cancel)
+            return False
+        menu = {self.b_journal.text(): Journal,
+                   self.b_asr.text(): Asr,
+                   self.b_contract.text(): Contract}
         name = self.sender().text()
-        if name == self.b_journal.text():
-            wnd = Journal(self)
-        elif name == self.b_asr.text():
-            wnd = Asr(self, self.contract)
-        elif name == self.b_contract.text():
-            wnd = Contract(self)
-        else:
-            return
+        self.path = self.path + "/" + "".join(self.cb_select.currentText().split(". ")[1:])
+        wnd = menu[name](self)
         if not wnd.status_:
             mes.question(self, "Сообщение", "Не найден файл дизайна " + wnd._path, mes.Cancel)
             return
         wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
         wnd.exec_()
-
         return
 
     def ev_save(self):
@@ -73,11 +72,26 @@ class Acts(QDialog):
         pass
 
     def ev_add(self):
+        if self.cb_select.currentText() == "(нет)":
+            mes.question(self, "Сообщение", "Сначала выберите договор", mes.Cancel)
+            return False
         self.filename, tmp = QFileDialog.getOpenFileName(self,
                                                          "Выбрать файл",
-                                                         get_path("path"),
-                                                         "PDF Files(*.pdf)")
-        os.replace(self.filename, self.filename)
+                                                         get_path("path") + get_path("path_scan"),
+                                                         "*.*(*.*)")
+        if not self.filename:
+            return
+        tmp = self.filename.split(".")[-1]
+        path_save = self.path + "/" + "".join(self.cb_select.currentText().split(". ")[1:]) + get_path("others")
+        name, ok = QInputDialog.getText(self, "Введите имя файла", "Имя (без расширения)")
+        if ok:
+            try:
+                path_save = path_save + "/" + name + "." + tmp
+                os.replace(self.filename, path_save)
+                mes.question(self, "Сообщение", "Файл добавлен", mes.Ok)
+            except:
+                mes.question(self, "Сообщение", my_errors["4_not_file"] + path_save, mes.Cancel)
+                return
         pass
 
     def ev_latter(self):
@@ -103,5 +117,6 @@ class Acts(QDialog):
         self.close()
 
     def ev_select(self):
-        self.contract = self.cb_select.currentText().split(".")[1]
+        if self.cb_select.currentText() != "(нет)":
+            self.contract = self.cb_select.currentText().split(".")[1]
         pass

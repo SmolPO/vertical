@@ -12,11 +12,12 @@ si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "
 
 
 class Asr(QDialog):
-    def __init__(self, parent, contract):
+    def __init__(self, parent):
         super(Asr, self).__init__()
         if not self.check_start():
             return
         self.parent = parent
+        self.contract = parent.contract
         self.year.setCurrentIndex(dt.datetime.now().year-2021)
         self.b_print.clicked.connect(self.ev_print)
         self.b_change.clicked.connect(self.ev_change)
@@ -29,7 +30,6 @@ class Asr(QDialog):
         self.ind = 0
         self.path = get_path("path") + get_path("path_pat_patterns")
         self.my_id = 0
-        self.contract = contract
 
     def check_start(self):
         self.status_ = True
