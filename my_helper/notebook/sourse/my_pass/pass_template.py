@@ -6,7 +6,7 @@ import datetime as dt
 import os
 import docxtpl
 from configparser import ConfigParser
-from my_helper.notebook.sourse.database import get_path, count_days, get_next_number, set_next_number
+from my_helper.notebook.sourse.database import get_path, count_days, get_next_number, set_next_number, my_errors
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 #  сделать мессаджбоксы на Сохранить
@@ -33,8 +33,12 @@ class TempPass(QDialog):
                            "май", "июнь", "июль", "август", "сентябрь",
                            "октябрь", "ноябрь", "декабрь"]
         self.data = dict()
-        self.main_file = get_path("path") + get_path("path_pat_notes")
-        self.print_folder = get_path("path") + get_path("path_notes_docs")
+        try:
+            self.main_file = get_path("path") + get_path("path_pat_notes")
+            self.print_folder = get_path("path") + get_path("path_notes_docs")
+        except:
+            mes.question(self, "Сообщение", my_errors["2_get_path"], mes.Cancel)
+            return
 
     def check_start(self, designer_file):
         self.status_ = True
@@ -44,7 +48,7 @@ class TempPass(QDialog):
             uic.loadUi(designer_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            mes.question(self, "Сообщение", my_errors["1_ui"] + designer_file, mes.Cancel)
             self.status_ = False
             return False
 
@@ -69,10 +73,14 @@ class TempPass(QDialog):
         try:
             doc = docxtpl.DocxTemplate(self.main_file)
         except:
-            mes.question(self, "Сообщение", "Файл не найден" + self.main_file, mes.Cancel)
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + self.main_file, mes.Cancel)
             return
         doc.render(self.data)
-        doc.save(print_file)
+        try:
+            doc.save(print_file)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + print_file, mes.Cancel)
+            return
         self._create_data(print_file)
         set_next_number(int(self.number.text()) + 1)
         self.close()
@@ -89,7 +97,11 @@ class TempPass(QDialog):
         pass
 
     def my_open_file(self):
-        os.startfile(self.print_file)
+        try:
+            os.startfile(self.print_file)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + self.print_file, mes.Cancel)
+            return
 
     def save_pattern(self):
         pass
@@ -99,7 +111,12 @@ class TempPass(QDialog):
 
     def get_contract(self, name):
         # получить номер договора по короткому имени
-        for row in self.parent.db.get_data("number, date, object, place, type_work, name", "contracts"):
+        try:
+            rows = self.parent.db.get_data("number, date, object, place, type_work, name", "contracts")
+        except:
+            mes.question(self, "Сообщение", my_errors["8_get_data"], mes.Cancel)
+            return
+        for row in rows:
             if name in row:
                 self.data["contract"] = " от ".join(row[:2])
                 self.data["object_name"] = row[2]
@@ -107,8 +124,12 @@ class TempPass(QDialog):
                 self.data["type_work"] = row[4]
 
     def get_worker(self, family):
-        rows = self.parent.db.get_data("family, name, surname, post, passport, "
+        try:
+            rows = self.parent.db.get_data("family, name, surname, post, passport, "
                                        "passport_got, birthday, adr,  live_adr", "workers")
+        except:
+            mes.question(self, "Сообщение", my_errors["8_get_data"], mes.Cancel)
+            return
         if family == "all":
             return rows
         for row in rows:
@@ -117,8 +138,13 @@ class TempPass(QDialog):
 
     def get_worker_week(self, family):
         # получить номер договора по короткому имени
-        for row in self.parent.db.get_data("family, name, surname, post, passport, passport_got, "
-                                           "birthday, adr,  live_adr", "workers"):
+        try:
+            rows = self.parent.db.get_data("family, name, surname, post, passport, passport_got, "
+                                           "birthday, adr,  live_adr", "workers")
+        except:
+            mes.question(self, "Сообщение", my_errors["8_get_data"], mes.Cancel)
+            return
+        for row in rows:
             if family[:-5] == row[0]:
                 return row
             return row
@@ -170,10 +196,3 @@ class TempPass(QDialog):
             end_next_month = str(count_days[int(next_month)])
         print(".".join((end_next_month, next_month, next_year)))
         return (end_next_month, next_month, next_year)
-
-
-path_conf = "B:/my_config.ini"
-
-
-
-

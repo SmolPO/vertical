@@ -10,12 +10,10 @@ designer_file = get_path_ui("new_worker")
 
 class NewWorker(TempForm):
     def __init__(self, parent=None):
-        super(NewWorker, self).__init__(designer_file)
+        super(NewWorker, self).__init__(designer_file, parent, "workers")
         if not self.status_:
             return
         # my_pass
-        self.parent = parent
-        self.table = "workers"
         self.cb_auto.stateChanged.connect(self.ev_auto)
         self.cb_contract.activated[str].connect(self.select_contract)
         self.init_mask()

@@ -12,11 +12,9 @@ fields = ["model", "brand", "gov_number", "track_number", "id"]
 
 class NewAuto(TempForm):
     def __init__(self, parent=None):
-        super(NewAuto, self).__init__(designer_file)
+        super(NewAuto, self).__init__(designer_file, parent, "auto")
         if not self.status_:
             return
-        self.parent = parent
-        self.table = "auto"
         self.is_track.stateChanged.connect(self.have_track)
         self.init_list()
         self.track_number.setEnabled(False)

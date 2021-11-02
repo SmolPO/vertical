@@ -12,11 +12,9 @@ fields = ["name", "customer", "number", "date", "object", "type_work", "place", 
 
 class NewContact(TempForm):
     def __init__(self, parent=None):
-        super(NewContact, self).__init__(designer_file)
+        super(NewContact, self).__init__(designer_file, parent, "contracts")
         if not self.status_:
             return
-        self.parent = parent
-        self.table = "contracts"
         self.init_mask()
         try:
             self.parent.db.init_list(self.cb_comp, "company", "company")

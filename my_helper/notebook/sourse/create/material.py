@@ -11,11 +11,9 @@ designer_file = get_path_ui("materials")
 
 class NewMaterial(TempForm):
     def __init__(self, parent=None):
-        super(NewMaterial, self).__init__(designer_file)
+        super(NewMaterial, self).__init__(designer_file, parent, "materials")
         if not self.status_:
             return
-        self.parent = parent
-        self.table = "materials"
         self.provider_ = ""
         self.add_new = True
         self.provider.stateChanged.connect(self.provider_select)
@@ -25,11 +23,6 @@ class NewMaterial(TempForm):
         self.slice_get = 0
         self.slice_clean = 0
         self.slice_select = 0
-        try:
-            self.next_id = self.parent.db.get_next_id(self.table)
-        except:
-            QMessageBox.question(self, "Внимание", my_errors["6_get_next_id"], QMessageBox.Cancel)
-            return
         self.current_id = self.next_id
         self.list_ui = list()
 

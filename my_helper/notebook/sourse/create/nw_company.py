@@ -11,11 +11,9 @@ fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "ba
 
 class NewCompany(TempForm):
     def __init__(self, parent=None):
-        super(NewCompany, self).__init__(designer_file)
+        super(NewCompany, self).__init__(designer_file, parent, "company")
         if not self.status_:
             return
-        self.parent = parent
-        self.table = "company"
         self.init_mask()
         self.list_ui = [self.company, self.ogrn, self.inn, self.kpp, self.adr,
                         self.bik, self.korbill, self.rbill, self.bank, self.family,

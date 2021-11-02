@@ -130,6 +130,7 @@ class MainWindow(QMainWindow):
         forms = {"Продление на месяц": (MonthPass, "workers"),
                  "Пропуск на выходные": (WeekPass, "workers"),
                  "Разблокировка пропуска": (UnlockPass, "workers"),
+                 "Ввоз материалов": (NewMaterial, "contracts"),
                  "Выдать пропуск": (GetPass, "workers"),
                  "Продление на машину": (AutoPass, "auto"),
                  "Блокнот": (Notepad, None),
@@ -137,8 +138,11 @@ class MainWindow(QMainWindow):
                  "Исполнительная": (Acts, "contracts"),
                  "Сканер": (PDFModule, None),
                  "Автомобиль": (NewAuto, None),
+                 "Заказчик": (NewCompany, None),
+                 "Договор": (NewContact, None),
                  "Водитель": (NewDriver, None),
                  "Босс": (NewBoss, None),
+                 "Сотрудник": (NewWorker, "contracts"),
                  "Прораб": (NewITR, None),
                  "Чек": (NewBill, None),
                  "Заявка на деньги": (GetMoney, None),
@@ -157,7 +161,7 @@ class MainWindow(QMainWindow):
         elif name == "Распечатать ТБ":
             self.count_people_tb = int()
             wnd = CountPeople(self)
-            if not wnd._status:
+            if not wnd.status_:
                 mes.question(self, "Сообщение", my_errors["1_ui"] + wnd._path, mes.Cancel)
                 return
             wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
@@ -177,13 +181,15 @@ class MainWindow(QMainWindow):
         else:
             return
         if not wnd.status_:
-            mes.question(self, "Сообщение", my_errors["1_ui"] + wnd._path, mes.Cancel)
+            mes.question(self, "Сообщение", my_errors["1_ui"] + wnd.path_, mes.Cancel)
             return
         wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
         wnd.exec_()
 
     def ev_btn_start_file(self):
-        files = {"Доверенность": "/Доверенность.xlsx", "Накладная": "/Накладная.xlsx", "Бланк": "/Бланк.doc"}
+        files = {"Доверенность": "/Доверенность.xlsx",
+                 "Накладная": "/Накладная.xlsx",
+                 "Бланк": "/Бланк.doc"}
         name = self.sender().text()
         try:
             path = get_path("path") + get_path("path_pat_patterns") + files[name]
@@ -191,7 +197,10 @@ class MainWindow(QMainWindow):
             mes.question(self, "Сообщение", my_errors["2_get_path"], mes.Cancel)
             return
         try:
-            os.startfile(path, "print")
+            count, ok = QInputDialog.getInt(self, name, "Кол-во копий")
+            if ok:
+                for ind in range(count):
+                    os.startfile(path, "print")
         except:
             mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
             return

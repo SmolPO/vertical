@@ -1,9 +1,10 @@
 from PyQt5.QtCore import QDate as Date
+from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
 import openpyxl
 import os
 import pymorphy2
-from my_helper.notebook.sourse.database import get_path, get_path_ui, count_days
+from my_helper.notebook.sourse.database import get_path, get_path_ui, count_days, my_errors
 from my_helper.notebook.sourse.create.new_template import from_str
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 designer_file = get_path_ui("pass_unlock")
@@ -21,7 +22,11 @@ class UnlockPass(TempPass):
                                                    str(dt.datetime.now().month),
                                                    str(dt.datetime.now().year)]))))
         self.cb_all_days.stateChanged.connect(self.all_days)
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
+        try:
+            self.rows_from_db = self.parent.db.get_data("*", self.table)
+        except:
+            mes.question(self, "Сообщение", my_errors["8_get_data"], mes.Cancel)
+            return
         self.init_workers()
         self.data = {"number": "", "data": "", "customer": "", "company": "", "start_date": "", "end_date": "",
                      "post": "", "family": "", "name": "", "surname": "", "adr": ""}
@@ -47,8 +52,8 @@ class UnlockPass(TempPass):
                 self.data["start_date"] = self.d_from.text()
                 self.data["end_date"] = self.d_to.text()
                 self.count_days = self.sb_days.value()
-                self.create_covid(self.data["family"].capitalize() + " " + self.data["name"][0].upper()
-                                  + "." + self.data["surname"][0].upper() + ".", self.data["post"].capitalize())
+                # self.create_covid(self.data["family"].capitalize() + " " + self.data["name"][0].upper()
+                #                   + "." + self.data["surname"][0].upper() + ".", self.data["post"].capitalize())
                 return
 
     def check_input(self):
@@ -67,12 +72,25 @@ class UnlockPass(TempPass):
         pass
 
     def create_covid(self, family, post):
-        wb = openpyxl.load_workbook(get_path("path") + get_path("path_covid") + "/covid.xlsx")
-        sheet = wb['unlock']
+        path = get_path("path") + get_path("path_covid") + "/covid.xlsx"
+        try:
+            wb = openpyxl.load_workbook(path)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_find"] + path, mes.Cancel)
+            return
+        try:
+            sheet = wb['unlock']
+        except:
+            mes.question(self, "Сообщение", my_errors["9_not_sheet"] + 'unlock', mes.Cancel)
+            return
         for i in range(self.count_days):
             sheet['A' + str(i + 3)].value = i + 1
             sheet['B' + str(i + 3)].value = dt.datetime.now().date() - dt.timedelta(self.count_days - i)
             sheet['C' + str(i + 3)].value = family
             sheet['D' + str(i + 3)].value = post
-        wb.save(get_path("path") + get_path("path_covid") + "/" + str(family) + ".xlsx")
-        os.startfile(get_path("path") + get_path("path_covid") + "/" + str(family) + ".xlsx")
+        try:
+            wb.save(get_path("path") + get_path("path_covid") + "/" + str(family) + ".xlsx")
+            os.startfile(get_path("path") + get_path("path_covid") + "/" + str(family) + ".xlsx")
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"], mes.Cancel)
+            return

@@ -6,7 +6,7 @@ import datetime as dt
 import docxtpl
 import os
 import inserts as ins
-from database import get_path, get_path_ui, get_from_ini
+from database import get_path, get_path_ui, get_from_ini, my_errors
 import logging
 import pymorphy2
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
@@ -43,27 +43,44 @@ class GetMoney(QDialog):
         self.date.setDate(dt.datetime.now().date())
 
         # self.but_status("add")
-        self.rows_from_db = self.parent.db.get_data("*", self.table)
+        try:
+            self.rows_from_db = self.parent.db.get_data("*", self.table)
+        except:
+            mes.question(self, "Сообщение", my_errors["8_get_data"] + designer_file, mes.Cancel)
+            return
         self.cb_select.addItems(["(нет)"])
         for row in self.parent.db.get_data("id, date", self.table):
             self.cb_select.addItems([", ".join((row[0], row[1]))])
-        self.parent.db.init_list(self.cb_recipient, "family, name, surname", "itrs", people=True)
-        self.parent.db.init_list(self.cb_customer, "family, name, surname", "itrs", people=True)
-        self.next_id = self.parent.db.get_next_id(self.table)
+        try:
+            self.parent.db.init_list(self.cb_recipient, "family, name, surname", "itrs", people=True)
+            self.parent.db.init_list(self.cb_customer, "family, name, surname", "itrs", people=True)
+        except:
+            mes.question(self, "Сообщение", my_errors["5_init_list"] + designer_file, mes.Cancel)
+            return
+        try:
+            self.next_id = self.parent.db.get_next_id(self.table)
+        except:
+            mes.question(self, "Сообщение", my_errors["6_get_next_id"] + designer_file, mes.Cancel)
+            return
         self.current_id = self.next_id
         self.my_id.setValue(self.next_id)
         self.data = {"date": "", "post": "", "family": "", "text": ""}
         self.change_note()
-        self.main_file = get_path("path") + get_path("path_pat_notes") + get_from_ini("get_money", "patterns")
-        self.print_folder = get_path("path") + get_path("path_bills") + "/" + str(dt.datetime.now().year) + \
-                                                                        "/" + str(dt.datetime.now().month)
+        try:
+            self.main_file = get_path("path") + get_path("path_pat_notes") + get_from_ini("get_money", "patterns")
+            self.print_folder = get_path("path") + get_path("path_bills") + "/" + str(dt.datetime.now().year) + \
+                                                                            "/" + str(dt.datetime.now().month)
+        except:
+            mes.question(self, "Сообщение", my_errors["2_get_path"] + designer_file, mes.Cancel)
+            return
+
     def check_start(self):
         self.status_ = True
         self.path_ = designer_file
         try:
             uic.loadUi(designer_file, self)
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            mes.question(self, "Сообщение", my_errors["1_ui"] + designer_file, mes.Cancel)
             self.status_ = False
             return False
 
@@ -74,8 +91,16 @@ class GetMoney(QDialog):
         if not data:
             return
         morph = pymorphy2.MorphAnalyzer()
-        self.parent.db.my_commit(ins.add_to_db(data, self.table))
-        rows = self.parent.db.get_data("post, family, name, surname, id", "itrs")
+        try:
+            self.parent.db.my_commit(ins.add_to_db(data, self.table))
+        except:
+            mes.question(self, "Сообщение", my_errors["7_commit"] + designer_file, mes.Cancel)
+            return
+        try:
+            rows = self.parent.db.get_data("post, family, name, surname, id", "itrs")
+        except:
+            mes.question(self, "Сообщение", my_errors["8_get_data"] + designer_file, mes.Cancel)
+            return
         for row in rows:
             if self.cb_customer.currentText().split(".")[0] == str(row[-1]):
                 self.data["post"] = row[0]
@@ -92,12 +117,20 @@ class GetMoney(QDialog):
         try:
             doc = docxtpl.DocxTemplate(self.main_file)
         except:
-            mes.question(self, "Сообщение", "Файл не найден" + self.main_file, mes.Cancel)
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + self.main_file, mes.Cancel)
             return
         doc.render(self.data)
-        doc.save(print_file)
+        try:
+            doc.save(print_file)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + print_file, mes.Cancel)
+            return
         self.close()
-        os.startfile(print_file)
+        try:
+            os.startfile(print_file)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + print_file, mes.Cancel)
+            return
         mes.question(self, "Сообщение", "Запись добавлена", mes.Ok)
         answer = mes.question(self, "Сообщение", "Отправить бухгалтеру?", mes.Ok | mes.Cancel)
         if answer == mes.Ok:
@@ -123,7 +156,11 @@ class GetMoney(QDialog):
         self.day_money(self.cb_day.isChecked())
         itr = ""
         morph = pymorphy2.MorphAnalyzer()
-        people = self.parent.db.get_data("post, family, name, surname, id", "itrs")
+        try:
+            people = self.parent.db.get_data("post, family, name, surname, id", "itrs")
+        except:
+            mes.question(self, "Сообщение", my_errors["8_get_data"], mes.Cancel)
+            return
         for boss in people:
             print(self.cb_recipient.currentText().split(".")[0])
             if self.cb_recipient.currentText().split(".")[0] == str(boss[-1]):
@@ -165,7 +202,11 @@ class GetMoney(QDialog):
         if answer == mes.Ok:
             data = self.get_data()
             data[-1] = str(self.current_id)
-            self.parent.db.my_update(data, self.table)
+            try:
+                self.parent.db.my_update(data, self.table)
+            except:
+                mes.question(self, "Сообщение", my_errors["10_update"], mes.Cancel)
+                return
             answer = mes.question(self, "Сообщение", "Запись изменена", mes.Ok)
             if answer == mes.Ok:
                 self.close()
@@ -174,7 +215,11 @@ class GetMoney(QDialog):
         answer = mes.question(self, "Удаление записи", "Вы действительно хотите удалить запись " +
                               str(self.get_data()) + "?", mes.Ok | mes.Cancel)
         if answer == mes.Ok:
-            self.parent.db.kill_value(self.current_id, self.table)
+            try:
+                self.parent.db.kill_value(self.current_id, self.table)
+            except:
+                mes.question(self, "Сообщение", my_errors["11_kill"], mes.Cancel)
+                return
             answer = mes.question(self, "Сообщение", "Запись удалена", mes.Ok)
             if answer == mes.Ok:
                 self.close()

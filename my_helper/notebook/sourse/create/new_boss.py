@@ -10,11 +10,9 @@ fields = ["family", "name", "surname", "post", "email", "phone", "id"]
 
 class NewBoss(TempForm):
     def __init__(self, parent):
-        super(NewBoss, self).__init__(designer_file)
+        super(NewBoss, self).__init__(designer_file, parent, "bosses")
         if not self.status_:
             return
-        self.parent = parent
-        self.table = "bosses"
         try:
             self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
         except:

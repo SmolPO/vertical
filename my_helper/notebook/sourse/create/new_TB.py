@@ -19,6 +19,11 @@ class NewTB(QDialog):
             # my_pass
         self.parent = parent
         self.table = "workers"
+        try:
+            self.rows_from_db = self.parent.db.get_data("*", self.table)
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return
         self.count = self.parent.count_people_tb
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
@@ -33,6 +38,7 @@ class NewTB(QDialog):
         self.path_ = designer_file
         try:
             uic.loadUi(designer_file, self)
+            return True
         except:
             mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
             self.status_ = False
@@ -196,6 +202,7 @@ class CountPeople(QDialog):
             return False
         try:
             uic.loadUi(self.path_, self)
+            return True
         except:
             mes.question(self, "Сообщение", my_errors["1_ui"] + self.path_, mes.Cancel)
             self.status_ = False

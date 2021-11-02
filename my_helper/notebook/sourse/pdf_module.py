@@ -6,7 +6,7 @@ import PyPDF2
 import pytesseract
 import os
 from datetime import datetime as dt
-from my_helper.notebook.sourse.database import get_path, get_path_ui
+from my_helper.notebook.sourse.database import get_path, get_path_ui, my_errors
 from my_email import send
 
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
@@ -64,7 +64,11 @@ class PDFModule(QDialog):
 
     def check_input_n(self):
         folder = get_path("path") + get_path("path_scan")
-        files = os.listdir(folder)
+        try:
+            files = os.listdir(folder)
+        except:
+            mes.question(self, "Сообщение", my_errors["5_not_file"] + folder, mes.Cancel)
+            return False
         files.sort()
         if not files:
             mes.question(self, "Сообщение", "Файл не найден. Отсканируйте служебную в формате PDF", mes.Cancel)
@@ -77,7 +81,11 @@ class PDFModule(QDialog):
 
     def ev_note(self):
         folder = get_path("path") + get_path("path_scan")
-        files = os.listdir(folder)
+        try:
+            files = os.listdir(folder)
+        except:
+            mes.question(self, "Сообщение", my_errors["5_not_file"] + folder, mes.Cancel)
+            return False
         files.sort()
         if not self.check_input_n():
             return
@@ -123,6 +131,7 @@ class SendPost(QDialog):
         self.path_ = designer_file_email
         try:
             uic.loadUi(designer_file_email, self)
+            return True
         except:
             mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file_email, mes.Cancel)
             self.status_ = False
@@ -143,7 +152,11 @@ class SendPost(QDialog):
         self.close()
 
     def init_emails(self):
-        rows = self.db.get_data("email", "bosses")
+        try:
+            rows = self.db.get_data("email", "bosses")
+        except:
+            mes.question(self, "Сообщение", my_errors["8_get_data"] + folder, mes.Cancel)
+            return False
         for item in rows:
             print(item)
             self.email.addItem(item[0])

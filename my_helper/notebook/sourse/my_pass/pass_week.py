@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 import docx
 import logging
 #  сделать мессаджбоксы на Сохранить
-from my_helper.notebook.sourse.database import get_path_ui, empty
+from my_helper.notebook.sourse.database import get_path_ui, empty, my_errors
 designer_file = get_path_ui("pass_week")
 
 
@@ -58,15 +58,13 @@ class WeekPass(TempPass):
 
     def init_boss(self):
         try:
-            for people in self.parent.db.get_data("family, name, surname, post", "bosses"):
-                try:
-                    family = people[0] + " " + people[1][0] + ". " + people[2][0] + "."
-                    self.cb_boss_part.addItem(family)       # брать из БД
-                except:
-                    pass
+            rows = self.parent.db.get_data("family, name, surname, post", "bosses")
         except:
-            mes.question(self, "Сообщение", "ERROR: get_data в init_boss", mes.Cancel)
-            return False
+            mes.question(self, "Сообщение", my_errors["9_not_sheet"] + 'unlock', mes.Cancel)
+            return
+        for people in rows:
+            family = people[0] + " " + people[1][0] + ". " + people[2][0] + "."
+            self.cb_boss_part.addItem(family)       # брать из БД
 
     def init_workers(self):
         for item in self.list_ui:
@@ -74,8 +72,13 @@ class WeekPass(TempPass):
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
-        for name in self.parent.db.get_data("family, name, surname, post, passport, "
-                                            "passport_got, birthday, adr,  live_adr", "workers"):
+        try:
+            rows = self.parent.db.get_data("family, name, surname, post, passport, "
+                                            "passport_got, birthday, adr,  live_adr", "workers")
+        except:
+            mes.question(self, "Сообщение", my_errors["8_get_data"], mes.Cancel)
+            return
+        for name in rows:
             family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
             for item in self.list_ui:
                 item.addItem(family)
@@ -99,7 +102,11 @@ class WeekPass(TempPass):
 
         # Заполнить таблицу
     def _create_data(self, path):
-        doc = docx.Document(path)
+        try:
+            doc = docx.Document(path)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
+            return
         i = 1
         for elem in self.list_ui:
             family = elem.currentText()
@@ -114,7 +121,11 @@ class WeekPass(TempPass):
                 doc.tables[1].rows[i].cells[5].text = people[7]
                 doc.tables[1].rows[i].cells[6].text = people[8]
                 i += 1
-        doc.save(path)
+        try:
+            doc.save(path)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
+            return
         return True
 
     def _get_data(self):

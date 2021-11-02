@@ -5,7 +5,7 @@ import datetime as dt
 from configparser import ConfigParser
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 from my_helper.notebook.sourse.create.new_template import from_str
-from my_helper.notebook.sourse.database import get_path, get_path_ui, count_days
+from my_helper.notebook.sourse.database import get_path, get_path_ui, count_days, my_errors, get_from_ini
 import logging
 import docx
 #  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
@@ -48,8 +48,13 @@ class MonthPass(TempPass):
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
-        for name in self.parent.db.get_data("family, name, surname, post, passport, "
-                                            "passport_got, birthday, adr,  live_adr", "workers"):
+        try:
+            rows = self.parent.db.get_data("family, name, surname, post, passport, "
+                                            "passport_got, birthday, adr,  live_adr", "workers")
+        except:
+            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
+            return False
+        for name in rows:
             family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
             for item in self.list_ui:
                 item.addItem(family)
@@ -71,10 +76,12 @@ class MonthPass(TempPass):
         next_month = self.list_month.index(self.cb_month.currentText()) + 1
         # если конец года: увеличить год и месяц в 1
         if next_month == 13:
-            config = ConfigParser()
-            config.read('config.ini')
-            self.new_year__week = config.get('config', 'new_year')
-            next_day =  self.new_year__week
+            try:
+                self.new_year__week = get_from_ini('config', 'new_year')
+            except:
+                mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+                return False
+            next_day = self.new_year__week
             next_month = "01"  # MessageBox для ввода первого дня
             next_year = str(dt.datetime.now().year + 1)
         else:

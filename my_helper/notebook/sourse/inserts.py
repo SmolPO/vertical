@@ -33,7 +33,6 @@ def get_from_db(fields, db):
 def add_to_db(data, table):
     result = "('" + "', '".join(data) + "')"
     names_colomn = db_keys[table]
-    print(len(data), len(names_colomn.split(" ")))
     return "INSERT INTO {0} {1} VALUES {2}".format(table, names_colomn, result)
 
 
@@ -41,7 +40,6 @@ def my_update(data, table):
     fields = db_keys.get(table)
     my_id = data[-1]
     result = "('" + "', '".join(data) + "')"
-    print("UPDATE {0} SET {1} = {2} where id = '{3}'".format(table, fields, result, my_id))
     return "UPDATE {0} SET {1} = {2} where id = '{3}'".format(table, fields, result, my_id)
 
 

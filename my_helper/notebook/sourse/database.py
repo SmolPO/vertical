@@ -1,6 +1,7 @@
 from my_helper.notebook.sourse.inserts import get_from_db, my_update, add_to_db
 import psycopg2
 from configparser import ConfigParser
+import logging
 path_conf = "B:/my_helper/my_config.ini"
 zero = "01.01.2000"
 empty = "(нет)"
@@ -14,7 +15,11 @@ my_errors = {"1_ui": "Не открывается файл дизайна",
              "5_init_list": "Не удалось получить данные из Базы данных",
              "6_get_next_id": "Не удлось получить следущий номер",
              "7_commit": "Не удалось добавить данные в базу данных",
-             "8_get_data": "Не удалось получить данные из get_data"}
+             "8_get_data": "Не удалось получить данные из get_data",
+             "9_not_sheet": "Не странице в файле ",
+             "10_update": "Не удалось обновить данные в базе данных",
+             "11_kill": "Не удалось удалить данные из базы данных",
+             "12_web": "Не удалось открыть ссылку "}
 
 
 class DataBase:
@@ -25,14 +30,17 @@ class DataBase:
         self.cursor = None
         config = ConfigParser()
         config.read(path_conf)
-        self.ip = config.get('database', 'ip')
-        self.name_db = config.get('database', 'name_db')
-        self.user_db = config.get('database', 'user_db')
-        self.password_db = config.get('database', 'password_db')
+        try:
+            self.ip = config.get('database', 'ip')
+            self.name_db = config.get('database', 'name_db')
+            self.user_db = config.get('database', 'user_db')
+            self.password_db = config.get('database', 'password_db')
+        except:
+            return
 
     def connect_to_db(self):
-        self.conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
         try:
+            self.conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
             if not self.conn:
                 return False
             self.cursor = self.conn.cursor()
@@ -43,7 +51,6 @@ class DataBase:
 
     def get_data(self, fields, table):
         row = get_from_db(fields, table)
-        self.execute(row)
         try:
             self.execute(row)
             return self.cursor.fetchall()
@@ -53,10 +60,8 @@ class DataBase:
             return []
 
     def execute(self, text):
-        self.cursor.execute(text)
         try:
             self.cursor.execute(text)
-            pass
         except:
             print(text)
             print("Не удалось выполнить запрос")
@@ -72,11 +77,11 @@ class DataBase:
 
     def my_commit(self, data):
         print(data)
-        self.connect_to_db()
-        self.cursor.execute(data)
-        self.conn.commit()
         if data:
             try:
+                self.connect_to_db()
+                self.cursor.execute(data)
+                self.conn.commit()
                 pass
             except:
                 print("Не удалось сделать коммит.")
@@ -96,17 +101,18 @@ class DataBase:
             return rows
 
     def my_update(self, data, table):
-        print(data)
-        self.cursor.execute(my_update(data, table))
-        self.conn.commit()
         try:
-            pass
+            self.cursor.execute(my_update(data, table))
+            self.conn.commit()
         except:
             print("Не удалось обновить данные")
 
     def kill_value(self, my_id, table):
-        self.execute("DELETE FROM {0} WHERE id = '{1}'".format(table, my_id))
-        self.conn.commit()
+        try:
+            self.execute("DELETE FROM {0} WHERE id = '{1}'".format(table, my_id))
+            self.conn.commit()
+        except:
+            return
 
     def new_note(self, date, name, number):
         self.my_commit(add_to_db((date, name, number), "notes"))

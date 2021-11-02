@@ -7,16 +7,19 @@ from my_helper.notebook.sourse.database import empty, my_errors
 
 
 class TempForm (QDialog):
-    def __init__(self, designer_file):
+    def __init__(self, designer_file, parent, table):
         super(TempForm, self).__init__()
         if not self.check_start(designer_file):
             return
+        self.parent = parent
+        self.table = table
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.b_kill.clicked.connect(self.ev_kill)
         self.b_change.clicked.connect(self.ev_change)
         self.cb_select.activated[str].connect(self.ev_select)
         self.but_status("add")
+
         try:
             self.rows_from_db = self.parent.db.get_data("*", self.table)
         except:
