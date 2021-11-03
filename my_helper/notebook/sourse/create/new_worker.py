@@ -3,9 +3,11 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
-from my_helper.notebook.sourse.database import get_path_ui, zero, empty, statues, my_errors
-from my_helper.notebook.sourse.create.new_template import TempForm, from_str
+from my_helper.notebook.sourse.database import *
+from my_helper.notebook.sourse.create.new_template import TempForm
 designer_file = get_path_ui("new_worker")
+covid = {"S5": 0, "SL": 1, "CV": 2}
+msgs = {"mes": "Сообщение", "atn": "Внимание"}
 
 
 class NewWorker(TempForm):
@@ -16,6 +18,7 @@ class NewWorker(TempForm):
         # my_pass
         self.cb_auto.stateChanged.connect(self.ev_auto)
         self.cb_contract.activated[str].connect(self.select_contract)
+        self.cb_vac.activated[str].connect(self.change_vac)
         self.init_mask()
         try:
             self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
@@ -30,6 +33,7 @@ class NewWorker(TempForm):
         self.current_id = self.next_id
         self.list_ui = list()
         self.auto_numbers = ()
+        self.my_mem = ""
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я ]{30}"))
@@ -57,45 +61,32 @@ class NewWorker(TempForm):
         self.b_ok.setEnabled(self.cb_contract.currentText() != empty)
 
     def _clean_data(self):
-        _zero = Date(from_str(zero))
-        self.passport_post.clear()
-        self.adr.clear()
-        self.live_adr.clear()
-
-        self.family.setText("")
-        self.name.setText("")
-        self.surname.setText("")
-        self.bday.setDate(_zero)
-        self.post.setText("")
-        self.phone.setText("")
-        self.passport.setText("")
-        self.passport_post.append("")
-        self.adr.append("")
-        self.live_adr.append("")
-        self.inn.setText("")
-        self.snils.setText("")
-        self.n_td.setText("")
-        self.d_td.setDate(zero)
-        self.n_hght.setText("")
+        _zero = Date(*from_str(zero))
+        list_ui = [[self.family, self.name, self.surname, self.post, self.phone, self.passport, self.inn,
+                    self.snils, self.n_td, self.n_hght, self.n_study, self.n_study_card, self.n_prot,
+                    self.n_card, self.vac_doc],
+                   [self.bday, self.d_td, self.d_study, self.d_prot, self.d_vac_1, self.d_vac_2, self.d_height],
+                   [self.passport_post, self.adr, self.live_adr]]
+        for item in list_ui[0]:
+            item.setText("")
+        for item in list_ui[1]:
+            item.setDate(Date(*from_str(zero)))
+        for item in list_ui[2]:
+            item.clear()
         self.n_group_h.setText(str(0))
-        self.d_height.setDate(_zero)
-        self.n_study.setText("")
-        self.n_study_card.setText("")
-        self.d_study.setDate(_zero)
-        self.n_prot.setText("")
-        self.n_card.setText("")
-        self.d_prot.setDate(_zero)
         self.cb_contract.setCurrentIndex(0)
         self.status.setCurrentIndex(0)
 
     def _set_data(self, data):
+        _zero = Date(*from_str(zero))
         self.passport_post.clear()
         self.adr.clear()
         self.live_adr.clear()
+        self.place.clear()
         self.family.setText(data[0])
         self.name.setText(data[1])
         self.surname.setText(data[2])
-        self.bday.setDate(Date(*from_str(data[3])))
+        self.bday.setDate(from_str(data[3]))
         self.post.setText(data[4])
         self.phone.setText(data[5])
         self.passport.setText(data[6])
@@ -105,100 +96,157 @@ class NewWorker(TempForm):
         self.inn.setText(data[10])
         self.snils.setText(data[11])
         self.n_td.setText(data[12])
-        self.d_td.setDate(Date(*from_str(data[13])))
+        self.d_td.setDate(from_str(data[13]))
         self.n_hght.setText(data[14])
         self.n_group_h.setText(str(data[15]))
-        self.d_height.setDate(Date(*from_str(data[16])))
+        self.d_height.setDate(from_str(data[16]))
         self.n_study.setText(data[17])
         self.n_study_card.setText(data[18])
-        self.d_study.setDate(Date(*from_str(data[19])))
+        self.d_study.setDate(from_str(data[19]))
         self.n_prot.setText(data[20])
         self.n_card.setText(data[21])
-        self.d_prot.setDate(Date(*from_str(data[22])))
+        self.d_prot.setDate(from_str(data[22]))
+        self.vac_doc.setText(data[-3][1:])
+        # vac
+        self.set_vac_data(data)
+        self.get_next_id(data)
+        self.status.setCurrentIndex(statues.index(data[-2]))
+
+    def change_vac(self):
+        issue_type = 2
+        sputnik_V = 0
+        self.place.setEnabled(self.cb_vac.currentIndex() != issue_type)
+        self.my_mem = self.place.toPlainText() if self.cb_vac.currentIndex() == issue_type else self.my_mem
+        self.place.clear()
+        self.place.append("нет" if self.cb_vac.currentIndex() == issue_type else self.my_mem)
+        self.d_vac_2.setEnabled(True if self.cb_vac.currentIndex() == sputnik_V else False)
+
+    def set_vac_data(self, data):
+        _zero = Date(from_str(zero))
+        self.d_vac_1.setDate(from_str(data[-6]))
+        self.vac_doc.setText(data[-3][2:])
+        self.cb_vac.setCurrentIndex(covid[data[-3][:2]])
+        if data[-3][0:1] == "S5":
+            self.d_vac_2.setDate(from_str(data[-5]))
+            self.place.append(data[-4])
+        elif data[-3][0:1] == "SL":
+            self.d_vac_2.setDate(_zero)
+            self.d_vac_2.setEnabled(False)
+            self.place.append(data[-4])
+        elif data[-3][0:1] == "CV":
+            self.d_vac_2.setDate(_zero)
+            self.place.clean()
+            self.d_vac_2.setEnabled(False)
+            self.place.setEnabled(False)
+
+    def get_next_id(self, data):
         g = iter(range(len(self.rows_from_db) + 1))
         for item in self.rows_from_db:
             next(g)
             if data[-1] == item[-1]:
                 self.cb_contract.setCurrentIndex(next(g))
                 break
-        self.status.setCurrentIndex(statues.index(data[-2]))
 
-    def _get_data(self, data):
-         data = list([self.family.text(),
-                    self.name.text(),
-                    self.surname.text(),
-                    self.bday.text(),
-                    self.post.text(),
-                    self.phone.text(),
-                    self.passport.text(),
-                    self.passport_post.toPlainText(),
-                    self.adr.toPlainText(),
-                    self.live_adr.toPlainText(),
-                    self.inn.text(),
-                    self.snils.text(),
-                    self.n_td.text(),
-                    self.d_td.text(),
-                    self.n_hght.text(),
-                    self.n_group_h.text(),
-                    self.d_height.text(),
-                    self.n_study.text(),
-                    self.n_study_card.text(),
-                    self.d_study.text(),
-                    self.n_prot.text(),
-                    self.n_card.text(),
-                    self.d_prot.text(),
-                    self.status.CurrentText(),
-                    self.cb_contract.currentText()])
-         return data
+    def _get_data(self, data=None):
+        vac = None
+        data = list()
+        for key in covid:
+            if covid[key] == self.cb_vac.сurrentIndex():
+                vac = key + self.self.cb_vac.currentText()
+        list_ui = [self.family, self.name, self.surname, self.bday, self.post, self.phone, self.passport,
+                   self.passport_post, self.adr, self.live_adr, self.inn, self.snils, self.n_td, self.d_td,
+                   self.n_hght, self.n_group_h, self.d_height, self.n_study_card, self.d_study, self.n_prot,
+                   self.n_card, self.d_prot, self.d_vac_1, self.d_vac_2, self.place, vac, self.status]
+        for item in list_ui:
+            try:
+                data.append(item.text())
+            except:
+                data.append(item.toPlainText())
+        self.cb_contract.currentText()
+        return data
 
     def check_input(self):
-        data = list([self.family.text(),
-                     self.name.text(),
-                     self.surname.text(),
-                     self.bday.text(),
-                     self.post.text(),
-                     self.phone.text(),
-                     self.passport.text(),
-                     self.passport_post.toPlainText(),
-                     self.adr.toPlainText(),
-                     self.live_adr.toPlainText(),
-                     self.inn.text(),
-                     self.snils.text(),
-                     self.n_td.text(),
-                     self.d_td.text(),
-                     self.n_hght.text(),
-                     self.n_group_h.text(),
-                     self.d_height.text(),
-                     self.n_study.text(),
-                     self.n_study_card.text(),
-                     self.d_study.text(),
-                     self.n_prot.text(),
-                     self.n_card.text(),
-                     self.d_prot.text(),
-                     self.status.currentText(),
+        data = list([self.family.text(), self.name.text(), self.surname.text(), self.bday.text(), self.post.text(),
+                     self.phone.text(), self.passport.text(), self.passport_post.toPlainText(),
+                     self.adr.toPlainText(), self.live_adr.toPlainText(), self.inn.text(), self.snils.text(),
+                     self.n_td.text(), self.d_td.text(), self.n_hght.text(), self.n_group_h.text(),
+                     self.d_height.text(), self.n_study.text(), self.n_study_card.text(), self.d_study.text(),
+                     self.n_prot.text(), self.n_card.text(), self.d_prot.text(), self.status.currentText(),
                      self.cb_contract.currentText()])
-        if "" in data or zero in data or empty in data:
-            mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
+        if not self.check_vac():
             return False
+        if self.cb_check.isChecked():
+            return msg(self, "Нет согласия на обработку персональных данных")
+        if "" in data or zero in data or empty in data:
+            return msg(self, "Заполните все поля")
         else:
             return True
 
+    def check_vac(self):
+        list_vac = [self.d_vac_1.text(), self.d_vac_2.text(), self.place.toPlainText(),
+                    self.vac_doc.text(), self.cb_vac.currentIndex()]
+        m_val = {"year": 6, "type": -1, "SputnikV": 0, "Lite": 1, "issue": 2, "d_vac_1": 0, "d_vac_2": 1,
+                 "min_len": 3, "place": 2, "doc": 3}  # магические переменные
+        try:
+            vac_safe = int(get_config("vac_safe"))
+            vac_do = int(get_config("vac_do"))
+            vac_days = int(get_config("vac_days"))
+            cv_safe = int(get_config("cv_safe"))
+        except:
+            return msg(self, my_errors["2_get_ini"])
+
+        if list_vac[m_val["type"]] == m_val["SputnikV"]:
+
+            if len(list_vac[m_val["place"]]) < m_val["min_len"]:
+                return msg(self, "Укажите место прививки")
+
+            if time_delta("now", list_vac[m_val["d_vac_2"]]) > vac_safe:
+                return msg(self, "Сертификат устарел. С даты прививки прошло более " + str(vac_safe) + " дней.")
+
+            delta = time_delta(list_vac[m_val["d_vac_2"]], list_vac[m_val["d_vac_1"]])
+            if delta < vac_days:
+                return msg(self, "Между прививками прошло " + str(delta) + " дней. "
+                                                                           "Это менее " + str(vac_days) + " дней")
+
+            if delta > vac_do:
+                return msg(self, "Между прививками прошло " + str(delta) + "дней. "
+                                                                           "Это более " + str(vac_do) + " дней.")
+
+        elif list_vac[m_val["type"]] == m_val["Lite"]:
+
+            if len(list_vac[m_val["place"]]) < m_val["min_len"]:
+                return msg(self, "Укажите место прививки")
+
+            if time_delta("now", list_vac[m_val["d_vac_1"]]) > vac_safe:
+                return msg(self, "Сертификат устарел. С даты прививки прошло более " + str(vac_safe) + " дней.")
+
+        elif list_vac[m_val["type"]] == m_val["issue"]:
+
+            if len(list_vac[m_val["doc"]]) < m_val["min_len"]:
+                return msg(self, "Укажите номер сертификата")
+
+            if time_delta("now", list_vac[m_val["d_vac_1"]]) > cv_safe:
+                return msg(self, "Сертификат устарел, необходима вакцинация")
+        return True
+
     def ev_auto(self, state):
-        if state:
+        if state == 2:
             number = list()
             card = list()
+            i = 0
             for worker in self.rows_from_db:
-                number.append(worker[21])
-                card.append(worker[22])
+                print((i, worker))
+                number.append(int(worker[20]))
+                card.append(int(worker[21]))
             delta = 1 if dt.datetime.now().weekday() >= 1 else 3
-            date = dt.datetime.now() - dt.timedelta(delta)
-            if number == []:
+            date = dt.datetime.now().date() - dt.timedelta(delta)
+            if not number:
                 number.append(0)
                 card.append(0)
             self.auto_numbers = max(number), max(card), str(date)
             self.n_prot.setText(str(max(number) + 1))
             self.n_card.setText(str(max(card) + 1))
-            self.d_prot.setDate(date)
+            self.d_prot.setDate(from_str(str(date)))
 
             self.n_prot.setEnabled(False)
             self.n_card.setEnabled(False)

@@ -2,7 +2,7 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.create.new_template import TempForm
-from my_helper.notebook.sourse.database import get_path_ui, my_errors
+from my_helper.notebook.sourse.database import *
 
 designer_file = get_path_ui("new_boss")
 fields = ["family", "name", "surname", "post", "email", "phone", "id"]
@@ -16,7 +16,7 @@ class NewBoss(TempForm):
         try:
             self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
         except:
-            mes.question(self, "Внимание", my_errors["5_init_list"], mes.Cancel)
+            msg(self, my_errors["3_get_db"])
             return
         self.slice_select = -5
         self.slice_set = 6

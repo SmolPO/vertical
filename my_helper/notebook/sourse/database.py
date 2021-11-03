@@ -1,22 +1,24 @@
 from my_helper.notebook.sourse.inserts import get_from_db, my_update, add_to_db
 import psycopg2
+import datetime as dt
 from configparser import ConfigParser
+from PyQt5.QtCore import QDate as Date
 import logging
+from PyQt5.QtWidgets import QMessageBox as mes
 path_conf = "B:/my_helper/my_config.ini"
-zero = "01.01.2000"
 empty = "(нет)"
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 statues = ["работает", "отпуск", "уволен"]
-my_errors = {"1_ui": "Не открывается файл дизайна",
-             "2_get_path": "Не удалось получить данные из get_path",
-             "3_conn": "Нет подключения к базе данных",
-             "4_not_file": " Файл не найден",
-             "5_init_list": "Не удалось получить данные из Базы данных",
-             "6_get_next_id": "Не удлось получить следущий номер",
-             "7_commit": "Не удалось добавить данные в базу данных",
-             "8_get_data": "Не удалось получить данные из get_data",
-             "9_not_sheet": "Не странице в файле ",
+my_errors = {"1_get_ui": "Не удалось найти файл дизайна",
+             "2_get_ini": "Не удалось получить данные из config: ",
+             "3_get_db": "Не удалось получить данные из Базы данных",
+             "4_get_file": " Файл не найден",
+             "5_get_next_id": "Не удалось получить следущий номер",
+             "6_get_sheet": "Не странице в файле ",
+             "7_conn": "Нет подключения к базе данных",
+             "8_init_list": "Не удалось получить данные из Базы данных",
+             "9_commit": "Не удалось добавить данные в базу данных",
              "10_update": "Не удалось обновить данные в базе данных",
              "11_kill": "Не удалось удалить данные из базы данных",
              "12_web": "Не удалось открыть ссылку "}
@@ -219,3 +221,31 @@ def set_next_number(n):
 
 def short_name(data):
     return data[0] + " " + data[1][0] + "." + data[2][0] + "."
+
+
+def time_delta(date_1, date_2):
+    if date_1 == "now":
+        a = dt.datetime(dt.datetime.now().year, dt.datetime.now().month, dt.datetime.now().day)
+    else:
+        a = dt.datetime(int(date_1[6:]), int(date_1[3:5]), int(date_1[:2]))
+    b = dt.datetime(int(date_2[6:]), int(date_2[3:5]), int(date_2[:2]))
+    return (a - b).days
+
+
+def msg(widgets, text):
+    mes.question(widgets, "Сообщение", text, mes.Cancel)
+    return False
+
+
+def from_str(date):
+    symbols = [".", ",", "-", "/", "_"]
+    for item in symbols:
+        tmp = date.split(item)
+        if len(tmp) == 3:
+            if len(tmp[0]) == 4:
+                return Date(int(tmp[0]), int(tmp[1]), int(tmp[2]))
+            if len(tmp[2]) == 4:
+                return Date(int(tmp[2]), int(tmp[1]), int(tmp[0]))
+
+
+zero = from_str("01.01.2000")

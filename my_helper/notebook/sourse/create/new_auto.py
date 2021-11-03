@@ -3,7 +3,7 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
 from my_helper.notebook.sourse.create.new_template import TempForm
-from my_helper.notebook.sourse.database import get_path_ui, empty, my_errors
+from my_helper.notebook.sourse.database import *
 
 #  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_auto")
@@ -29,8 +29,7 @@ class NewAuto(TempForm):
         try:
             rows = self.parent.db.get_data("id, gov_number, model", self.table)
         except:
-            mes.question(self, "Внимание", my_errors["2_get_data"], mes.Cancel)
-            return
+            return msg(self, my_errors["3_get_db"])
         self.cb_select.addItems([empty])
         if not rows:
             return False
@@ -56,11 +55,9 @@ class NewAuto(TempForm):
     def check_input(self):
         data = self.get_data()
         if "" in data:
-            mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
-            return False
+            return msg(self, "Заполните все поля")
         if self.is_track.isChecked() and self.track_number.text() == "":
-            mes.question(self, "Внимание", "Так есть прицеп или нет??.. Введите номер или уберите галочку", mes.Cancel)
-            return False
+            return msg(self, "Так есть прицеп или нет??.. Введите номер или уберите галочку")
         return True
 
     def have_track(self, state):

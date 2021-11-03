@@ -2,8 +2,8 @@ from PyQt5.QtWidgets import QMessageBox as mes
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import QDate as Date
-from my_helper.notebook.sourse.create.new_template import TempForm, from_str
-from my_helper.notebook.sourse.database import get_path_ui, zero, my_errors
+from my_helper.notebook.sourse.create.new_template import TempForm
+from my_helper.notebook.sourse.database import *
 
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_driver")
@@ -40,7 +40,7 @@ class NewDriver(TempForm):
         self.adr.clear()
         self.passport.append(data[4])
         self.adr.append(data[5])
-        self.d_birthday.setDate(Date(*from_str(data[3])))
+        self.d_birthday.setDate(from_str(data[3]))
 
     def _get_data(self, data):
         data.append(self.d_birthday.text())
@@ -59,8 +59,7 @@ class NewDriver(TempForm):
     def check_input(self):
         data = self.get_data()
         if "" in data:
-            mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
-            return False
+            return msg(self, "Заполните все поля")
         else:
             if self.d_birthday.text() == zero:
                 ans = mes.question(self, "Сообщение", "Дата рождения точно " + zero + "?", mes.Ok | mes.Cancel)

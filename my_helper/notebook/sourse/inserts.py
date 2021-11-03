@@ -1,3 +1,4 @@
+
 db_keys = {"auto": "(gov_number, brand, model, track_number, id)",
            "drivers": "(family, name, surname, birthday, passport, adr, id)",
            "workers": "(family, name, surname, birthday, post, phone, passport, passport_got, adr, live_adr, inn, "
@@ -43,5 +44,3 @@ def my_update(data, table):
     return "UPDATE {0} SET {1} = {2} where id = '{3}'".format(table, fields, result, my_id)
 
 
-def from_str(date):
-    return int(date[0:2]), int(date[2:4]), int(date[4:])

@@ -1,9 +1,7 @@
-from PyQt5.QtWidgets import QMessageBox as mes
-from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from my_helper.notebook.sourse.create.new_template import TempForm, from_str
-from my_helper.notebook.sourse.database import get_path_ui, zero, my_errors
+from my_helper.notebook.sourse.create.new_template import TempForm
+from my_helper.notebook.sourse.database import *
 designer_file = get_path_ui("add_company")
 fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank", "family", "name", "surname",
           "post", "count_attorney", "date_attorney", "id"]
@@ -27,7 +25,7 @@ class NewCompany(TempForm):
         try:
             self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
         except:
-            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+            msg(self, my_errors["2_get_path"])
             return
 
     def init_mask(self):
@@ -50,13 +48,13 @@ class NewCompany(TempForm):
         return True
 
     def _set_data(self, data):
-        self.date_dovr.setDate(Date(*from_str(data[-2])))
+        self.date_dovr.setDate(from_str(data[-2]))
         self.current_id = data[fields.index("id")]
 
     def _clean_data(self):
         for item in self.list_ui[:-1]:
-                item.setText("")
-        self.list_ui[-1].setDate(Date.fromString(zero))
+            item.setText("")
+        self.list_ui[-1].setDate(from_str(zero))
         return False
 
     def _get_data(self, data):
@@ -68,8 +66,7 @@ class NewCompany(TempForm):
     def check_input(self):
         data = self.get_data()
         if "" in data:
-            mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
-            return False
+            return msg(self, "Заполните все поля")
         else:
             if self.list_ui[-2].text() == zero:
                 ans = mes.question(self, "Сообщение", "Дата доверенности точно " + zero + "?", mes.Ok | mes.Cancel)

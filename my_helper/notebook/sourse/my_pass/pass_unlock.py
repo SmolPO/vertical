@@ -1,12 +1,11 @@
-from PyQt5.QtCore import QDate as Date
 from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
-import openpyxl
-import os
+import docx
+import logging
 import pymorphy2
-from my_helper.notebook.sourse.database import get_path, get_path_ui, count_days, my_errors
-from my_helper.notebook.sourse.create.new_template import from_str
+import docxtpl
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
+from my_helper.notebook.sourse.database import *
 designer_file = get_path_ui("pass_unlock")
 
 
@@ -60,6 +59,35 @@ class UnlockPass(TempPass):
         return True
 
     def _create_data(self, doc):
+        note = ["Настоящим письмом информируем Вас о прохождение вакцинации от Covid-19 сотрудником ООО «Вертикаль»"]
+        fields = {"vac_1": ["№ п/п", "ФИО", "Должность", "Дата прививки", "Место вакцинации"],
+                  "vac_2": ["№ п/п", "ФИО", "Должность", "Дата первой прививки",
+                            "Дата второй прививки", "Место вакцинации"],
+                  "anti": ["№ п/п", "ФИО", "Должность", "Номер сертификата", "Дата сертификата"]}
+        data = {"number": "", "date": ""}
+        data["number"] = get_next_number()
+        data["date"] = str(dt.datetime.now().date())
+        data["note"] = note[0]
+        people_id = self.cb_worker.currentText().split(".")[0]
+        people = []
+        key = "vac"
+        table = doc.add_table(rows=2, cols=5)
+        for i in range(len(fields[key])):
+            cell = table.cell(0, i)
+            cell.text = fields[key][i]
+            cell = table.cell(1, i)
+            cell.text = people[i]
+        # записываем в ячейку данные
+        for row in self.parent.db.get_data("family, name, surname, post, id", "itrs"):
+            if people_id == str(row[-1]):
+                pass
+        path = get_path("path_vac")
+        try:
+            doc = docxtpl.DocxTemplate(path)
+        except:
+            mes.question(self, "Сообщение", my_errors["4_not_file"] + self.main_file, mes.Cancel)
+            return
+
         return True
 
     def _ev_ok(self):
@@ -94,3 +122,7 @@ class UnlockPass(TempPass):
         except:
             mes.question(self, "Сообщение", my_errors["4_not_file"], mes.Cancel)
             return
+
+    def create_vac(self):
+
+        pass

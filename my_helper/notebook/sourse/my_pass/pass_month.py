@@ -4,8 +4,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
 from configparser import ConfigParser
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-from my_helper.notebook.sourse.create.new_template import from_str
-from my_helper.notebook.sourse.database import get_path, get_path_ui, count_days, my_errors, get_from_ini
+from my_helper.notebook.sourse.database import *
 import logging
 import docx
 #  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)

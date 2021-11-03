@@ -5,7 +5,6 @@ from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
 import os
 import docxtpl
-from configparser import ConfigParser
 from my_helper.notebook.sourse.database import get_path, count_days, get_next_number, set_next_number, my_errors
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)

@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QMessageBox
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.create.new_template import TempForm
-from my_helper.notebook.sourse.database import get_path_ui, get_path, empty, si, my_errors
+from my_helper.notebook.sourse.database import *
 
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("materials")
@@ -42,17 +42,16 @@ class NewMaterial(TempForm):
         return True
 
     def _set_data(self, data):
+        try:
+            contracts = self.parent.db.get_data("name, number", "contracts")
+        except:
+            return msg(self, my_errors["3_get_db"])
         i = iter(range(0, 5))
         self.name.setText(data[next(i)])
         self.cb_si.setCurrentIndex(si.index(data[next(i)]))
         self.value.setText(data[next(i)])
         self.summ.setText(data[2])
         self.provider.setChecked(True if data[next(i)] == "Заказчик" else False)
-        try:
-            contracts = self.parent.db.get_data("name, number", "contracts")
-        except:
-            QMessageBox.question(self, "Внимание", my_errors["2_get_path"], QMessageBox.Cancel)
-            return False
         j = iter(range(len(contracts)))
         for item in contracts:
             if data[4] in item:

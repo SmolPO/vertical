@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QDialog
 import my_helper.notebook.sourse.inserts as ins
 from PyQt5.QtWidgets import QMessageBox as mes
 import logging
-from my_helper.notebook.sourse.database import empty, my_errors
+from my_helper.notebook.sourse.database import *
 
 
 class TempForm (QDialog):
@@ -23,24 +23,22 @@ class TempForm (QDialog):
         try:
             self.rows_from_db = self.parent.db.get_data("*", self.table)
         except:
-            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+            msg(self, my_errors["3_get_db"])
             return
         try:
             self.next_id = self.parent.db.get_next_id(self.table)
         except:
-            mes.question(self, "Внимание", my_errors["6_get_next_id"], mes.Cancel)
+            msg(self, my_errors["3_get_db"])
             return
 
-    def check_start(self, designer_file):
+    def check_start(self, ui_file):
         self.status_ = True
-        self.path_ = designer_file
+        self.path_ = ui_file
         try:
-            uic.loadUi(designer_file, self)
+            uic.loadUi(ui_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
-            self.status_ = False
-            return False
+            return msg(self, my_errors["1_get_ui"])
 
     def ev_ok(self):
         if not self.check_input():
@@ -53,8 +51,7 @@ class TempForm (QDialog):
         try:
             self.parent.db.my_commit(ins.add_to_db(data, self.table))
         except:
-            mes.question(self, "Сообщение", my_errors["7_commit"], mes.Ok)
-        mes.question(self, "Сообщение", "Запись добавлена", mes.Ok)
+            return msg(self, my_errors["7_commit"])
         self.close()
 
     def ev_select(self, text):
@@ -82,7 +79,6 @@ class TempForm (QDialog):
     def get_data(self):
         data = list()
         for item in self.list_ui[:self.slice_get]:
-            print(item.text())
             data.append(item.text())
         data = self._get_data(data)
         if not data:
@@ -126,11 +122,6 @@ class TempForm (QDialog):
             self.b_ok.setEnabled(False)
             self.b_change.setEnabled(True)
             self.b_kill.setEnabled(True)
-
-
-def from_str(date):
-    print(date)
-    return int(date[6:]), int(date[3:5]), int(date[0:2])
 
 
 def set_cb_text(combobox, data, rows):

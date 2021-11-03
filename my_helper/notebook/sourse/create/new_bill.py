@@ -4,8 +4,8 @@ from PyQt5.QtWidgets import QMessageBox as mes
 from datetime import datetime as dt
 import os
 import openpyxl
-from my_helper.notebook.sourse.database import get_path, get_path_ui, empty, zero, my_errors
-from my_helper.notebook.sourse.create.new_template import TempForm, from_str, set_cb_text
+from my_helper.notebook.sourse.database import *
+from my_helper.notebook.sourse.create.new_template import TempForm, set_cb_text
 #  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_bill")
 
@@ -19,7 +19,7 @@ class NewBill(TempForm):
         try:
             self.parent.db.init_list(self.cb_buyer, "*", "itrs", people=True)
         except:
-            QMessageBox.question(self, "Внимание", my_errors["5_init_list"], QMessageBox.Cancel)
+            msg(self, my_errors["3_get_db"])
             return
         self.slice_select = 10
         self.slice_set = 0
@@ -34,16 +34,19 @@ class NewBill(TempForm):
         return
 
     def init_operations(self):
-        rows = self.parent.db.get_data("*", self.table)
+        try:
+            rows = self.parent.db.get_data("*", self.table)
+        except:
+            self.status_ = False
+            return msg(self, my_errors["3_get_db"])
         self.cb_select.addItem(empty)
-        print(rows)
         for row in rows:
             self.cb_select.addItems([", ".join((row[0], row[-1]))])
         return
 
     def _set_data(self, data):
         self.current_id = data[5]
-        self.date.setDate(Date(*from_str(data[0])))
+        self.date.setDate(from_str(data[0]))
         set_cb_text(self.cb_buyer, data[2], self.rows_from_db)
         self.sb_value.setValue(int(data[1]))
         self.note.clear()
@@ -62,9 +65,9 @@ class NewBill(TempForm):
         try:
             os.replace(self.filename, path)
         except:
-            mes.question(self, "Сообщение", "Проблема с правом доступа. 1. - вручную скопируйте файл в папку со счетами,"
-                                            " 2 - Снова нажмите Выбрать файл и укажите файл чека в новом месте", mes.Cancel)
-            return False
+            return msg(self, "Проблема с правом доступа. "
+                             "1. - вручную скопируйте файл в папку со счетами,"
+                             " 2 - Снова нажмите Выбрать файл и укажите файл чека в новом месте")
         self.create_note(self.sb_value.value(), self.date.text().replace("-", "."), self.cb_buyer.currentText()[:-5])
         return data
 
@@ -79,7 +82,7 @@ class NewBill(TempForm):
 
     def _clean_data(self):
         self.current_id = 1
-        self.date.setDate(Date(*from_str(zero)))
+        self.date.setDate(zero)
         self.cb_buyer.setCurrentIndex(0)
         self.sb_value.setValue(0)
         self.note.clear()
@@ -124,25 +127,36 @@ class NewBill(TempForm):
         return True
 
     def create_note(self, value, date, people):
-        wb = openpyxl.load_workbook(get_path("path") + get_path("path_bills") +
+        try:
+            wb = openpyxl.load_workbook(get_path("path") + get_path("path_bills") +
                                     "/" + str(dt.now().year) +
                                     "/" + str(dt.now().month) +
                                     "/" + str(dt.now().month) + str(dt.now().year) + ".xlsx")
-        sheet = wb['bills']
+        except:
+            return msg(self, my_errors["4_get_file"])
+        try:
+            sheet = wb['bills']
+        except:
+            return msg(self, my_errors["6_get_sheet"])
         row = sheet['F2'].value
         sheet['A' + str(row + 3)].value = int(row) + 1
         sheet['B' + str(row + 3)].value = date
         sheet['C' + str(row + 3)].value = value
         sheet['D' + str(row + 3)].value = people
         sheet['F2'].value = int(row) + 1
-        wb.save(get_path("path") + get_path("path_bills") +
+        try:
+            wb.save(get_path("path") + get_path("path_bills") +
                         "/" + str(dt.now().year) +
                         "/" + str(dt.now().month) +
                         "/" + str(dt.now().month) + str(dt.now().year) + ".xlsx")
-
-        os.startfile(get_path("path") + get_path("path_bills") +
+        except:
+            return msg(self, my_errors["4_get_file"])
+        try:
+            os.startfile(get_path("path") + get_path("path_bills") +
                         "/" + str(dt.now().year) +
                         "/" + str(dt.now().month) +
                         "/" + str(dt.now().month) + str(dt.now().year) + ".xlsx")
+        except:
+            return msg(self, my_errors["4_get_file"])
 
 

@@ -3,8 +3,8 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtWidgets import QMessageBox as mes
 import os
-from my_helper.notebook.sourse.create.new_template import TempForm, from_str
-from my_helper.notebook.sourse.database import get_path_ui, empty, zero, my_errors, get_path
+from my_helper.notebook.sourse.create.new_template import TempForm
+from my_helper.notebook.sourse.database import *
 
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("new_contract")
@@ -21,7 +21,7 @@ class NewContact(TempForm):
             self.parent.db.init_list(self.cb_comp, "company", "company")
             self.parent.db.init_list(self.cb_select, "name", self.table)
         except:
-            mes.question(self, "Внимание", my_errors["5_init_list"], mes.Cancel)
+            msg(self, my_errors["3_get_db"])
             return
         self.list_ui = [self.name, self.cb_comp, self.part, self.number, self.date, self.my_object, self.work]
 
@@ -42,14 +42,13 @@ class NewContact(TempForm):
         return True
 
     def _clean_data(self):
-        self.name.setText("")
+        list_ui = [self.name, self.part, self.number]
+        for item in list_ui:
+            item.setText("")
         self.cb_comp.setCurrentIndex(0)
-        self.part.setText("")
-        self.number.setText("")
-        self.date.setDate(Date(*from_str(zero)))
+        self.date.setDate(zero)
         self.my_object.clear()
         self.work.clear()
-        self.cb_comp.setCurrentText(empty)
 
     def _set_data(self, data):
         self.name.setText(data[0])
@@ -61,7 +60,7 @@ class NewContact(TempForm):
                 break
         self.part.setText(data[6])
         self.number.setText(data[0])
-        self.date.setDate(Date(*from_str(data[3])))
+        self.date.setDate(from_str(data[3]))
         self.my_object.clear()
         self.work.clear()
         self.my_object.append(data[4])
@@ -82,8 +81,7 @@ class NewContact(TempForm):
         if "" in list([self.name.text(), self.number.text(),
                        self.my_object.toPlainText(), self.work.toPlainText(),
                       self.part.text()]) or self.date.text() == zero:
-            mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
-            return False
+            return msg(self, "Заполните все поля")
         return True
 
     def _ev_ok(self):

@@ -5,7 +5,7 @@ import os
 import docxtpl
 from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-from my_helper.notebook.sourse.database import get_path, get_path_ui, get_config, empty, count_days, my_errors
+from my_helper.notebook.sourse.database import *
 import logging
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_auto")
@@ -34,7 +34,7 @@ class AutoPass(TempPass):
             self.main_file = get_path("path") + get_path("path_pat_notes") + "/pass_auto.docx"
             self.print_file = get_path("path") + get_path("path_notes_docs")
         except:
-            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+            msg(self, my_errors["2_get_ini"])
             return
 
     # инициализация
@@ -42,8 +42,7 @@ class AutoPass(TempPass):
         try:
             drivers = self.parent.db.get_data("family, name", self.table)
         except:
-            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
-            return False
+            return msg(self, my_errors["2_get_ini"])
         for item in self.list_ui:
             item.addItem(empty)
         for row in drivers:
@@ -56,8 +55,7 @@ class AutoPass(TempPass):
         try:
             auto = self.parent.db.get_data("model, gov_number", "auto")
         except:
-            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
-            return False
+            return msg(self, my_errors["2_get_ini"])
         auto.append([empty])
         for row in auto:
             self.cb_auto.addItem(row[0])
@@ -67,8 +65,7 @@ class AutoPass(TempPass):
         try:
             rows = self.parent.db.get_data("*", "auto")
         except:
-            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
-            return False
+            return msg(self, my_errors["2_get_ini"])
         for row in rows:
             if self.cb_auto.currentText() in row:
                 self.data["auto"].append(" ".join(row[:2]))

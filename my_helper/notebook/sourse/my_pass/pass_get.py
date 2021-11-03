@@ -3,8 +3,7 @@ from PyQt5.QtCore import QDate as Date
 import datetime as dt
 import docx
 import logging
-from my_helper.notebook.sourse.create.new_template import from_str
-from my_helper.notebook.sourse.database import get_path_ui, count_days, my_errors
+from my_helper.notebook.sourse.database import *
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("pass_get")
