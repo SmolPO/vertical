@@ -21,7 +21,10 @@ my_errors = {"1_get_ui": "Не удалось найти файл дизайна
              "9_commit": "Не удалось добавить данные в базу данных",
              "10_update": "Не удалось обновить данные в базе данных",
              "11_kill": "Не удалось удалить данные из базы данных",
-             "12_web": "Не удалось открыть ссылку "}
+             "12_web": "Не удалось открыть ссылку ",
+             "13_full_all_fields": "Заполните все поля",
+             "14_add_people": "Добавьте сотрудников",
+             "15_add_contract": "Добавьте договор"}
 
 
 class DataBase:
@@ -79,11 +82,11 @@ class DataBase:
 
     def my_commit(self, data):
         print(data)
+        self.connect_to_db()
+        self.cursor.execute(data)
+        self.conn.commit()
         if data:
             try:
-                self.connect_to_db()
-                self.cursor.execute(data)
-                self.conn.commit()
                 pass
             except:
                 print("Не удалось сделать коммит.")
@@ -103,16 +106,18 @@ class DataBase:
             return rows
 
     def my_update(self, data, table):
+        self.cursor.execute(my_update(data, table))
+        self.conn.commit()
         try:
-            self.cursor.execute(my_update(data, table))
-            self.conn.commit()
+            pass
         except:
             print("Не удалось обновить данные")
 
     def kill_value(self, my_id, table):
+        self.execute("DELETE FROM {0} WHERE id = '{1}'".format(table, my_id))
+        self.conn.commit()
         try:
-            self.execute("DELETE FROM {0} WHERE id = '{1}'".format(table, my_id))
-            self.conn.commit()
+            pass
         except:
             return
 

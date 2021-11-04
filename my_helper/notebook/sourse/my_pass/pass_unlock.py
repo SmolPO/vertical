@@ -1,7 +1,9 @@
 from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
 import docx
+import os
 import logging
+import openpyxl
 import pymorphy2
 import docxtpl
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
@@ -17,77 +19,42 @@ class UnlockPass(TempPass):
         self.parent = parent
         # my_pass
         self.d_from.setDate(dt.datetime.now().date())
-        self.d_to.setDate(Date(*from_str(".".join([str(count_days[dt.datetime.now().month - 1]),
-                                                   str(dt.datetime.now().month),
-                                                   str(dt.datetime.now().year)]))))
+        self.d_to.setDate(from_str(".".join([str(count_days[dt.datetime.now().month - 1]),
+                                             str(dt.datetime.now().month),
+                                             str(dt.datetime.now().year)])))
         self.cb_all_days.stateChanged.connect(self.all_days)
         try:
             self.rows_from_db = self.parent.db.get_data("*", self.table)
         except:
-            mes.question(self, "Сообщение", my_errors["8_get_data"], mes.Cancel)
+            msg(self, my_errors["3_get_db"])
             return
         self.init_workers()
         self.data = {"number": "", "data": "", "customer": "", "company": "", "start_date": "", "end_date": "",
                      "post": "", "family": "", "name": "", "surname": "", "adr": ""}
-        self.main_file += "/pass_unlock.docx"
+        self.vac_path = self.main_file + "/Вакцинация.docx"
+        self.main_file += "/Разблокировка.docx"
         self.count_days = 14
 
     def init_workers(self):
-        for name in self.parent.db.get_data("family, name, id", self.table):
-            self.cb_worker.addItem(str(name[-1]) + ". " + " ".join((name[0], name[1][0])) + ".")
-        for name in self.parent.db.get_data("family, name, id", "itrs"):
-            self.cb_worker.addItem(str(name[-1]) + ". " + " ".join((name[0], name[1][0])) + ".")
+        for people in self.all_people:
+            if people[-2] != 3:
+                self.cb_worker.addItem(str(people[-1]) + ". " + short_name(people))
 
     def _get_data(self):
-        family = self.cb_worker.currentText().split(".")[0]
+        family = self.cb_worker.currentText()
         morph = pymorphy2.MorphAnalyzer()
-        for row in self.parent.db.get_data("family, name, surname, post, live_adr, id", "itrs"):
-            if family == str(row[-1]):  # на форме фамилия в виде Фамилия И.
-                self.data["family"] = morph.parse(row[0])[0].inflect({'datv'})[0].capitalize()
-                self.data["name"] = morph.parse(row[1])[0].inflect({'datv'})[0].capitalize()
-                self.data["surname"] = morph.parse(row[2])[0].inflect({'datv'})[0].capitalize()
-                self.data["post"] = morph.parse(row[3])[0].inflect({'datv'})[0]
-                self.data["adr"] = row[4]
-                self.data["start_date"] = self.d_from.text()
-                self.data["end_date"] = self.d_to.text()
-                self.count_days = self.sb_days.value()
-                # self.create_covid(self.data["family"].capitalize() + " " + self.data["name"][0].upper()
-                #                   + "." + self.data["surname"][0].upper() + ".", self.data["post"].capitalize())
-                return
+        people = self.check_row(family)  # на форме фамилия в виде Фамилия И.
+        self.data["family"] = morph.parse(people[0])[0].inflect({'datv'})[0].capitalize()
+        self.data["name"] = morph.parse(people[1])[0].inflect({'datv'})[0].capitalize()
+        self.data["surname"] = morph.parse(people[2])[0].inflect({'datv'})[0].capitalize()
+        self.data["post"] = morph.parse(people[3])[0].inflect({'datv'})[0]
+        self.data["adr"] = people[-2]
+        self.data["start_date"] = self.d_from.text()
+        self.data["end_date"] = self.d_to.text()
+        self.count_days = self.sb_days.value()
+
 
     def check_input(self):
-        return True
-
-    def _create_data(self, doc):
-        note = ["Настоящим письмом информируем Вас о прохождение вакцинации от Covid-19 сотрудником ООО «Вертикаль»"]
-        fields = {"vac_1": ["№ п/п", "ФИО", "Должность", "Дата прививки", "Место вакцинации"],
-                  "vac_2": ["№ п/п", "ФИО", "Должность", "Дата первой прививки",
-                            "Дата второй прививки", "Место вакцинации"],
-                  "anti": ["№ п/п", "ФИО", "Должность", "Номер сертификата", "Дата сертификата"]}
-        data = {"number": "", "date": ""}
-        data["number"] = get_next_number()
-        data["date"] = str(dt.datetime.now().date())
-        data["note"] = note[0]
-        people_id = self.cb_worker.currentText().split(".")[0]
-        people = []
-        key = "vac"
-        table = doc.add_table(rows=2, cols=5)
-        for i in range(len(fields[key])):
-            cell = table.cell(0, i)
-            cell.text = fields[key][i]
-            cell = table.cell(1, i)
-            cell.text = people[i]
-        # записываем в ячейку данные
-        for row in self.parent.db.get_data("family, name, surname, post, id", "itrs"):
-            if people_id == str(row[-1]):
-                pass
-        path = get_path("path_vac")
-        try:
-            doc = docxtpl.DocxTemplate(path)
-        except:
-            mes.question(self, "Сообщение", my_errors["4_not_file"] + self.main_file, mes.Cancel)
-            return
-
         return True
 
     def _ev_ok(self):
@@ -99,30 +66,49 @@ class UnlockPass(TempPass):
         self.count_days = 14
         pass
 
-    def create_covid(self, family, post):
-        path = get_path("path") + get_path("path_covid") + "/covid.xlsx"
-        try:
-            wb = openpyxl.load_workbook(path)
-        except:
-            mes.question(self, "Сообщение", my_errors["4_not_find"] + path, mes.Cancel)
-            return
-        try:
-            sheet = wb['unlock']
-        except:
-            mes.question(self, "Сообщение", my_errors["9_not_sheet"] + 'unlock', mes.Cancel)
-            return
-        for i in range(self.count_days):
-            sheet['A' + str(i + 3)].value = i + 1
-            sheet['B' + str(i + 3)].value = dt.datetime.now().date() - dt.timedelta(self.count_days - i)
-            sheet['C' + str(i + 3)].value = family
-            sheet['D' + str(i + 3)].value = post
-        try:
-            wb.save(get_path("path") + get_path("path_covid") + "/" + str(family) + ".xlsx")
-            os.startfile(get_path("path") + get_path("path_covid") + "/" + str(family) + ".xlsx")
-        except:
-            mes.question(self, "Сообщение", my_errors["4_not_file"], mes.Cancel)
-            return
+    def _create_data(self, _):
+        family = self.cb_worker.currentText()
+        self.create_vac(family)
+        pass
 
-    def create_vac(self):
+    def create_vac(self, family):
+        note = ["Настоящим письмом информируем Вас о прохождение вакцинации от Covid-19 сотрудником ООО «Вертикаль»"]
+        people = self.check_row(family)
+        data_vac = people[-5:-1]
+        doc = docx.Document(self.vac_path)
+        next_id = set_next_number(int(self.number.value()) + 1)
+        doc.tables[0].rows[0].cells[0].text = "Исх. " + str(next_id)
+        doc.tables[0].rows[1].cells[0].text = "от " + self.d_note.text()
+        doc.tables[1].rows[1].cells[0].text = "1"
+        doc.tables[1].rows[1].cells[1].text = " ".join(people[:3])
+        doc.tables[1].rows[1].cells[2].text = people[3]
+        if data_vac[3][:2] == "S5":
+            doc.tables[1].add_column(200)
+            doc.tables[1].rows[0].cells[3].text = "Дата первой прививки"
+            doc.tables[1].rows[0].cells[4].text = "Дата второй прививки"
+            doc.tables[1].rows[0].cells[5].text = "Место вакцинации"
 
+            doc.tables[1].rows[1].cells[3].text = data_vac[0]
+            doc.tables[1].rows[1].cells[4].text = data_vac[1]
+            doc.tables[1].rows[1].cells[5].text = data_vac[2]
+            pass
+        elif data_vac[3][:2] == "SL":
+            self.data["d_vac_1"] = data_vac[0]
+            self.data["place"] = data_vac[2]
+            doc.tables[1].rows[0].cells[3].text = "Дата прививки"
+            doc.tables[1].rows[0].cells[4].text = "Место вакцинации"
+            doc.tables[1].rows[1].cells[3].text = data_vac[0]
+            doc.tables[1].rows[1].cells[4].text = data_vac[2]
+        elif data_vac[3][:2] == "CV":
+            self.data["d_vac_1"] = data_vac[0]
+            self.data["vac_doc"] = data_vac[3][2:]
+            doc.tables[1].rows[0].cells[3].text = "Номер сертификата"
+            doc.tables[1].rows[0].cells[4].text = "Дата получения"
+
+            doc.tables[1].rows[1].cells[3].text = data_vac[0]
+            doc.tables[1].rows[1].cells[4].text = data_vac[3]
+            pass
+        path = get_path("path") + get_path("path_notes_docs") + "/" + str(next_id) + "_" + self.d_note.text() + ".docx"
+        doc.save(path)
+        os.startfile(path)
         pass

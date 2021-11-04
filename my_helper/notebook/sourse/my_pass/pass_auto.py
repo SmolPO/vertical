@@ -86,21 +86,14 @@ class AutoPass(TempPass):
         if not self.get_data():
             return
         try:
-            doc = docxtpl.DocxTemplate(self.main_file)
+            path = self.main_file
+            doc = docxtpl.DocxTemplate(path)
+            doc.render(self.data)
+            path = self.print_file
+            doc.save(path)
+            os.startfile(path)
         except:
-            mes.question(self, "Внимание", my_errors["4_not_file"] + self.main_file, mes.Cancel)
-            return False
-        doc.render(self.data)
-        try:
-            doc.save(self.print_file)
-        except:
-            mes.question(self, "Внимание", my_errors["4_not_file"] + self.print_file, mes.Cancel)
-            return False
-        try:
-            os.startfile(self.print_file)
-        except:
-            mes.question(self, "Внимание", my_errors["4_not_file"] + self.print_file, mes.Cancel)
-            return False
+            return msg(self, my_errors["4_get_file"] + path)
 
     def _set_enabled(self, status):
         self.d_note.setEnabled(status)

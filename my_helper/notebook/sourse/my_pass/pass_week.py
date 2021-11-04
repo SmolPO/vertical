@@ -62,8 +62,7 @@ class WeekPass(TempPass):
         try:
             rows = self.parent.db.get_data("family, name, surname, post", "bosses")
         except:
-            mes.question(self, "Сообщение", my_errors["9_not_sheet"] + 'unlock', mes.Cancel)
-            return
+            return msg(self, my_errors["3_get_db"])
         for people in rows:
             family = people[0] + " " + people[1][0] + ". " + people[2][0] + "."
             self.cb_boss_part.addItem(family)       # брать из БД
@@ -74,16 +73,11 @@ class WeekPass(TempPass):
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
-        try:
-            rows = self.parent.db.get_data("family, name, surname, post, passport, "
-                                            "passport_got, birthday, adr,  live_adr", "workers")
-        except:
-            mes.question(self, "Сообщение", my_errors["8_get_data"], mes.Cancel)
-            return
-        for name in rows:
-            family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
-            for item in self.list_ui:
-                item.addItem(family)
+        for people in self.all_people:
+            if family[-2] != 3:
+                family = str(people[-1]) + ". " + short_name(people)
+                for item in self.list_ui:
+                    item.addItem(family)
 
     # обработчики кнопок
     def _ev_ok(self):
@@ -104,37 +98,45 @@ class WeekPass(TempPass):
 
         # Заполнить таблицу
     def _create_data(self, path):
-        try:
-            doc = docx.Document(path)
-        except:
-            mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
-            return
+        doc = docx.Document(path)
         i = 1
+        list_people = list()
         for elem in self.list_ui:
             family = elem.currentText()
             if family != "(нет)":
                 doc.tables[1].add_row()
-                people = self.get_worker_week(family)
-                doc.tables[1].rows[i].cells[0].text = str(i)
-                doc.tables[1].rows[i].cells[1].text = " ".join(people[:3])
-                doc.tables[1].rows[i].cells[2].text = people[3]
-                doc.tables[1].rows[i].cells[3].text = people[6]
-                doc.tables[1].rows[i].cells[4].text = " ".join(people[4:6])
-                doc.tables[1].rows[i].cells[5].text = people[7]
-                doc.tables[1].rows[i].cells[6].text = people[8]
-                i += 1
-        try:
+                item = self.check_row(family)
+                if item:
+                    list_people.append(item)
+        list_people.sort(key=lambda x: x[0])
+        for people in list_people:
+            doc.tables[1].rows[i].cells[0].text = str(i)
+            doc.tables[1].rows[i].cells[1].text = " ".join(people[:3])
+            doc.tables[1].rows[i].cells[2].text = people[3]
+            doc.tables[1].rows[i].cells[3].text = people[6]
+            doc.tables[1].rows[i].cells[4].text = " ".join(people[4:6])
+            doc.tables[1].rows[i].cells[5].text = people[7]
+            doc.tables[1].rows[i].cells[6].text = people[8]
+            i += 1
             doc.save(path)
-        except:
-            mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
-            return
         return True
+
+    def check_row(self, row):
+        my_id = int(row.split(".")[0])
+        family = row.split(".")[1][1:-2]
+        s_name = row.split(".")[1][-1]
+        s_sur = row.split(".")[2]
+        for item in self.all_people:
+            if str(my_id) == str(item[-1]):
+                if family == item[0]:
+                    if s_name == item[1][0]:
+                        if s_sur == item[2][0]:
+                            return item
 
     def _get_data(self):
         return True
 
     def check_input(self):
         if self.list_ui[0].currentText() == empty:
-            mes.question(self, "Сообщение", "Укажите сотрудников", mes.Cancel)
-            return False
+            return msg(self, my_errors["14_add_people"])
         return True

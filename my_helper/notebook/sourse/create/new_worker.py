@@ -58,7 +58,7 @@ class NewWorker(TempForm):
         return True
 
     def select_contract(self):
-        self.b_ok.setEnabled(self.cb_contract.currentText() != empty)
+        pass
 
     def _clean_data(self):
         _zero = Date(*from_str(zero))
@@ -78,11 +78,12 @@ class NewWorker(TempForm):
         self.status.setCurrentIndex(0)
 
     def _set_data(self, data):
-        _zero = Date(*from_str(zero))
+        print(data)
         self.passport_post.clear()
         self.adr.clear()
         self.live_adr.clear()
         self.place.clear()
+
         self.family.setText(data[0])
         self.name.setText(data[1])
         self.surname.setText(data[2])
@@ -93,22 +94,27 @@ class NewWorker(TempForm):
         self.passport_post.append(data[7])
         self.adr.append(data[8])
         self.live_adr.append(data[9])
+
         self.inn.setText(data[10])
         self.snils.setText(data[11])
+
         self.n_td.setText(data[12])
         self.d_td.setDate(from_str(data[13]))
+
         self.n_hght.setText(data[14])
         self.n_group_h.setText(str(data[15]))
         self.d_height.setDate(from_str(data[16]))
+
         self.n_study.setText(data[17])
         self.n_study_card.setText(data[18])
         self.d_study.setDate(from_str(data[19]))
+
         self.n_prot.setText(data[20])
         self.n_card.setText(data[21])
         self.d_prot.setDate(from_str(data[22]))
-        self.vac_doc.setText(data[-3][1:])
+        self.cb_contract.setCurrentIndex(int(data[23]))
         # vac
-        self.set_vac_data(data)
+        self.set_vac_data(data[-6:-2])
         self.get_next_id(data)
         self.status.setCurrentIndex(statues.index(data[-2]))
 
@@ -122,20 +128,20 @@ class NewWorker(TempForm):
         self.d_vac_2.setEnabled(True if self.cb_vac.currentIndex() == sputnik_V else False)
 
     def set_vac_data(self, data):
-        _zero = Date(from_str(zero))
-        self.d_vac_1.setDate(from_str(data[-6]))
-        self.vac_doc.setText(data[-3][2:])
-        self.cb_vac.setCurrentIndex(covid[data[-3][:2]])
-        if data[-3][0:1] == "S5":
-            self.d_vac_2.setDate(from_str(data[-5]))
-            self.place.append(data[-4])
-        elif data[-3][0:1] == "SL":
-            self.d_vac_2.setDate(_zero)
+        print(data)
+        self.d_vac_1.setDate(from_str(data[0]))
+        self.vac_doc.setText(data[3][2:])
+        self.cb_vac.setCurrentIndex(covid[data[3][:2]])
+        if data[3][0:2] == "S5":
+            self.d_vac_2.setDate(from_str(data[1]))
+            self.place.append(data[2])
+        elif data[3][0:2] == "SL":
+            self.d_vac_2.setDate(zero)
             self.d_vac_2.setEnabled(False)
-            self.place.append(data[-4])
-        elif data[-3][0:1] == "CV":
-            self.d_vac_2.setDate(_zero)
-            self.place.clean()
+            self.place.append(data[2])
+        elif data[3][0:2] == "CV":
+            self.d_vac_2.setDate(zero)
+            self.place.clear()
             self.d_vac_2.setEnabled(False)
             self.place.setEnabled(False)
 
@@ -150,19 +156,28 @@ class NewWorker(TempForm):
     def _get_data(self, data=None):
         vac = None
         data = list()
-        for key in covid:
-            if covid[key] == self.cb_vac.сurrentIndex():
-                vac = key + self.self.cb_vac.currentText()
+
         list_ui = [self.family, self.name, self.surname, self.bday, self.post, self.phone, self.passport,
-                   self.passport_post, self.adr, self.live_adr, self.inn, self.snils, self.n_td, self.d_td,
-                   self.n_hght, self.n_group_h, self.d_height, self.n_study_card, self.d_study, self.n_prot,
-                   self.n_card, self.d_prot, self.d_vac_1, self.d_vac_2, self.place, vac, self.status]
+                   self.passport_post, self.adr, self.live_adr, self.inn, self.snils,
+                   self.n_td, self.d_td,
+                   self.n_hght, self.n_group_h, self.d_height,
+                   self.n_study, self.n_study_card, self.d_study,
+                   self.n_prot, self.n_card, self.d_prot]
         for item in list_ui:
             try:
                 data.append(item.text())
             except:
                 data.append(item.toPlainText())
-        self.cb_contract.currentText()
+        data.append(str(self.cb_contract.currentIndex()))
+        data.append(self.d_vac_1.text())
+        data.append(self.d_vac_2.text())
+        data.append(self.place.toPlainText())
+        for key in covid:
+            if covid[key] == self.cb_vac.currentIndex():
+                data.append(key + self.vac_doc.text())
+                break
+        data.append(str(self.status.currentText()))
+        print(data)
         return data
 
     def check_input(self):

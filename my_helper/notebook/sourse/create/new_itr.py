@@ -16,6 +16,7 @@ class NewITR(TempForm):
             return
         # my_pass
         self.init_mask()
+        self.cb_vac.activated[str].connect(self.change_vac)
         try:
             self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
             self.parent.db.init_list(self.cb_auto, "*", "auto")
@@ -28,6 +29,7 @@ class NewITR(TempForm):
         self.slice_select = -5
         self.current_id = self.next_id
         self.list_ui = list()
+        self.my_mem = ""
 
     def init_mask(self):
         list_valid = [[self.family,  self.name, self.surname, self.post],
@@ -53,11 +55,11 @@ class NewITR(TempForm):
                       [self.bday, self.passport_date, self.d_td, self.d_OT,
                        self.d_PTM, self.d_ES, self.d_H, self.d_ST, self.d_vac_1, self.d_vac_2],
                       [self.passport_got, self.live_adr, self.promsave, self.place]]
-        self.cb_contract.setCurrentIndex(0)
+        self.status.setCurrentIndex(0)
         for item in list_clean[0]:
             item.setText("")
         for item in list_clean[1]:
-            item.setDate(Date(*from_str(zero)))
+            item.setDate(zero)
         for item in list_clean[2]:
             item.clear()
 
@@ -108,8 +110,8 @@ class NewITR(TempForm):
         self.n_ST_c.setText((data[30]))
         self.d_ST.setDate(from_str(data[31]))
         self.bday.setDate(from_str(data[32]))
-        self.set_vac_data(data)
-
+        self.status.setCurrentIndex(int(data[-2]))
+        self.set_vac_data(data[-6:-2])
         try:
             list_auto = self.parent.db.get_data("*", "auto")
         except:
@@ -122,22 +124,31 @@ class NewITR(TempForm):
                 break
 
     def set_vac_data(self, data):
-        _zero = Date(from_str(zero))
-        self.d_vac_1.setDate(from_str(data[-6]))
-        self.vac_doc.setText(data[-3][2:])
-        self.cb_vac.setCurrentIndex(covid[data[-3][:2]])
-        if data[-3][0:1] == "S5":
-            self.d_vac_2.setDate(from_str(data[-5]))
-            self.place.append(data[-4])
-        elif data[-3][0:1] == "SL":
-            self.d_vac_2.setDate(_zero)
+        print(data)
+        self.d_vac_1.setDate(from_str(data[0]))
+        self.vac_doc.setText(data[3][2:])
+        self.cb_vac.setCurrentIndex(covid[data[3][:2]])
+        if data[3][0:2] == "S5":
+            self.d_vac_2.setDate(from_str(data[1]))
+            self.place.append(data[2])
+        elif data[3][0:2] == "SL":
+            self.d_vac_2.setDate(zero)
             self.d_vac_2.setEnabled(False)
-            self.place.append(data[-4])
-        elif data[-3][0:1] == "CV":
-            self.d_vac_2.setDate(_zero)
-            self.place.clean()
+            self.place.append(data[2])
+        elif data[3][0:2] == "CV":
+            self.d_vac_2.setDate(zero)
+            self.place.clear()
             self.d_vac_2.setEnabled(False)
             self.place.setEnabled(False)
+
+    def change_vac(self):
+        issue_type = 2
+        sputnik_V = 0
+        self.place.setEnabled(self.cb_vac.currentIndex() != issue_type)
+        self.my_mem = self.place.toPlainText() if self.cb_vac.currentIndex() == issue_type else self.my_mem
+        self.place.clear()
+        self.place.append("нет" if self.cb_vac.currentIndex() == issue_type else self.my_mem)
+        self.d_vac_2.setEnabled(True if self.cb_vac.currentIndex() == sputnik_V else False)
 
     def _get_data(self, data):
         if self.cb_auto.currentText() == empty:
@@ -147,8 +158,8 @@ class NewITR(TempForm):
         print(auto)
         vac = None
         for key in covid:
-            if covid[key] == self.cb_vac.CurrentIndex():
-                vac = key + self.self.cb_vac.currentText()
+            if covid[key] == self.cb_vac.currentIndex():
+                vac = key + self.vac_doc.text()
         _data = list([self.family.text(), self.name.text(), self.surname.text(),
                       self.post.text(), self.passport.text(), self.passport_date.text(),
                       self.passport_got.toPlainText(), self.adr.toPlainText(),
@@ -162,7 +173,8 @@ class NewITR(TempForm):
                       self.promsave.toPlainText(),
                       self.n_ST_p.text(), self.n_ST_c.text(), self.d_ST.text(),
                       self.bday.text(),
-                      self.d_vac_1.text(), self.d_vac_2.text(),self.plase.toPlainText(), vac])
+                      self.d_vac_1.text(), self.d_vac_2.text(), self.place.toPlainText(), vac,
+                      str(self.status.currentIndex())])
         return _data
 
     def check_input(self):

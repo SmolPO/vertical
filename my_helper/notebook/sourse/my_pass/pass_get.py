@@ -18,9 +18,9 @@ class GetPass(TempPass):
         self.parent = parent
 
         self.d_from.setDate(dt.datetime.now().date())
-        self.d_to.setDate((Date(*from_str(".".join([str(count_days[dt.datetime.now().month - 1]),
-                                                    str(dt.datetime.now().month),
-                                                    str(dt.datetime.now().year)])))))
+        self.d_to.setDate(from_str(".".join([str(count_days[dt.datetime.now().month - 1]),
+                                             str(dt.datetime.now().month),
+                                             str(dt.datetime.now().year)])))
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5,
                         self.worker_6, self.worker_7, self.worker_8, self.worker_9, self.worker_10)
         self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
@@ -33,8 +33,7 @@ class GetPass(TempPass):
         try:
             contracts = self.parent.db.get_data("id, name", "contracts")
         except:
-            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
-            return False
+            return msg(self, my_errors["3_get_db"])
         if not contracts:
             return False
         for row in contracts:
@@ -51,8 +50,7 @@ class GetPass(TempPass):
             people = self.parent.db.get_data("family, name, surname, post, passport, "
                                          "passport_got, birthday, adr,  live_adr", "workers")
         except:
-            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
-            return False
+            return msg(self, my_errors["3_get_db"])
         if not people:
             return False
         for name in people:
@@ -71,8 +69,7 @@ class GetPass(TempPass):
         try:
             rows = self.parent.db.get_data("id, number, date", "contracts")
         except:
-            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
-            return False
+            return msg(self, my_errors["3_get_db"])
         for contract in rows:
             if self.cb_contract.currentText().split(".")[0] == str(contract[0]):
                 self.data["contract"] = contract[1]
@@ -82,11 +79,9 @@ class GetPass(TempPass):
     # обработчики кнопок
     def _ev_ok(self):
         if self.list_ui[0].currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Добавьте сотрудников", mes.Cancel)
-            return False
+            return msg(self, my_errors["14_add_people"])
         if self.cb_contract.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Добавьте договор", mes.Cancel)
-            return False
+            return msg(self, my_errors["15_add_contract"])
         return True
 
     def _create_data(self, path):

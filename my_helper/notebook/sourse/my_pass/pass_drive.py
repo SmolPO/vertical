@@ -42,8 +42,7 @@ class DrivePass(TempPass):
         try:
             people = self.parent.db.get_data("family, name", self.table)
         except:
-            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
-            return False
+            return msg(self, my_errors["3_get_db"])
         if not people:
             return
         for row in people:
@@ -54,8 +53,7 @@ class DrivePass(TempPass):
         try:
             auto = self.parent.db.get_data("gov_number", "auto")
         except:
-            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
-            return False
+            return msg(self, my_errors["3_get_db"])
         if not auto:
             return
         for row in auto:
@@ -66,8 +64,7 @@ class DrivePass(TempPass):
         try:
             contracts = self.parent.db.get_data("name", "contracts")
         except:
-            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
-            return False
+            return msg(self, my_errors["3_get_db"])
         if not contracts:
             return
         for row in contracts:
@@ -91,8 +88,7 @@ class DrivePass(TempPass):
         try:
             rows = self.parent.db.get_data("*", "contracts")
         except:
-            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
-            return False
+            return msg(self, my_errors["3_get_db"])
         for row in rows:
             if self.cb_contracts.currentText() == row[0]:
                 self.work = " ".join(row[4:7])
@@ -130,8 +126,7 @@ class DrivePass(TempPass):
         try:
             rows = self.parent.db.get_data("*", "auto")
         except:
-            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
-            return False
+            return msg(self, my_errors["3_get_db"])
         for row in rows:
             print(self.cb_auto.currentText(), row[0])
             if self.cb_auto.currentText() == row[0]:
@@ -143,8 +138,7 @@ class DrivePass(TempPass):
         try:
             people = self.parent.db.get_data("*", self.table)
         except:
-            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
-            return False
+            return msg(self, my_errors["3_get_db"])
         if not people:
             return
         for row in people:
@@ -158,6 +152,5 @@ class DrivePass(TempPass):
     def check_input(self):
         for key in self.data.keys():
             if self.data[key] == empty or self.data[key] == "":
-                mes.question(self, "Сообщение", "Заполните все поля. Незаполнено поле " + key, mes.Cancel)
-                return False
+                return msg(self, my_errors["13_full_all_fields"])
         return True

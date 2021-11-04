@@ -21,9 +21,9 @@ class MonthPass(TempPass):
         self.b_open.clicked.connect(self.my_open_file)
         self.count_people = 0
         self.d_from.setDate(dt.datetime.now().date())
-        self.d_to.setDate(Date(*from_str(".".join([str(count_days[dt.datetime.now().month - 1]),
+        self.d_to.setDate(from_str(".".join([str(count_days[dt.datetime.now().month - 1]),
                                                    str(dt.datetime.now().month),
-                                                   str(dt.datetime.now().year)]))))
+                                                   str(dt.datetime.now().year)])))
         self.cb_all.stateChanged.connect(self.set_enabled_workers)
         self.cb_manual_set.stateChanged.connect(self.set_dates)
 
@@ -47,16 +47,11 @@ class MonthPass(TempPass):
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
-        try:
-            rows = self.parent.db.get_data("family, name, surname, post, passport, "
-                                            "passport_got, birthday, adr,  live_adr", "workers")
-        except:
-            mes.question(self, "Внимание", my_errors["8_get_data"], mes.Cancel)
-            return False
-        for name in rows:
-            family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
-            for item in self.list_ui:
-                item.addItem(family)
+        for people in self.all_people:
+            family = str(people[-1]) + ". " + short_name(people)
+            if family[-2] != 3:
+                for item in self.list_ui:
+                    item.addItem(family)
 
     # флаг на выбор всех
     def set_enabled_workers(self, state):
@@ -78,8 +73,7 @@ class MonthPass(TempPass):
             try:
                 self.new_year__week = get_from_ini('config', 'new_year')
             except:
-                mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
-                return False
+                return msg(self, my_errors["3_get_db"])
             next_day = self.new_year__week
             next_month = "01"  # MessageBox для ввода первого дня
             next_year = str(dt.datetime.now().year + 1)
@@ -92,39 +86,75 @@ class MonthPass(TempPass):
         if int(next_year) / 4 == 0:
             end_next_month = str(count_days[12])
         else:
-            end_next_month = str(count_days[int(next_month)])
+            end_next_month = str(count_days[int(next_month) - 1])
         self.data["start_date"] = ".".join((next_day, next_month, next_year))
         self.data["end_date"] = ".".join((end_next_month, next_month, next_year))
      
     # обработчики кнопок
     def _create_data(self, path):
         # Заполнить таблицу
-        workers = []
+        people = []
+        doc = docx.Document(path)
         if self.cb_all.isChecked():
-            workers = self.get_worker("all")
+            people = self.all_people
         else:
             for elem in self.list_ui:
                 if elem.currentText() != "(нет)":
-                    workers.append(self.get_worker(elem.currentText()))
+                    people.append(self.check_row(elem.currentText()))
         i = 1
-        doc = docx.Document(path)
-        for people in workers:
+        people.sort(key=lambda x: x[0])
+        for item in people:
             doc.tables[1].add_row()
             doc.tables[1].rows[i].cells[0].text = str(i)
-            doc.tables[1].rows[i].cells[1].text = " ".join(people[0:3])
-            doc.tables[1].rows[i].cells[2].text = people[3]
-            doc.tables[1].rows[i].cells[3].text = people[6]
-            doc.tables[1].rows[i].cells[4].text = " ".join(people[4:6])
-            doc.tables[1].rows[i].cells[5].text = people[7]
-            doc.tables[1].rows[i].cells[6].text = people[8]
+            doc.tables[1].rows[i].cells[1].text = " ".join(item[0:3])
+            doc.tables[1].rows[i].cells[2].text = item[3]
+            doc.tables[1].rows[i].cells[3].text = item[6]
+            doc.tables[1].rows[i].cells[4].text = " ".join(item[4:6])
+            doc.tables[1].rows[i].cells[5].text = item[7]
+            doc.tables[1].rows[i].cells[6].text = item[8]
             i += 1
         doc.save(path)
 
     def check_input(self):
         if self.list_ui[0].currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите сотрудников", mes.Cancel)
-            return False
+            return msg(self, my_errors["14_add_people"])
         return True
 
     def _ev_ok(self):
         return True
+
+    def create_vac(self, data_vac):
+        doc = docx.Document(self.vac_path)
+        next_id = set_next_number(int(self.number) + 1)
+        doc.tables[0].rows[0].cells[0].text = "Исх. " + next_id
+        doc.tables[0].rows[1].cells[0].text = "от " + self.date.text()
+
+        if data_vac[3][:2] == "SP5":
+            doc.tables[1].add_column(200)
+            doc.tables[1].rows[0].cells[3].text = "Дата первой прививки"
+            doc.tables[1].rows[0].cells[4].text = "Дата второй прививки"
+            doc.tables[1].rows[0].cells[5].text = "Место вакцинации"
+
+            doc.tables[1].rows[1].cells[3].text = data_vac[0]
+            doc.tables[1].rows[2].cells[4].text = data_vac[1]
+            doc.tables[1].rows[3].cells[5].text = data_vac[2]
+            pass
+        elif data_vac[3][:2] == "LT":
+            self.data["d_vac_1"] = data_vac[0]
+            self.data["place"] = data_vac[2]
+            doc.tables[1].rows[0].cells[3].text = "Дата прививки"
+            doc.tables[1].rows[0].cells[4].text = "Место вакцинации"
+            doc.tables[1].rows[1].cells[3].text = data_vac[0]
+            doc.tables[1].rows[2].cells[4].text = data_vac[2]
+        elif data_vac[3][:2] == "CV":
+            self.data["d_vac_1"] = data_vac[0]
+            self.data["vac_doc"] = data_vac[3][2:]
+            doc.tables[1].rows[0].cells[3].text = "Номер сертификата"
+            doc.tables[1].rows[0].cells[4].text = "Дата получения"
+
+            doc.tables[1].rows[1].cells[3].text = data_vac[0]
+            doc.tables[1].rows[2].cells[4].text = data_vac[3]
+            pass
+        path = get_path("path_notes")
+        doc.save(path)
+        pass

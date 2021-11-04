@@ -4,8 +4,9 @@ from openpyxl.styles import Side, Border
 import os
 import logging
 import datetime as dt
-from my_helper.notebook.sourse.database import get_path, statues, short_name
+from my_helper.notebook.sourse.database import *
 logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
+
 
 class NewCovid:
     def __init__(self, parent=None):
@@ -21,11 +22,9 @@ class NewCovid:
             rows = self.parent.db.get_data("family, name, surname, post, status, id", "workers") + \
                    self.parent.db.get_data("family, name, surname, post, status, id", "itrs")
         except:
-            mes.question(self.parent, "Сообщение", "ERROR: self.parent.db.get_data в create_covid", mes.Cancel)
-            return
+            return msg(self, my_errors["3_get_db"])
         if not rows:
-            mes.question(self.parent, "Сообщение", "Не получилось получить данные из базу данных", mes.Cancel)
-            return
+            return msg(self, my_errors["3_get_db"])
         for row in rows:
             if row[-2] == statues[0]:
                 list_people.append({"family": short_name(row), "post": row[3]})
@@ -38,14 +37,12 @@ class NewCovid:
         try:
             doc = xlsx.open(path)
         except:
-            mes.question(self.parent, "Сообщение", "Файл не найден" + path, mes.Cancel)
-            return
+            return msg(self, my_errors["4_get_file"])
         try:
             page = "covid"
             sheet = doc[page]
         except:
-            mes.question(self.parent, "Сообщение", "Нет листа " + page + "в файле " + path, mes.Cancel)
-            return
+            return msg(self, my_errors["6_get_sheet"])
         delta = 2
         count_column = 9
         for ind in range(1, 50):
