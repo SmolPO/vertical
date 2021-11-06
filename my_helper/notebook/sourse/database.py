@@ -106,7 +106,7 @@ class DataBase:
             return rows
         else:
             for row in rows:
-                item.addItems([str(row[-1]) + ". " + short_name(row[1:4])])
+                item.addItems([str(row[-1]) + ". " + short_name(row[:3])])
             return rows
 
     def my_update(self, data, table):
@@ -229,6 +229,7 @@ def set_next_number(n):
 
 
 def short_name(data):
+    print(data)
     return data[0] + " " + data[1][0] + "." + data[2][0] + "."
 
 
@@ -256,5 +257,24 @@ def from_str(date):
             if len(tmp[2]) == 4:
                 return Date(int(tmp[2]), int(tmp[1]), int(tmp[0]))
 
+
+def yong_date(young, old):
+    if int(young[6:10]) > int(old[6:10]):
+        return True
+    if int(young[6:10]) < int(old[6:10]):
+        return False
+
+    if int(young[2:4]) > int(old[2:4]):
+        return True
+    if int(young[2:4]) < int(old[2:4]):
+        return old
+
+    if int(young[:2]) > int(old[:2]):
+        return True
+    if int(young[:2]) < int(old[:2]):
+        return False
+
+    else:
+        return False
 
 zero = from_str("01.01.2000")

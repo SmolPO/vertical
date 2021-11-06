@@ -15,13 +15,10 @@ class Journal(QDialog):
             return
         self.parent = parent
         self.path = parent.path + get_path("docs") + "/Журнал.docx"
-        self.path_p2 = get_path("path") + get_path("path_pat_patterns") + "/part2.docx"
-        self.path_p5 = get_path("path") + get_path("path_pat_patterns") + "/part5.docx"
         self.b_print.clicked.connect(self.ev_print)
-        self.count_p2 = 0
-        self.count_p5 = 0
         self.data = dict()
         self.init_bosses()
+        self.name.append("По ")
 
     def check_start(self):
         self.status_ = True
@@ -35,30 +32,28 @@ class Journal(QDialog):
             return False
 
     def init_bosses(self):
-        self.parent.parent.db.init_list(self.boss_1, "id, family, name, surname", "itrs", people=True)
-        self.parent.parent.db.init_list(self.boss_2, "id, family, name, surname", "itrs", people=True)
-        self.parent.parent.db.init_list(self.boss_3, "id, family, name, surname", "bosses", people=True)
-        self.parent.parent.db.init_list(self.boss_4, "id, family, name, surname", "bosses", people=True)
+        self.parent.parent.db.init_list(self.boss_1, "*", "itrs", people=True)
+        self.parent.parent.db.init_list(self.boss_2, "*", "itrs", people=True)
+        self.parent.parent.db.init_list(self.boss_3, "*", "bosses", people=True)
+        self.parent.parent.db.init_list(self.boss_4, "*", "bosses", people=True)
         pass
 
     def get_data(self):
         data = dict()
         data["name"] = self.name.toPlainText()
-        data["numb"] = self.number.value()
-        data["boss_1"] = self.boss_1.currentText()
-        data["boss_2"] = self.boss_2.currentText()
-        data["boss_3"] = self.boss_3.currentText()
-        data["boss_4"] = self.boss_4.currentText()
+        data["numb"] = str(self.number.value())
+        data["boss_1"] = "".join(self.boss_1.currentText().split(". ")[1:])
+        data["boss_2"] = "".join(self.boss_2.currentText().split(". ")[1:])
+        data["boss_3"] = "".join(self.boss_3.currentText().split(". ")[1:])
+        data["boss_4"] = "".join(self.boss_4.currentText().split(". ")[1:])
         data["post_1"] = self.get_post(self.boss_1.currentText().split(".")[0], "itrs")
         data["post_2"] = self.get_post(self.boss_2.currentText().split(".")[0], "itrs")
         data["post_3"] = self.get_post(self.boss_3.currentText().split(".")[0], "bosses")
         data["post_4"] = self.get_post(self.boss_4.currentText().split(".")[0], "bosses")
         data["date"] = self.date.text()
         data["year"] = str(dt.datetime.now().year)
-        data["company"] = get_config("company")
-        data["customer"] = get_config("customer")
-        self.count_p2 = self.sb_p2.value()
-        self.count_p5 = self.sb_p5.value()
+        data["company"] = self.parent.parent.company
+        data["customer"] = self.parent.parent.customer
         return data
 
     def get_post(self, my_id, table):
@@ -80,23 +75,12 @@ class Journal(QDialog):
             mes.question(self, "Сообщение", "Файл " + path + " не найден", mes.Ok)
             return False
         doc.render(self.data)
-        doc.save(self.path)
-        os.startfile(self.path)
-        for i in range(self.count_p2):
-            os.startfile(self.path_p2)
-        for i in range(self.count_p5):
-            os.startfile(self.path_p5)
+        doc.save(self.parent.path + "/Журнал работ.docx")
         self.close()
 
     def check_input(self):
         if self.number.value() == 0:
             mes.question(self, "Сообщение", "Укажите номер журнала", mes.Ok)
-            return False
-        if self.sb_p2.value() == 0:
-            mes.question(self, "Сообщение", "Укажите кол-во страниц раздела 2", mes.Ok)
-            return False
-        if self.sb_p5.value() == 0:
-            mes.question(self, "Сообщение", "Укажите кол-во страниц раздела 5", mes.Ok)
             return False
         if self.date.text() == "01.01.2000":
             mes.question(self, "Сообщение", "Укажите дату начала работ", mes.Ok)

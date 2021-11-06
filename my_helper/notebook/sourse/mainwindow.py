@@ -108,9 +108,10 @@ class MainWindow(QMainWindow):
 
         self.b_scan.setEnabled(False)
         company = self.db.get_data("*", "company")
-        self.db.execute("DELETE FROM contracts WHERE id = '1'")
-        self.db.execute("DELETE FROM contracts WHERE id = '2'")
-        self.db.execute("DELETE FROM contracts WHERE id = '3'")
+        self.db.execute("UPDATE bosses SET id = '1' where status = '1'")
+        self.db.execute("UPDATE bosses SET id = '2' where status = '2'")
+        # self.db.execute("DELETE FROM contracts WHERE id = '2'")
+        # self.db.execute("DELETE FROM contracts WHERE id = '3'")
         self.db.conn.commit()
         for item in company:
             if item[-2] == "Подрядчик":

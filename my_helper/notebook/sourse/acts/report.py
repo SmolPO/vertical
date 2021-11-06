@@ -443,8 +443,9 @@ class CreateReport(QDialog):
     def init_bosses(self):
         for key in self.list_ui.keys():
             for ui in self.list_ui.get(key):
-                self.parent.parent.db.init_list(ui, "id, family, name, surname", "itrs", people=True)
-                self.parent.parent.db.init_list(ui, "id, family, name, surname", "bosses", people=True)
+                ui.addItem("(нет)")
+                self.parent.parent.db.init_list(ui, "*", "bosses", people=True)
+                self.parent.parent.db.init_list(ui, "*", "itrs", people=True)
         pass
 
     def init_dicts(self):
@@ -452,7 +453,7 @@ class CreateReport(QDialog):
         company = self.get_dict("company")
         self.bosses = self.get_dict("bosses")
         self.itrs = self.get_dict("itrs")
-        self.parent.parent.db.init_list(self.contract, "id, family, name, surname", "itrs", people=True)
+        self.parent.parent.db.init_list(self.contract, "*", "itrs", people=True)
         for ind in range(len(contracts)):
             if self.parent.cb_select.currentText().split(". ")[1] == contracts[ind]["number"]:
                 self.contract = contracts[ind]
