@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 import openpyxl as xlxs
-from openpyxl.styles import Border
+from openpyxl.styles import Border, Side, NamedStyle, Font
 import datetime as dt
 from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.database import get_path_ui, get_path, get_config
@@ -17,6 +17,9 @@ class CreateReport(QDialog):
         self.parent = parent
         self.b_ok.clicked.connect(self.ev_ok)
         self.count_part = 0
+        self.list_table = []
+        self.list_point = []
+        self.list_work = []
         self.path = get_path("path_pat_patterns") + "/report.xlsx"
         self.data = dict()
         self.init_bosses()
@@ -36,6 +39,19 @@ class CreateReport(QDialog):
         self.init_bosses()
         self.init_dicts()
 
+    def init_styles(self):
+        ns = NamedStyle(name='thick')
+        ns.font = Font(bold=True, size=20)
+        border = Side(style='thick', color='000000')
+        ns.border = Border(left=border, top=border, right=border, bottom=border)
+        self.doc.add_named_style(ns)
+
+        ns = NamedStyle(name='empty')
+        ns.font = Font(bold=True, size=20)
+        border = Side(style='thin', color='000000')
+        ns.border = Border(left=border, top=border, right=border, bottom=border)
+        self.doc.add_named_style(ns)
+
     def init_data(self):
         fields = ["number", "date", "object", "type_work", "part", "price"]
         for key in fields:
@@ -47,7 +63,7 @@ class CreateReport(QDialog):
             self.set_field("customer", key, self.customer[key])
 
     def init_cult(self):
-        part = "KS2"
+        part = "culture"
         self.set_field(part, "company", self.company["name"])
         self.set_field(part, "object", self.contract["object"])
         self.set_field(part, "post_1", self.get_post(self.list_ui["cult"][0], "bosses"))
@@ -82,6 +98,7 @@ class CreateReport(QDialog):
                                                                        self.company["post"], self.company["boss"],
                                                                        self.company["attorney"])
         self.set_field(part, "note", note)
+        self.init_table_ks2()
 
     def init_mat(self):
         part = "mat"
@@ -104,24 +121,6 @@ class CreateReport(QDialog):
 
     def init_m29(self):
         part = "company"
-        """
-          "company": "C2",
-                          "big_boss_1": "B2",
-                          "part": "B5",
-                          "type_work": "B6",
-                          "object": "B7",
-                          "contract": "B8",
-                          "add": "B9",
-                          "date": "J21",
-                          "big_boss_2": "C26",
-                          "sing_boss": "E30",
-                          "post_1": "F44",
-                          "post_2": "F46",
-                          "boss_1": "N44",
-                          "boss_2": "N46",
-                          "point": "B53"})
-        :return: 
-        """
         self.set_field(part, "contract", "Договор подряда № " + self.company["number"] + " от " + self.company["date"])
         self.set_field(part, "add", "Приложение №2 к договору" + self.company["number"] + " от " + self.company["date"])
         self.set_field(part, "post_1", self.get_post(self.list_ui["M29"][0], "bosses"))
@@ -130,6 +129,135 @@ class CreateReport(QDialog):
         self.set_field(part, "boss_1", self.get_short_name(self.list_ui["M29"][0]))
         self.set_field(part, "boss_2", self.get_short_name(self.list_ui["M29"][1]))
         self.set_field(part, "boss_3", self.get_short_name(self.list_ui["M29"][3]))
+
+    def init_table_ks2(self):
+        parts, points, rows = 0, [0], [0]
+        count_rows = sum(rows) + parts
+        cursor = iter(range(count_rows))
+        for row in range(count_rows):
+            for column in ["A", "B", "C", "D", "E", "F"]:
+                cell = column + next(cursor)
+                self.sheet.cell(cell).style.borders.left.border_style = "empty"
+            pass
+        cursor = 14
+        prev = 0
+        for ind in range(len(points)):
+            self.list_table.append(rows[prev:prev+points[ind]])
+            prev = points[ind]
+        for part in self.list_table:
+            self.create_part(cursor)
+            cursor += 1
+            for point in range(len(part)):
+                text = self.create_point(point, part[point])
+                for i in range(part[point]):
+                    row = cursor
+                    self.set_text(row, text)
+                    if text[row][1] == "работа" or part[point] == 1:
+                        self.list_work.append(cursor)
+                    if i == 0:
+                        self.create_row(row, "think")
+                        self.list_point.append("F" + str(cursor))
+                    cursor += 1
+        self.create_result(cursor)
+        self.create_footer(cursor)
+
+    def init_ks3(self):
+        """
+          "investor": "",
+          "company": "",
+          "customer": "",
+          "build": "",
+          "contract": "",
+          "day": "",
+          "month": "",
+          "year": "",
+          "count": "",
+          "make_date": "",
+          "start_date": "",
+          "end_date": "",
+          "work": "",
+          "price_all": "",
+          "price_year": "",
+          "price_month_1": "",
+          "price_month_2": "",
+          "price_month_3": "",
+          "nds": "",
+          "price": "",
+          "post_1": "",
+          "boss_1": ""}),
+        :return:
+        """
+        self.set_field("KS3", "investor", "Инвестор")
+        self.set_field("KS3", "company", "Подрядчик")
+        self.set_field("KS3", "customer", "Заказчик")
+        self.set_field("KS3", "contract", self.contract["number"])
+        self.set_field("KS3", "day", self.contract["date"][:2])
+        self.set_field("KS3", "month", self.contract["date"][3:5])
+        self.set_field("KS3", "year", self.contract["date"][6:10])
+        self.set_field("KS3", "make_date", "_")
+        pass
+
+    def create_footer(self, cursor):
+        pass
+
+    def create_prod(self):
+        sum = 0
+        for cell in self.list_point:
+            sum += int(self.sheet.cell(cell).value)
+        self.set_field("culture", "sum", sum)
+
+    def create_result(self, cursor):
+        cells = "A" + cursor + ":E" + cursor
+        self.sheet.merge_cells(cells)
+        self.sheet.cell(cells[:2]).value = "Итого по разделам:"
+        self.sheet.cell("F" + str(cursor)).value = "=" + "+".join(self.list_point)
+        cursor += 1
+        cells = "A" + cursor + ":E" + cursor
+        self.sheet.merge_cells(cells)
+        self.sheet.cell(cells[:2]).value = "НДС 20%:"
+        self.sheet.cell("F" + str(cursor)).value = "=" + "F" + str(cursor-1) + "*0,2"
+        cursor += 1
+        cells = "A" + cursor + ":E" + cursor
+        self.sheet.merge_cells(cells)
+        self.sheet.cell(cells[:2]).value = "Всего с НДС:"
+        self.sheet.cell("F" + str(cursor)).value = "=" + "F" + str(cursor-1) + "F" + str(cursor-2)
+        self.cells["KS2"][1]["sum"] = "F" + str(cursor)
+
+    def get_cells(self, cell):
+        return "A" + str(cell) + ":F" + str(cell)
+
+    def set_text(self, row, text):
+        for column in ["A", "B", "C"]:
+            cell = column + str(row)
+            self.sheet.cell(cell).value = text[row][column]
+
+    def create_row(self, row, style):
+        for column in ["A", "B", "C", "D", "E", "F"]:
+            cell = column + str(row)
+            self.sheet.cell(cell).style.borders.left.border_style = style
+        pass
+
+    def create_part(self, row):
+        cells = "A" + row + ":F" + row
+        self.sheet.merge_cells(cells)
+        self.sheet.cell("A" + row).style.borders.left.border_style = "thick"
+        pass
+
+    def create_point(self, point, count_rows):
+        if count_rows == 2:
+            return [(str(point), "", ""),
+                    (str(point) + ".1", "работа", "")]
+        if count_rows < 5:
+            return [(str(point), "", ""),
+                    (str(point) + ".1", "работа", ""),
+                    ("", "", "") * (count_rows-2)]
+        if count_rows >= 5:
+            return [(str(point), "", ""),
+                    (str(point) + ".1", "работа", ""),
+                    (str(point) + ".2", "Материал Заказчика", "руб."),
+                    ("", "Вспомогательные материалы", ""),
+                    (str(point) + ".3", "Материалы Подрядчика", "руб."),
+                    ("", "", "") * (count_rows-5)]
 
     def get_dicts(self, table):
         _fields = {"itrs": "(family, name, surname, post, status, id)",
@@ -222,7 +350,8 @@ class CreateReport(QDialog):
                           "p1": "A7",
                           "object": "A10",
                           "type_work": "A13",
-                          "row": "A16"}),
+                          "row": "A16",
+                          "sum": ""}),
                       "culture": ("Культура", {
                           "company": "D16",
                           "object": "A12",
