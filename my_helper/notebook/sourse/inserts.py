@@ -17,9 +17,10 @@ db_keys = {"auto": "(gov_number, brand, model, track_number, id)",
                    "industrial_save, "
                    "st_protocol, st_card, st_date, birthday, "
                    " d_vac_1, d_vac_2, place, vac_doc,status, id)",
-           "contracts": "(name, customer, number, date, object, type_work, place, id)",
+           "contracts": "(name, customer, number, date, object, type_work, place, "
+                        "price, date_end, nds, avans, status, id)",
            "company": "(company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, family, "
-                   "name, surname, post, count_attorney, date_attorney, id)",
+                   "name, surname, post, count_attorney, date_attorney, status, id)",
            "bosses": "(family, name, surname, post, email, phone, sex, id)",
            "materials": "(name, measure, value, provider, contract, id)",
            "links": "(name, link, id)",

@@ -56,17 +56,21 @@ class DataBase:
 
     def get_data(self, fields, table):
         row = get_from_db(fields, table)
+        print(row)
+        self.execute(row)
+
+        return self.cursor.fetchall()
         try:
-            self.execute(row)
-            return self.cursor.fetchall()
+           pass
         except:
             print(row)
             print("Не удалось получить данные из БД")
             return []
 
     def execute(self, text):
+        self.cursor.execute(text)
         try:
-            self.cursor.execute(text)
+            pass
         except:
             print(text)
             print("Не удалось выполнить запрос")
@@ -93,7 +97,7 @@ class DataBase:
             print("OK")
 
     def init_list(self, item, fields, table, people=False):
-        rows = self.get_data("*", table)
+        rows = self.get_data(fields, table)
         if not rows and rows != []:
             return False
         if not people:
@@ -102,7 +106,7 @@ class DataBase:
             return rows
         else:
             for row in rows:
-                item.addItems([str(row[-1]) + ". " + str(row[0]) + " " + ".".join([str(row[1][0]), str(row[2][0])]) + "."])
+                item.addItems([str(row[-1]) + ". " + short_name(row[1:4])])
             return rows
 
     def my_update(self, data, table):

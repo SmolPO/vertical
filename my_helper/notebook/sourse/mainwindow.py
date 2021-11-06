@@ -107,6 +107,16 @@ class MainWindow(QMainWindow):
         self.b_invoice.clicked.connect(self.ev_btn_start_file)
 
         self.b_scan.setEnabled(False)
+        company = self.db.get_data("*", "company")
+        self.db.execute("DELETE FROM contracts WHERE id = '1'")
+        self.db.execute("DELETE FROM contracts WHERE id = '2'")
+        self.db.execute("DELETE FROM contracts WHERE id = '3'")
+        self.db.conn.commit()
+        for item in company:
+            if item[-2] == "Подрядчик":
+                self.company = item
+            if item[-2] == "Заказчик":
+                self.customer = item
 
         self.get_param_from_widget = None
         self.current_build = "Объект"
@@ -116,6 +126,8 @@ class MainWindow(QMainWindow):
         self.data_to_db = None
         self.init_notif()
         self.get_weather()
+
+
 
     def ev_settings(self):
         wnd = Settings(self)

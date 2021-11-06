@@ -6,6 +6,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.acts.journal import Journal
 from my_helper.notebook.sourse.acts.asr import Asr
 from my_helper.notebook.sourse.acts.contract import Contract
+from my_helper.notebook.sourse.acts.report import CreateReport
 from my_helper.notebook.sourse.database import get_path, get_path_ui, my_errors
 designer_file = get_path_ui("acts")
 
@@ -24,7 +25,7 @@ class Acts(QDialog):
         self.b_contract.clicked.connect(self.ev_start)
         self.b_latter.clicked.connect(self.ev_latter)
         self.b_month.clicked.connect(self.ev_month)
-        self.b_xlxs.clicked.connect(self.ev_xlsx)
+        self.b_create.clicked.connect(self.ev_xlsx)
         self.b_exit.clicked.connect(self.ev_exit)
         self.cb_select.activated[str].connect(self.ev_select)
         self.path = get_path("path") + get_path("path_contracts")
@@ -110,6 +111,8 @@ class Acts(QDialog):
         pass
 
     def ev_xlsx(self):
+        wnd = CreateReport(self)
+        wnd.exec_()
         os.startfile(self.path)
         pass
 

@@ -4,7 +4,7 @@ import openpyxl as xlxs
 from openpyxl.styles import Border, Side, NamedStyle, Font
 import datetime as dt
 from PyQt5.QtWidgets import QMessageBox as mes
-from my_helper.notebook.sourse.database import get_path_ui, get_path, get_config
+from my_helper.notebook.sourse.database import *
 designer_file = get_path_ui("create_report")
 idx_table = 25
 
@@ -20,25 +20,26 @@ class CreateReport(QDialog):
         self.list_table = []
         self.list_point = []
         self.list_work = []
-        self.path = get_path("path_pat_patterns") + "/report.xlsx"
+        self.path = get_path("path") + get_path("path_pat_patterns") + "/Исполнительная.xlsx"
         self.data = dict()
-        self.init_bosses()
         self.list_ui = {"KS2": [
-                            self.act_1, self.act_2, self.act_3, self.act_4, self.act_5,
-                            self.act_6, self.act_7, self.act_8, self.act_9, self.act_10],
-                        "mat": [
-                            self.mat_1, self.mat_2, self.mat_3, self.mat_4],
-                        "cult": [
-                            self.cult_1, self.cult_2, self.cult_3, self.cult_4],
-                        "table": [
-                            self.tabel_1, self.tabel_2],
-                        "M29": [
-                            self.stor_1, self.stor_2, self.stor_3, self.stor_4]}
+            self.act_1, self.act_2, self.act_3, self.act_4, self.act_5,
+            self.act_6, self.act_7, self.act_8, self.act_9, self.act_10],
+            "mat": [
+                self.mat_1, self.mat_2, self.mat_3, self.mat_4],
+            "cult": [
+                self.cult_1, self.cult_2, self.cult_3, self.cult_4],
+            "table": [
+                self.tab_1, self.tab_2],
+            "M29": [
+                self.stor_1, self.stor_2, self.stor_3, self.stor_4]}
+        self.init_bosses()
+
         self.doc = xlxs.open(self.path)
         self.init_dict_cells()
-        self.init_bosses()
         self.init_dicts()
 
+    # inits
     def init_styles(self):
         ns = NamedStyle(name='thick')
         ns.font = Font(bold=True, size=20)
@@ -162,32 +163,7 @@ class CreateReport(QDialog):
         self.create_footer(cursor)
 
     def init_ks3(self):
-        """
-          "investor": "",
-          "company": "",
-          "customer": "",
-          "build": "",
-          "contract": "",
-          "day": "",
-          "month": "",
-          "year": "",
-          "count": "",
-          "make_date": "",
-          "start_date": "",
-          "end_date": "",
-          "work": "",
-          "price_all": "",
-          "price_year": "",
-          "price_month_1": "",
-          "price_month_2": "",
-          "price_month_3": "",
-          "nds": "",
-          "price": "",
-          "post_1": "",
-          "boss_1": ""}),
-        :return:
-        """
-        self.set_field("KS3", "investor", "Инвестор")
+        self.set_field("KS3", "investor", "Инвестор ")
         self.set_field("KS3", "company", "Подрядчик")
         self.set_field("KS3", "customer", "Заказчик")
         self.set_field("KS3", "contract", self.contract["number"])
@@ -195,6 +171,16 @@ class CreateReport(QDialog):
         self.set_field("KS3", "month", self.contract["date"][3:5])
         self.set_field("KS3", "year", self.contract["date"][6:10])
         self.set_field("KS3", "make_date", "_")
+        date = "01." + str(dt.datetime.now().month) + "." + str(dt.datetime.now().year)
+        end_date = str(count_days[dt.datetime.now().month]) + str(dt.datetime.now().month) + "." + str(dt.datetime.now().year)
+        self.set_field("KS3", "start_date", date)
+        self.set_field("KS3", "end_date", end_date)
+        self.set_field("KS3", "price_month_1", self.cells["KS2"][1]["sum"])
+        self.set_field("KS3", "price_month_2", self.cells["KS2"][1]["sum"])
+        self.set_field("KS3", "price_month_3", self.cells["KS2"][1]["sum"])
+        self.set_field("KS3", "nds", int(self.cells["KS2"][1]["sum"]) * 0.2)
+        self.set_field("KS3", "price", int(self.cells["KS3"][1]["sum"]) * 1.2)
+
         pass
 
     def create_footer(self, cursor):
@@ -259,20 +245,21 @@ class CreateReport(QDialog):
                     (str(point) + ".3", "Материалы Подрядчика", "руб."),
                     ("", "", "") * (count_rows-5)]
 
-    def get_dicts(self, table):
-        _fields = {"itrs": "(family, name, surname, post, status, id)",
-                   "contracts": "(name, customer, number, date, object, type_work, place, status, id)",
-                   "company": "(company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, family, "
-                              "name, surname, post, count_attorney, date_attorney, status, id)",
-                   "bosses": "(family, name, surname, post, email, phone, sex, status, id)",
+    def get_dict(self, table):
+        _fields = {"itrs": "family, name, surname, post, status, id",
+                   "contracts": "name, customer, number, date, object, type_work, "
+                                "place, price, date_end, nds, status, id",
+                   "company": "company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, family, "
+                              "name, surname, post, count_attorney, date_attorney, status, id",
+                   "bosses": "family, name, surname, post, email, phone, sex, status, id",
                    }
         fields = _fields.get(table)
         data = list()
-        rows = self.parent.db.get_data(fields, table)
+        rows = self.parent.parent.db.get_data(fields, table)
         row = dict()
-        j = iter(range(30))
         for ind in range(len(rows)):
-            for key in fields:
+            j = iter(range(len(fields.split(", "))))
+            for key in fields.split(", "):
                 row[key] = rows[ind][next(j)]
             data.append(row)
         return data
@@ -293,16 +280,7 @@ class CreateReport(QDialog):
         return data
 
     def ev_ok(self):
-        self.doc = xlxs.open(self.path)
-        self.sheet = self.doc["result"]
-        """
-        Ввести данные из запроса по номеру контракта и компании
-        """
-        # Заполняем данные
-
-        self.sheet.cell(row=2, column=1).value = 0
-        file_path = "/covid/" + str(dt.datetime.now().date()) + "_" + self.parent.company
-        self.doc.save(file_path)
+        self.create_report()
         self.close()
 
     def create_report(self):
@@ -463,26 +441,26 @@ class CreateReport(QDialog):
          return True
 
     def init_bosses(self):
-        for item in self.list_ui:
-            for ui in item:
+        for key in self.list_ui.keys():
+            for ui in self.list_ui.get(key):
                 self.parent.parent.db.init_list(ui, "id, family, name, surname", "itrs", people=True)
                 self.parent.parent.db.init_list(ui, "id, family, name, surname", "bosses", people=True)
         pass
 
     def init_dicts(self):
         contracts = self.get_dict("contracts")
-        companies = self.get_dict("companies")
+        company = self.get_dict("company")
         self.bosses = self.get_dict("bosses")
         self.itrs = self.get_dict("itrs")
         self.parent.parent.db.init_list(self.contract, "id, family, name, surname", "itrs", people=True)
-        for ind in contracts:
-            if self.parent.contract == contracts[ind]["number_contract"]:
+        for ind in range(len(contracts)):
+            if self.parent.cb_select.currentText().split(". ")[1] == contracts[ind]["number"]:
                 self.contract = contracts[ind]
-        for ind in companies:
-            if self.parent.company["inn"] == companies[ind]["inn"]:
-                self.company = companies[ind]
-            if self.parent.customer["inn"] == companies[ind]["inn"]:
-                self.company = companies[ind]
+        for ind in range(len(company)):
+            if self.parent.parent.company[3] == company[ind]["inn"]:
+                self.company = company[ind]
+            if self.parent.parent.customer[3] == company[ind]["inn"]:
+                self.company = company[ind]
         pass
 
     def check_start(self):

@@ -19,8 +19,8 @@ class TempForm (QDialog):
         self.b_change.clicked.connect(self.ev_change)
         self.cb_select.activated[str].connect(self.ev_select)
         self.but_status("add")
-        # self.parent.db.execute("UPDATE itrs SET status = 'работает' where family = 'Сорокин'")
-        # self.parent.db.conn.commit()
+        self.parent.db.execute("UPDATE contracts SET id = '1' where number = '993'")
+        self.parent.db.conn.commit()
         try:
             self.rows_from_db = self.parent.db.get_data("*", self.table)
         except:
@@ -85,7 +85,7 @@ class TempForm (QDialog):
         data = self._get_data(data)
         if not data:
             return False
-        data.append(str(self.current_id))
+        data.append(str(self.current_id + 1))
         return data
 
     def clean_data(self):

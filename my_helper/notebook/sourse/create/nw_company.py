@@ -5,6 +5,7 @@ from my_helper.notebook.sourse.database import *
 designer_file = get_path_ui("add_company")
 fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank", "family", "name", "surname",
           "post", "count_attorney", "date_attorney", "id"]
+statues_com = ["Заказчик", "Подрядчик", "Прочее"]
 
 
 class NewCompany(TempForm):
@@ -48,16 +49,19 @@ class NewCompany(TempForm):
         return True
 
     def _set_data(self, data):
-        self.date_dovr.setDate(from_str(data[-2]))
+        self.date_dovr.setDate(from_str(data[-3]))
+        self.cb_status.setCurrentIndex(statues_com.index(data[-2]))
         self.current_id = data[fields.index("id")]
 
     def _clean_data(self):
         for item in self.list_ui[:-1]:
             item.setText("")
         self.list_ui[-1].setDate(from_str(zero))
+        self.cb_status.setCurrentIndex(0)
         return False
 
     def _get_data(self, data):
+        data.append(self.cb_status.currentText())
         return data
 
     def _but_status(self, status):
