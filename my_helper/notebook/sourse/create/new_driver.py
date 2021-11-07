@@ -20,58 +20,12 @@ class NewDriver(TempForm):
         except:
             mes.question(self, "Внимание", my_errors["5_init_list"], mes.Cancel)
             return
-        self.list_ui = [self.family, self.name, self.surname, self.d_birthday, self.passport, self.adr, ]
-        self.slice_set = 3
-        self.slice_get = 3
-        self.slice_clean = len(self.list_ui)
-        self.current_id = self.next_id
+        self.list_ui = [self.family, self.name, self.surname, self.d_birthday, self.passport, self.adr]
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я 0-9]{9}"))
         for item in self.list_ui:
             item.setValidator(symbols)
 
-    def _ev_select(self, text):
-        return True
-
-    def _set_data(self, data):
-        print(data)
-        self.passport.clear()
-        self.adr.clear()
-        self.passport.append(data[4])
-        self.adr.append(data[5])
-        self.d_birthday.setDate(from_str(data[3]))
-
-    def _get_data(self, data):
-        data.append(self.d_birthday.text())
-        data.append(self.passport.toPlainText())
-        data.append(self.adr.toPlainText())
-        return data
-
-    def _clean_data(self):
-        for item in self.list_ui[:-1]:
-            try:
-                item.setText("")
-            except:
-                item.clear()
-        return False
-
-    def check_input(self):
-        data = self.get_data()
-        if "" in data:
-            return msg(self, "Заполните все поля")
-        else:
-            if self.d_birthday.text() == zero:
-                ans = mes.question(self, "Сообщение", "Дата рождения точно " + zero + "?", mes.Ok | mes.Cancel)
-                if ans == mes.Ok:
-                    return True
-                else:
-                    return False
-            else:
-                return True
-
-    def _ev_ok(self):
-        return True
-
-    def _but_status(self, status):
+    def _select(self, text):
         return True

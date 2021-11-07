@@ -23,13 +23,32 @@ class NewITR(TempForm):
         except:
             msg(self, my_errors["3_get_db"])
             return
-        self.slice_set = 0
-        self.slice_get = 0
-        self.slice_clean = 0
-        self.slice_select = -5
-        self.current_id = self.next_id
-        self.list_ui = list()
+        """
+        (family, name, surname, post, passport, passport_date, passport_got, adr, live_adr, auto, inn, "
+       "snils, n_employment_contract,date_employment_contract, "
+       "ot_protocol, ot_date, ot_card, "
+       "PTM_protocol, PTM_date, PTM_card, "
+       "es_protocol, es_group, es_card, es_date, "
+       "h_protocol, h_date, h_group, h_card, "
+       "industrial_save, "
+       "st_protocol, st_card, st_date, birthday, "
+       " d_vac_1, d_vac_2, place, vac_doc, vac_type, status, id)",
+        """
+        self.list_ui = [self.family, self.name, self.surname, self.post, self.passport, self.passport_date,
+                        self.passport_got, self.adr, self.live_adr, self.inn,
+                        self.snils, self.n_td, self.d_td, self.n_OT_p, self.d_OT, self.n_OT_c,
+                        self.n_PTM_p, self.d_PTM, self.n_PTM_c,
+                        self.n_ES_p, self.n_ES_g, self.n_ES_c, self.d_ES,
+                        self.n_H_p, self.d_H, self.n_H_g, self.n_H_c,
+                        self.promsave,
+                        self.n_ST_p, self.n_ST_c, self.d_ST,
+                        self.bday,
+                        self.d_vac_1, self.d_vac_2, self.place, self.vac_doc, self.cb_vac, self.status]
         self.my_mem = ""
+        self.vac = True
+
+    def _select(self, text):
+        return True
 
     def init_mask(self):
         list_valid = [[self.family,  self.name, self.surname, self.post],
@@ -46,22 +65,6 @@ class NewITR(TempForm):
         self.n_td.setValidator(QREVal(QRE("[0-9]{3}")))
         self.n_ES_g.setValidator(QREVal(QRE("[0-9]{3}")))
         self.n_H_g.setValidator(QREVal(QRE("[0-9]{3}")))
-
-    def _clean_data(self):
-        list_clean = [[self.family, self.name, self.surname, self.post, self.passport, self.inn,
-                       self.snils, self.n_td, self.n_OT_p, self.n_OT_c, self.n_PTM_p, self.n_PTM_c, self.n_ES_p,
-                       self.n_ES_c, self.n_ES_g, self.n_H_p, self.n_H_c, self.n_H_g, self.n_ST_p, self.n_ST_c,
-                       self.vac_doc],
-                      [self.bday, self.passport_date, self.d_td, self.d_OT,
-                       self.d_PTM, self.d_ES, self.d_H, self.d_ST, self.d_vac_1, self.d_vac_2],
-                      [self.passport_got, self.live_adr, self.promsave, self.place]]
-        self.status.setCurrentIndex(0)
-        for item in list_clean[0]:
-            item.setText("")
-        for item in list_clean[1]:
-            item.setDate(zero)
-        for item in list_clean[2]:
-            item.clear()
 
     def _set_data(self, data):
         self.promsave.clear()
@@ -178,17 +181,6 @@ class NewITR(TempForm):
         return _data
 
     def check_input(self):
-        list_ui = [self.family, self.name, self.surname, self.post, self.passport, self.passport_date,
-                   self.passport_got, self.adr, self.live_adr, self.inn, self.snils, self.n_td, self.d_td,
-                   self.n_OT_p, self.n_OT_c, self.d_OT, self.n_PTM_p, self.n_PTM_c, self.d_PTM, self.n_ES_p,
-                   self.n_ES_c, self.n_ES_g, self.d_ES, self.n_H_p, self.n_H_c, self.n_H_g, self.d_H,
-                   self.n_ST_p, self.n_ST_c, self.d_ST, self.promsave, self.bday]
-        _data = list()
-        for item in list_ui:
-            try:
-                _data.append(item.text())
-            except:
-                _data.append(item.toPlainText())
         if not self.check_vac():
             return False
         if ("" in _data) or ("01.01.2000") in (_data or empty in _data):
@@ -241,13 +233,4 @@ class NewITR(TempForm):
 
             if time_delta("now", list_vac[m_val["d_vac_1"]]) > cv_safe:
                 return msg(self, "Сертификат устарел, необходима вакцинация")
-        return True
-
-    def _ev_select(self, text):
-        return True
-
-    def _ev_ok(self):
-        return True
-
-    def _but_status(self, status):
         return True

@@ -34,7 +34,7 @@ class CreateReport(QDialog):
             "M29": [
                 self.stor_1, self.stor_2, self.stor_3, self.stor_4]}
         self.init_bosses()
-
+        self.init_company()
         self.doc = xlxs.open(self.path)
         self.init_dict_cells()
         self.init_dicts()
@@ -54,7 +54,7 @@ class CreateReport(QDialog):
         self.doc.add_named_style(ns)
 
     def init_data(self):
-        fields = ["number", "date", "object", "type_work", "part", "price"]
+        fields = ["number", "date", "object", "type_work", "place", "price"]
         for key in fields:
             self.set_field("contract", key, self.contract[key])
         fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank",
@@ -62,6 +62,16 @@ class CreateReport(QDialog):
         for key in fields:
             self.set_field("company", key, self.company[key])
             self.set_field("customer", key, self.customer[key])
+
+    def init_company(self):
+        rows = self.parent.parent.db.get_data("*", "company")
+        if not rows:
+            return False
+        for row in rows:
+            if row[-2] == "Заказчик":
+                self.cb_customer.addItem(row[-1] + ". " + short_name(row[9:12]))
+        return rows
+        pass
 
     def init_cult(self):
         part = "culture"
@@ -249,16 +259,16 @@ class CreateReport(QDialog):
         _fields = {"itrs": "family, name, surname, post, status, id",
                    "contracts": "name, customer, number, date, object, type_work, "
                                 "place, price, date_end, nds, status, id",
-                   "company": "company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, family, "
-                              "name, surname, post, count_attorney, date_attorney, status, id",
+                   "company": "company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, big_boss, big_mng, "
+                              "count_attorney, date_attorney, status, id",
                    "bosses": "family, name, surname, post, email, phone, sex, status, id",
                    }
         fields = _fields.get(table)
         data = list()
         rows = self.parent.parent.db.get_data(fields, table)
-        row = dict()
         for ind in range(len(rows)):
             j = iter(range(len(fields.split(", "))))
+            row = dict()
             for key in fields.split(", "):
                 row[key] = rows[ind][next(j)]
             data.append(row)
@@ -293,34 +303,36 @@ class CreateReport(QDialog):
 
     def init_dict_cells(self):
         self.cells = {"contract": ("result", {
-                          "number_contract": "B2",
-                          "date_contract": "B3",
+                          "number": "B2",
+                          "date": "B3",
                           "object": "B4",
                           "type_work": "B5",
-                          "part": "B6",
+                          "place": "B6",
                           "price": "B7",
                           "did": "B8"}),
-                      "company": ("result",{
+                      "company": ("result", {
                           "company": "B11",
                           "big_boss": "B12",
                           "big_mng": "B13",
                           "inn": "B14",
                           "bik": "B15",
                           "kpp": "B16",
-                          "korbill": "B17",
-                          "rbill": "B18",
-                          "bank": "B19",
-                          "adr": "B20"}),
+                          "ogrn": "B17",
+                          "korbill": "B18",
+                          "rbill": "B19",
+                          "bank": "B20",
+                          "adr": "B21"}),
                       "customer": ("result", {
                           "company": "B23",
                           "big_boss": "B24",
                           "inn": "B25",
                           "bik": "B26",
                           "kpp": "B27",
-                          "korbill": "B28",
-                          "rbill": "B29",
-                          "bank": "B30",
-                          "adr": "B31"}),
+                          "ogrn": "B28",
+                          "korbill": "B29",
+                          "rbill": "B30",
+                          "bank": "B31",
+                          "adr": "B32"}),
                       "KS2": ("КС2", {
                           "title": "A2",
                           "note": "A6",
@@ -411,7 +423,8 @@ class CreateReport(QDialog):
     def set_field(self, part, field, val):
         self.sheet = self.doc[self.cells.get(part)[0]]
         cell = self.cells.get(part)[1].get(field)
-        self.sheet.cell(cell).value = val
+        print(cell, part, field, val)
+        self.sheet[cell].value = val
         pass
 
     def add_val(self, row, column, val):
@@ -453,15 +466,16 @@ class CreateReport(QDialog):
         company = self.get_dict("company")
         self.bosses = self.get_dict("bosses")
         self.itrs = self.get_dict("itrs")
-        self.parent.parent.db.init_list(self.contract, "*", "itrs", people=True)
+        self.number = get_val(self.parent.cb_select)
         for ind in range(len(contracts)):
-            if self.parent.cb_select.currentText().split(". ")[1] == contracts[ind]["number"]:
+            if self.parent.cb_select.currentText().split(". ")[0] == contracts[ind]["id"]:
                 self.contract = contracts[ind]
         for ind in range(len(company)):
-            if self.parent.parent.company[3] == company[ind]["inn"]:
+            if self.parent.parent.company == company[ind]["company"]:
                 self.company = company[ind]
-            if self.parent.parent.customer[3] == company[ind]["inn"]:
-                self.company = company[ind]
+            print(self.parent.cb_comp.currentText().split(". ")[0])
+            if self.parent.cb_comp.currentText().split(". ")[0] == company[ind]["id"]:
+                self.customer = company[ind]
         pass
 
     def check_start(self):

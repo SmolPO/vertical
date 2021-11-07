@@ -18,12 +18,7 @@ class NewBoss(TempForm):
         except:
             msg(self, my_errors["3_get_db"])
             return
-        self.slice_select = -5
-        self.slice_set = 6
-        self.slice_get = 6
-        self.slice_clean = 6
         self.list_ui = list([self.family, self.name, self.surname, self.post, self.email, self.phone, self.cb_sex])
-        self.current_id = self.next_id
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я]{30}"))
@@ -36,27 +31,5 @@ class NewBoss(TempForm):
     def _set_data(self, data):
         self.cb_sex.setCurrentIndex(0) if data[6] == "М" else self.cb_sex.setCurrentIndex(1)
 
-    def _get_data(self, data):
-        data.append(self.cb_sex.currentText())
-        return data
-
-    def check_input(self):
-        if "" in list([self.family.text(),
-                       self.name.text(),
-                       self.surname.text(),
-                       self.post.text()]):
-            mes.question(self, "Сообщение", "Заполните все поля", mes.Cancel)
-            return False
-        return True
-
-    def _clean_data(self):
-        return True
-
-    def _ev_select(self, text):
-        return True
-
-    def _ev_ok(self):
-        return True
-
-    def _but_status(self, status):
+    def _select(self, data):
         return True

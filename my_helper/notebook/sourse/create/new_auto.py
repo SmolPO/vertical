@@ -19,10 +19,6 @@ class NewAuto(TempForm):
         self.init_list()
         self.track_number.setEnabled(False)
         self.list_ui = [self.gov_number, self.brand, self.model,  self.track_number]
-        self.slice_set = len(self.list_ui)
-        self.slice_get = len(self.list_ui) - 1
-        self.slice_clean = len(self.list_ui)
-        self.current_id = self.next_id
         self.track_number.setText(empty)
 
     def init_list(self):
@@ -41,23 +37,11 @@ class NewAuto(TempForm):
         for item in self.list_ui[:4]:
             item.setValidator(symbols)
 
-    def _get_data(self, data):
-        data.append(self.track_number.text()) if self.is_track.isChecked() else data.append(empty)
-        return data
-
     def _set_data(self, data):
         if not self.track_number.text() or self.track_number.text() == empty:
             self.is_track.setChecked(False)
         else:
             self.is_track.setChecked(True)
-        return True
-
-    def check_input(self):
-        data = self.get_data()
-        if "" in data:
-            return msg(self, "Заполните все поля")
-        if self.is_track.isChecked() and self.track_number.text() == "":
-            return msg(self, "Так есть прицеп или нет??.. Введите номер или уберите галочку")
         return True
 
     def have_track(self, state):
@@ -71,11 +55,5 @@ class NewAuto(TempForm):
         self.is_track.setChecked(False)
         return True
 
-    def _ev_ok(self):
-        return True
-
-    def _but_status(self, status):
-        return True
-
-    def _ev_select(self, text):
+    def _select(self, text):
         return True

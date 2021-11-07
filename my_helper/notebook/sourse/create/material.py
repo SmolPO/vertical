@@ -19,19 +19,11 @@ class NewMaterial(TempForm):
         self.provider.stateChanged.connect(self.provider_select)
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
         self.init_mask()
-        self.slice_set = 0
-        self.slice_get = 0
-        self.slice_clean = 0
-        self.slice_select = 0
-        self.current_id = self.next_id
-        self.list_ui = list()
+        self.list_ui = [self.value, self.name, self.cb_contracts, self.cb_si]
 
     def init_mask(self):
         self.name.setValidator(QREVal(QRE("[а-яА-Я 0-9]{9}")))
         self.value.setValidator(QREVal(QRE("[0-9]{9}")))
-
-    def _ev_ok(self):
-        return True
 
     def _ev_select(self, text):
         self.slice_select = len(text)
@@ -71,22 +63,5 @@ class NewMaterial(TempForm):
         data.append(self.cb_contracts.currentText())
         return data
 
-    def _clean_data(self):
-        self.name.setText("")
-        self.value.setText("")
-        self.summ.setText("0")
-        self.cb_select.setCurrentIndex(0)
-        self.cb_contracts.setCurrentIndex(0)
-
-    def _but_status(self, status):
-        return True
-
     def provider_select(self):
         self.provider_ = "Заказчик" if self.provider.isChecked() else "Подрядчик"
-
-    def check_input(self):
-        data = [self.value.text(), self.name.text(), self.cb_contracts.currentText(), self.cb_si.currentText()]
-        if "" in data or empty in data:
-            QMessageBox.question(self, "Внимание", "Заполните все поля перед добавлением", QMessageBox.Cancel)
-            return False
-        return True

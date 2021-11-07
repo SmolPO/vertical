@@ -26,19 +26,20 @@ class NewContact(TempForm):
         self.init_mask()
         self.b_docs.clicked.connect(self.create_docs)
         self.b_menu.clicked.connect(self.start_menu)
-        self.cb_select.activated[str].connect(self._ev_select)
+        self.cb_select.activated[str].connect(self.ev_select)
         try:
-            self.parent.db.init_list(self.cb_select, "name, id", self.table)
+            self.parent.db.init_list(self.cb_select, "number, id", self.table)
+            self.init_company()
         except:
             msg(self, my_errors["3_get_db"])
             return
-        self.list_ui = [self.name, self.cb_comp, self.part, self.number, self.date, self.my_object, self.work]
+        self.list_ui = [self.name, self.cb_comp, self.number, self.date, self.my_object, self.work, self.part,
+                        self.price, self.date_end, self.nds, self.avans, self.status]
 
         self.slice_set = 0
         self.slice_get = 0
         self.slice_clean = 0
         self.slice_select = len(self.list_ui)
-        self.current_id = self.next_id
         self.cb_comp.addItem(self.parent.customer)
         self.b_menu.setEnabled(False)
 
@@ -49,79 +50,36 @@ class NewContact(TempForm):
         self.part.setValidator(QREVal(QRE("[а-яА-Яa-zA-Z /_-., 0-9]{1000}")))
         self.price.setValidator(QREVal(QRE("[,0-9]{1000}")))
 
-    def _ev_select(self, text):
-        if text == empty:
-            self.clean_data()
-            self.but_status("add")
-            self.current_id = self.next_id
-            self.b_menu.setEnabled(False)
-            return
-        else:
-            self.but_status("change")
-            self.b_menu.setEnabled(True)
+    def _select(self, text):
+        self.b_menu.setEnabled(False) if text == empty else self.b_menu.setEnabled(True)
+        return True
 
-        for row in self.rows_from_db:
-            if text.split(".")[0] == str(row[-1]):
-                self.set_data(row)
-                return
-
-    def _clean_data(self):
-        list_ui = [self.name, self.part, self.number]
-        for item in list_ui:
-            item.setText("")
-        self.cb_comp.setCurrentIndex(0)
-        self.date.setDate(zero)
-        self.my_object.clear()
-        self.work.clear()
-        self.date_end.setDate(zero)
-        self.price.setText("")
-        self.NDS.setChecked(True)
-        self.avans.setValue(0)
+    def init_company(self):
+        self.companies = self.parent.db.get_data("*", "company")
+        for item in self.companies:
+            if item[-2] == "Заказчик":
+                self.cb_comp.addItem(item[-1] + ". " + item[0])
 
     def _set_data(self, data):
-        """
-        "(name, customer, number, date, object, type_work, place, "
-                        "price, date_end, nds, avans, status, id)"
-        :param data:
-        :return:
-        """
-        self.my_object.clear()
-        self.work.clear()
-        self.name.setText(data[0])
         g = iter(range(len(self.rows_from_db) + 1))
-        for item in self.rows_from_db:
-            next(g)
-            if data[-1] == item[-1]:
-                self.cb_comp.setCurrentIndex(next(g))
+        for i in range(10):
+            self.cb_comp.setCurrentIndex(i)
+            print(self.cb_comp.currentText() + ".")
+        for item in self.companies:
+            if data[1] == item[0]:
+                my_id = self.get_id(data[1], 0, "company")
+                ind = self.cb_comp.findText(my_id + ". " + data[1])
+                self.cb_comp.setCurrentIndex(ind)
                 break
-        self.number.setText(data[2])
-        self.date.setDate(from_str(data[3]))
-        self.my_object.append(data[4])
-        self.work.append(data[5])
-        self.part.setText(data[6])
-        self.price.setText(data[7])
-        self.date_end.setDate(from_str(data[8]))
-        self.NDS.setChecked(True) if data[9] == "да" else self.NDS.setChecked(False)
-        self.avans.setValue(int(data[10]))
-        self.status.setCurrentIndex(statues_cntr.index(data[-2]))
-        self.current_id = data[-1]
         path_docs = get_path("path") + get_path("path_contracts")
         self.path = path_docs + "/" + self.number.text()
 
-    def _get_data(self, data):
-        data.append(self.name.text())
-        data.append(self.cb_comp.currentText())
-        data.append(self.number.text())
-        data.append(self.date.text())
-        data.append(self.my_object.toPlainText())
-        data.append(self.work.toPlainText())
-        data.append(self.part.text())
-        data.append(self.price.text())
-        data.append(self.date_end.text())
-        data.append("да" if self.NDS.isChecked() else "нет")
-        data.append(str(self.avans.value()))
-        data.append(self.status.currentText())
-        return data
+    def get_id(self, val, field, table):
+        rows = self.parent.db.get_data("*", table)
+        for item in rows:
+            if item[field] == val:
+                return item[-1]
+        pass
 
     def create_docs(self):
         if not self.check_input():
@@ -133,9 +91,9 @@ class NewContact(TempForm):
         if folders:
             for item in folders:
                 os.mkdir(self.path + item)
+        self.create_acts()
         self.create_doc()
         self.create_journal()
-        self.create_acts()
 
     def check_folder(self, contract, path):
         path_docs = path + "/" + contract

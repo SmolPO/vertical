@@ -277,4 +277,9 @@ def yong_date(young, old):
     else:
         return False
 
+
+def get_val(ui):
+    return "".join(ui.currentText().split(". ")[1:])
+
+
 zero = from_str("01.01.2000")
