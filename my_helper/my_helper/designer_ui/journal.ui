@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>293</width>
-    <height>482</height>
+    <width>279</width>
+    <height>393</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -138,83 +138,11 @@
     </property>
    </item>
   </widget>
-  <widget class="QSpinBox" name="sb_p2">
-   <property name="geometry">
-    <rect>
-     <x>140</x>
-     <y>310</y>
-     <width>42</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_6">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>320</y>
-     <width>49</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>раздел 2</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_7">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>310</y>
-     <width>49</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>стр</string>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="sb_p5">
-   <property name="geometry">
-    <rect>
-     <x>140</x>
-     <y>340</y>
-     <width>42</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_8">
-   <property name="geometry">
-    <rect>
-     <x>30</x>
-     <y>350</y>
-     <width>49</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>раздел 5</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_9">
-   <property name="geometry">
-    <rect>
-     <x>190</x>
-     <y>340</y>
-     <width>49</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>стр</string>
-   </property>
-  </widget>
   <widget class="QDateEdit" name="date">
    <property name="geometry">
     <rect>
      <x>140</x>
-     <y>380</y>
+     <y>310</y>
      <width>110</width>
      <height>22</height>
     </rect>
@@ -224,7 +152,7 @@
    <property name="geometry">
     <rect>
      <x>30</x>
-     <y>380</y>
+     <y>310</y>
      <width>91</width>
      <height>16</height>
     </rect>
@@ -236,14 +164,14 @@
   <widget class="QPushButton" name="b_print">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>430</y>
+     <x>180</x>
+     <y>350</y>
      <width>75</width>
      <height>24</height>
     </rect>
    </property>
    <property name="text">
-    <string>Печать</string>
+    <string>Создать</string>
    </property>
   </widget>
   <widget class="QTextEdit" name="name">
