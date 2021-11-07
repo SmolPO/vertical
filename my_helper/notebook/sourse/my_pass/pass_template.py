@@ -82,10 +82,10 @@ class TempPass(QDialog):
         doc.render(self.data)
         path = print_file
         doc.save(path)
+        os.startfile(path)
         self._create_data(path)
         set_next_number(int(self.number.text()) + 1)
         self.close()
-        os.startfile(path)
 
     def new_worker(self):
         flag = True
@@ -174,6 +174,27 @@ class TempPass(QDialog):
             self.d_to.setEnabled(False)
         elif not self.cb_sun.isChecked() and not self.cb_sub.isChecked():
             self.cb_other.setEnabled(True)
+        self.set_date()
+
+    def set_date(self):
+        data = []
+        now_weekday = dt.datetime.now().weekday()
+        if self.cb_sun.isChecked() and not self.cb_sub.isChecked():
+            sub_day = dt.datetime.now() + dt.timedelta(6 - now_weekday)
+            date = ".".join((str(sub_day.day), str(sub_day.month), str(sub_day.year)))
+            self.d_from.setDate(from_str(date))
+        if self.cb_sub.isChecked() and not self.cb_sun.isChecked():
+            sub_day = dt.datetime.now() + dt.timedelta(5 - now_weekday)
+            date = ".".join((str(sub_day.day), str(sub_day.month), str(sub_day.year)))
+            self.d_from.setDate(from_str(date))
+        if self.cb_sub.isChecked() and self.cb_sun.isChecked():
+            sub_day = dt.datetime.now() + dt.timedelta(5 - now_weekday)
+            date_sub = ".".join((str(sub_day.day), str(sub_day.month), str(sub_day.year)))
+            sun_day = dt.datetime.now() + dt.timedelta(6 - now_weekday)
+            date_sun = ".".join((str(sun_day.day), str(sun_day.month), str(sun_day.year)))
+            self.d_from.setDate(from_str(date_sub))
+            self.d_to.setDate(from_str(date_sun))
+        return data
 
     def get_end_month(self):
         next_month = dt.datetime.now().month

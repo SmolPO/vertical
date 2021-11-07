@@ -3,6 +3,9 @@ from PyQt5.QtWidgets import QDialog
 import my_helper.notebook.sourse.inserts as ins
 from PyQt5.QtWidgets import QMessageBox as mes
 import logging
+from datetime import datetime as dt
+import openpyxl
+import os
 from my_helper.notebook.sourse.database import *
 
 
@@ -19,13 +22,14 @@ class TempForm (QDialog):
         self.b_change.clicked.connect(self.ev_change)
         self.cb_select.activated[str].connect(self.ev_select)
         self.but_status("add")
-        self.parent.db.execute("UPDATE itrs SET id = '1' where status = '1'")
+        # self.parent.db.execute("UPDATE itrs SET id = '1' where status = '1'")
         # self.parent.db.execute("UPDATE workers SET d_vac_2 = '25.02.2000' where id = '1'")
         self.parent.db.conn.commit()
 
         self.rows_from_db = self.parent.db.get_data("*", self.table)
         self.current_id = int(self.rows_from_db[-1][-1]) + 1
         self.vac = False
+        self.bill = False
 
     def check_start(self, ui_file):
         self.status_ = True
@@ -53,6 +57,8 @@ class TempForm (QDialog):
         if not data:
             return
         self.parent.db.my_commit(ins.add_to_db(data, self.table))
+        if self.bill:
+            self.create_bill(data)
         self.close()
 
     def ev_select(self, text):
@@ -65,7 +71,8 @@ class TempForm (QDialog):
         else:
             self.but_status("change")
         for row in self.rows_from_db:
-            if text.split(". ")[0] == str(row[-1]):
+            print(text.split(". ")[0])
+            if str(text.split(". ")[0]) == str(row[-1]):
                 self.set_data(row)
 
     def set_data(self, data):
@@ -76,6 +83,8 @@ class TempForm (QDialog):
             print(type(item))
             if "QLineEdit" in str(type(item)):
                 item.setText(data[k])
+            if "QLabel" in str(type(item)):
+                item.setText(data[k])
             if "QTextEdit" in str(type(item)):
                 item.clear()
                 item.append(data[k])
@@ -85,12 +94,14 @@ class TempForm (QDialog):
             if "QComboBox" in str(type(item)):
                 ind = item.findText(data[k])
                 if ind == -1:
-                    ind = item.findText(data[-1] + ". " + str(data[k]))
+                    ind = get_index(item, data[k])
                 item.setCurrentIndex(ind)
             if "QSpinBox" in str(type(item)):
                 item.setValue(int(data[k]))
             if "QCheckBox" in str(type(item)):
                 item.setChecked(True) if data[k] == "да" else item.setChecked(False)
+            if "str" in str(type(item)):
+                item = data[k]
             k = k + 1
         if self.vac:
             self.set_vac_data(data[-3])
@@ -101,16 +112,21 @@ class TempForm (QDialog):
         for item in self.list_ui:
             if "QLineEdit" in str(type(item)):
                 val = item.text()
+            if "QLabel" in str(type(item)):
+                val = item.text()
             if "QTextEdit" in str(type(item)):
                 val = item.toPlainText()
             if "QDateEdit" in str(type(item)):
                 val = item.text()
             if "QComboBox" in str(type(item)):
-                val = item.currentText()
+                if item.currentText().split(". ")[0].isdigit():
+                    val = "".join(item.currentText().split(". ")[1:])
             if "QSpinBox" in str(type(item)):
                 val = str(item.value())
             if "QCheckBox" in str(type(item)):
                 val = "да" if item.isChecked() else "нет"
+            if "str" in str(type(item)):
+                val = item
             data.append(val)
         if not data:
             return False
@@ -120,6 +136,8 @@ class TempForm (QDialog):
     def clean_data(self):
         for item in self.list_ui:
             if "QLineEdit" in str(type(item)):
+                item.setText("")
+            if "QLabel" in str(type(item)):
                 item.setText("")
             if "QTextEdit" in str(type(item)):
                 item.clear()
@@ -131,6 +149,8 @@ class TempForm (QDialog):
                 item.setChecked(False)
             if "QSpinBox" in str(type(item)):
                 item.setValue(0)
+            if "str" in str(type(item)):
+                item = ""
 
     def ev_change(self):
         answer = mes.question(self, "Изменение записи", "Вы действительно хотите изменить запись на " +
@@ -235,6 +255,63 @@ class TempForm (QDialog):
             if time_delta("now", list_vac[m_val["d_vac_1"]]) > cv_safe:
                 return msg(self, "Сертификат устарел, необходима вакцинация")
         return True
+
+    def create_bill(self, data):
+        path = get_path("path") + get_path("path_bills") + "/" + \
+               str(str(dt.datetime.now())[:10].replace("-", ".") + "_" + str(self.current_id + 1) + ".pdf")
+        print(path)
+        try:
+            os.replace(self.filename, path)
+        except:
+            return msg(self, "Проблема с правом доступа. "
+                             "1. - вручную скопируйте файл в папку со счетами,"
+                             " 2 - Снова нажмите Выбрать файл и укажите файл чека в новом месте")
+        self.create_report(self.sb_value.value(), self.date.text().replace("-", "."), self.cb_buyer.currentText()[:-5])
+        return data
+
+    def _create_filename(self):
+        my_list = [[], []]
+        list_id = []
+
+        for item in self.rows_from_db:
+            my_list[0].append(item[3].split("/")[-1].split("_")[0])
+            my_list[1].append(item[3].split("/")[-1].split("_")[1][:-4])
+        for item in my_list:
+            if my_list[0] == self.date.text():
+                list_id.append(my_list[1])
+
+    def create_report(self, value, date, people):
+        try:
+            wb = openpyxl.load_workbook(get_path("path") + get_path("path_bills") +
+                                    "/" + str(dt.datetime.now().year) +
+                                    "/" + str(dt.datetime.now().month) +
+                                    "/" + str(dt.datetime.now().month) + str(dt.datetime.now().year) + ".xlsx")
+        except:
+            return msg(self, my_errors["4_get_file"])
+        try:
+            sheet = wb['bills']
+        except:
+            return msg(self, my_errors["6_get_sheet"])
+        row = sheet['F2'].value
+        sheet['A' + str(row + 3)].value = int(row) + 1
+        sheet['B' + str(row + 3)].value = date
+        sheet['C' + str(row + 3)].value = value
+        sheet['D' + str(row + 3)].value = people
+        sheet['F2'].value = int(row) + 1
+        try:
+            wb.save(get_path("path") + get_path("path_bills") +
+                        "/" + str(dt.datetime.now().year) +
+                        "/" + str(dt.datetime.now().month) +
+                        "/" + str(dt.datetime.now().month) + str(dt.datetime.now().year) + ".xlsx")
+        except:
+            return msg(self, my_errors["4_get_file"])
+        try:
+            os.startfile(get_path("path") + get_path("path_bills") +
+                        "/" + str(dt.datetime.now().year) +
+                        "/" + str(dt.datetime.now().month) +
+                        "/" + str(dt.datetime.now().month) + str(dt.datetime.now().year) + ".xlsx")
+        except:
+            return msg(self, my_errors["4_get_file"])
 
 
 def set_cb_text(combobox, data, rows):

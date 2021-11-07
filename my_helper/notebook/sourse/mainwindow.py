@@ -128,8 +128,7 @@ class MainWindow(QMainWindow):
         self.data_to_db = None
         self.init_notif()
         self.get_weather()
-
-
+        self.city = "г. Дорогобуж"
 
     def ev_settings(self):
         wnd = Settings(self)
@@ -202,10 +201,10 @@ class MainWindow(QMainWindow):
                  "Накладная": "/Накладная.xlsx",
                  "Бланк": "/Бланк.doc"}
         name = self.sender().text()
-        try:
-            path = get_path("path") + get_path("path_pat_patterns") + files[name]
-        except:
-            mes.question(self, "Сообщение", my_errors["2_get_path"], mes.Cancel)
+        path = get_path("path") + get_path("path_pat_patterns") + files[name]
+
+        if name == "Бланк":
+            os.startfile(path)
             return
         try:
             count, ok = QInputDialog.getInt(self, name, "Кол-во копий")

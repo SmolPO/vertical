@@ -74,7 +74,7 @@ class WeekPass(TempPass):
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
         for people in self.all_people:
-            if family[-2] != 3:
+            if people[-2] != 3:
                 family = str(people[-1]) + ". " + short_name(people)
                 for item in self.list_ui:
                     item.addItem(family)

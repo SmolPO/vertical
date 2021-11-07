@@ -127,7 +127,7 @@ class Asr(QDialog):
             mes.question(self, "Сообщение", "Файл " + path + " не найден", mes.Ok)
             return False
         doc.render(self.data)
-        path = get_path("path") + get_path("contract") + "/102021" + "/1.docx"
+        path = get_path("path") + get_path("path_contracts") + "/1030/102021" + "/1.docx"
         doc.save(path)
         os.startfile(path)
         self.save_pattern()

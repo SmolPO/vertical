@@ -6,7 +6,8 @@ import PyPDF2
 import pytesseract
 import os
 from datetime import datetime as dt
-from my_helper.notebook.sourse.database import get_path, get_path_ui, my_errors
+from my_helper.notebook.sourse.database import *
+from my_helper.notebook.sourse.my_email import *
 from my_email import send
 
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
@@ -78,6 +79,7 @@ class PDFModule(QDialog):
                 mes.question(self, "Сообщение", "В папке есть не только файлы .pdf. "
                                                 "Оставляйте в папке только необходимые файлы", mes.Cancel)
                 return False
+        return True
 
     def ev_note(self):
         folder = get_path("path") + get_path("path_scan")
@@ -93,7 +95,7 @@ class PDFModule(QDialog):
         if not text:
             return
         pdf_merger = PyPDF2.PdfFileMerger()
-        path_to = get_path("path") + get_path("path_notes_pdf") + "/" + str(text) + "_" + str(dt.now().date()) + ".pdf"
+        path_to = get_path("path") + get_path("path_notes_pdf") + "/" + str(text) + "_" + str(dt.datetime.now().date()) + ".pdf"
         for doc in files:
             print(str(folder + "/" + doc))
             if ".pdf" in doc:
@@ -109,60 +111,25 @@ class PDFModule(QDialog):
             os.remove(str(folder + "/" + doc))
 
     def ev_open(self):
-        pass
-
-
-class SendPost(QDialog):
-    def __init__(self, db, path):
-        super(SendPost, self).__init__()
-        if not self.check_start():
+        folder = get_path("path") + get_path("path_scan")
+        files = os.listdir(folder)
+        if not files:
+            msg(self, "Файлы не найдены. Отсканируйте в PDF и программа сама их объединит по порядку")
             return
-        self.db = db
-        self.b_ok.clicked.connect(self.ev_send)
-        self.b_cancel.clicked.connect(self.ev_cancel)
-        self.path = path
-        self.init_emails()
-        self.sub = ""
-        self.to_email = ""
-        self.body_text = ""
-
-    def check_start(self):
-        self.status_ = True
-        self.path_ = designer_file_email
-        try:
-            uic.loadUi(designer_file_email, self)
-            return True
-        except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file_email, mes.Cancel)
-            self.status_ = False
-            return False
-
-    def ev_send(self):
-        self.my_sub = self.topic.text()
-        self.to_email = self.email.currentText()
-        self.body_text = self.note.toPlainText()
-        if not self.check_input():
-            return False
-        answer = mes.question(self, "Сообщение", "Отправить служебную записку на согласование? " + self.to_email,
-                              mes.Ok | mes.Cancel)
-        if answer == mes.Ok:
-            send(self.my_sub, self.body_text, self.to_email, self.path)
-
-    def ev_cancel(self):
-        self.close()
-
-    def init_emails(self):
-        try:
-            rows = self.db.get_data("email", "bosses")
-        except:
-            mes.question(self, "Сообщение", my_errors["8_get_data"] + folder, mes.Cancel)
-            return False
-        for item in rows:
-            print(item)
-            self.email.addItem(item[0])
-
-    def check_input(self):
-        return True
+        text, ok = QInputDialog.getText(self, "Название", "Название документа")
+        dirlist = QFileDialog.getExistingDirectory(self, "Выбрать папку", folder)
+        if ok:
+            path = dirlist + "/" + text + ".pdf"
+        else:
+            return
+        pdf_merger = PyPDF2.PdfFileMerger()
+        for doc in files:
+            print(str(folder + "/" + doc))
+            if ".pdf" in doc:
+                pdf_merger.append(str(folder + "/" + doc))
+        pdf_merger.write(path)
+        msg(self, "Файл успешно объединен и сохранен")
+        return
 
 
 """def check_file(parent):

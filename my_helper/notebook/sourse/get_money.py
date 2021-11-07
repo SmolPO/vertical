@@ -6,8 +6,9 @@ import datetime as dt
 import docxtpl
 import os
 import inserts as ins
-from database import get_path, get_path_ui, get_from_ini, my_errors
+from database import *
 import logging
+from my_email import *
 import pymorphy2
 # logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 designer_file = get_path_ui("get_money")
@@ -52,8 +53,8 @@ class GetMoney(QDialog):
         for row in self.parent.db.get_data("id, date", self.table):
             self.cb_select.addItems([", ".join((row[0], row[1]))])
         try:
-            self.parent.db.init_list(self.cb_recipient, "family, name, surname", "itrs", people=True)
-            self.parent.db.init_list(self.cb_customer, "family, name, surname", "itrs", people=True)
+            self.parent.db.init_list(self.cb_recipient, "*", "itrs", people=True)
+            self.parent.db.init_list(self.cb_customer, "*", "itrs", people=True)
         except:
             mes.question(self, "Сообщение", my_errors["5_init_list"] + designer_file, mes.Cancel)
             return
@@ -83,6 +84,7 @@ class GetMoney(QDialog):
             mes.question(self, "Сообщение", my_errors["1_ui"] + designer_file, mes.Cancel)
             self.status_ = False
             return False
+        return True
 
     def ev_ok(self):
         if not self.check_input():
@@ -103,12 +105,14 @@ class GetMoney(QDialog):
             return
         for row in rows:
             if self.cb_customer.currentText().split(".")[0] == str(row[-1]):
-                self.data["post"] = row[0]
-                family = self.cb_customer.currentText().split(".")[1]
-                self.data["family"] = morph.parse(family)[0].inflect({'gent'})[0].capitalize() + "." + \
-                                      self.cb_customer.currentText().split(".")[2] + "."
+                self.data["post"] = row[0].lower()
+                people = self.cb_customer.currentText()
+                family = people.split(". ")[1][:-5]
+                fam = morph.parse(family)[0].inflect({'gent'})[0].capitalize()
+                self.data["family_g"] = fam + " " + people[-4:]
                 self.data["text"] = self.note_result.toPlainText()
                 self.data["date"] = self.date.text()
+                self.data["family_i"] = "".join(people.split(". ")[1:])
         print_file = self.print_folder + "/" + str(dt.datetime.now().date()) + "_" + \
                                                str(self.sb_value.value()) + ".docx"
         if not self.data:
@@ -134,6 +138,8 @@ class GetMoney(QDialog):
         mes.question(self, "Сообщение", "Запись добавлена", mes.Ok)
         answer = mes.question(self, "Сообщение", "Отправить бухгалтеру?", mes.Ok | mes.Cancel)
         if answer == mes.Ok:
+            wnd = SendPost(self.parent.db, print_file)
+            wnd.exec_()
             pass
         self.close()
 
@@ -167,6 +173,8 @@ class GetMoney(QDialog):
                 itr = boss
                 break
         text = list()
+        self.sb_value.setValue(self.sb_days.value() * self.sb_emploeeyrs.value() * self.sb_cost.value() +
+                               self.sb_some_value.value())
         text.append("Прошу Вас выслать ")
         text.append(str(self.sb_value.value()))
         text.append("р. на банковскую карту ")

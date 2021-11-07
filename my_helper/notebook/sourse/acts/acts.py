@@ -18,11 +18,9 @@ class Acts(QDialog):
             return
         self.parent = parent
         uic.loadUi(designer_file, self)
-        self.b_journal.clicked.connect(self.ev_start)
         self.b_save.clicked.connect(self.ev_save)
         self.b_asr.clicked.connect(self.ev_start)
         self.b_add.clicked.connect(self.ev_add)
-        self.b_contract.clicked.connect(self.ev_start)
         self.b_latter.clicked.connect(self.ev_latter)
         self.b_month.clicked.connect(self.ev_month)
         self.b_create.clicked.connect(self.ev_xlsx)
@@ -52,9 +50,7 @@ class Acts(QDialog):
         if self.cb_select.currentText() == "(нет)":
             mes.question(self, "Сообщение", "Сначала выберите договор", mes.Cancel)
             return False
-        menu = {self.b_journal.text(): Journal,
-                   self.b_asr.text(): Asr,
-                   self.b_contract.text(): Contract}
+        menu = {self.b_asr.text(): Asr}
         name = self.sender().text()
         self.path = self.path + "/" + "".join(self.cb_select.currentText().split(". ")[1:])
         wnd = menu[name](self)
@@ -97,8 +93,8 @@ class Acts(QDialog):
 
     def ev_latter(self):
         try:
-            path_from = get_path("path") + get_path("path_pat_patterns") + "/blank.doc"
-            path_to = self.path + "Письма/Письмо.doc"
+            path_from = get_path("path") + get_path("path_pat_patterns") + "/Бланк.doc"
+            path_to = get_path("path") + "/Исходящие/Письма/Письмо.doc"
             os.replace(path_from, path_to)
             os.startfile(path_to)
         except:

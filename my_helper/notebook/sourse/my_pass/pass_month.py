@@ -116,7 +116,7 @@ class MonthPass(TempPass):
         doc.save(path)
 
     def check_input(self):
-        if self.list_ui[0].currentText() == "(нет)":
+        if self.list_ui[0].currentText() == "(нет)" and not self.cb_all.isChecked():
             return msg(self, my_errors["14_add_people"])
         return True
 

@@ -48,7 +48,7 @@ class UnlockPass(TempPass):
         self.data["name"] = morph.parse(people[1])[0].inflect({'datv'})[0].capitalize()
         self.data["surname"] = morph.parse(people[2])[0].inflect({'datv'})[0].capitalize()
         self.data["post"] = morph.parse(people[3])[0].inflect({'datv'})[0]
-        self.data["adr"] = people[-2]
+        self.data["adr"] = people[8]
         self.data["start_date"] = self.d_from.text()
         self.data["end_date"] = self.d_to.text()
         self.count_days = self.sb_days.value()

@@ -21,14 +21,11 @@ class NewBill(TempForm):
         except:
             msg(self, my_errors["3_get_db"])
             return
-        self.slice_select = 10
-        self.slice_set = 0
-        self.slice_get = 0
-        self.slice_clean = 0
-        self.list_ui = list()
-        self.current_id = self.next_id
-        self.date.setDate(dt.now().date())
+        self.filename = ""
+        self.list_ui = [self.date, self.sb_value, self.cb_buyer, self.file_path, self.note]
+        self.date.setDate(dt.datetime.now().date())
         self.init_operations()
+        self.bill = True
 
     def init_mask(self):
         return
@@ -41,7 +38,7 @@ class NewBill(TempForm):
             return msg(self, my_errors["3_get_db"])
         self.cb_select.addItem(empty)
         for row in rows:
-            self.cb_select.addItems([", ".join((row[0], row[-1]))])
+            self.cb_select.addItems([". ".join((row[-1], row[0]))])
         return
 
     def _set_data(self, data):
@@ -59,71 +56,18 @@ class NewBill(TempForm):
         self._create_filename()
         data.append(self.filename)
         data.append(self.note.toPlainText())
-        path = get_path("path") + get_path("path_bills") + "/" + \
-               str(str(dt.now())[:10].replace("-", ".") + "_" + str(self.current_id + 1) + ".pdf")
-        print(path)
-        try:
-            os.replace(self.filename, path)
-        except:
-            return msg(self, "Проблема с правом доступа. "
-                             "1. - вручную скопируйте файл в папку со счетами,"
-                             " 2 - Снова нажмите Выбрать файл и укажите файл чека в новом месте")
-        self.create_note(self.sb_value.value(), self.date.text().replace("-", "."), self.cb_buyer.currentText()[:-5])
-        return data
 
-    def check_input(self):
-        if self.sb_value.value() == 0:
-            return False
-        if self.cb_buyer.currentIndex() == 0:
-            return False
-        if self.filename == "":
-            return False
-        return True
-
-    def _clean_data(self):
-        self.current_id = 1
-        self.date.setDate(zero)
-        self.cb_buyer.setCurrentIndex(0)
-        self.sb_value.setValue(0)
-        self.note.clear()
-        return True
-
-    def _create_filename(self):
-        my_list = [[], []]
-        list_id = []
-
-        for item in self.rows_from_db:
-            my_list[0].append(item[3].split("/")[-1].split("_")[0])
-            my_list[1].append(item[3].split("/")[-1].split("_")[1][:-4])
-        for item in my_list:
-            if my_list[0] == self.date.text():
-                list_id.append(my_list[1])
-        print(my_list)
-        print(list_id)
 
     def ev_bill(self):
         self.filename, tmp = QFileDialog.getOpenFileName(self,
                                                          "Выбрать файл",
-                                                         get_path("path") + get_path("scan"),
+                                                         get_path("path") + get_path("path_scan"),
                                                          "PDF Files(*.pdf)")
         if self.filename:
-            self.rb_isfile.setChecked(True)
-        else:
-            self.rb_isfile.setChecked(False)
+            self.file_path.setText(self.filename.split("/")[-1])
         return
 
-    def _ev_select(self, text):
-        for row in self.rows_from_db:
-            print(text[12:])
-            if text[12:] in row:
-                self.set_data(row)
-                return
-        return True
-
-    def _ev_ok(self):
-        return True
-
-    def _but_status(self, status):
+    def _select(self, text):
         return True
 
     def create_note(self, value, date, people):

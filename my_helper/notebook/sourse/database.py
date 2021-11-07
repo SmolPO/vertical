@@ -282,4 +282,12 @@ def get_val(ui):
     return "".join(ui.currentText().split(". ")[1:])
 
 
+def get_index(cb, text):
+    for ind in range(cb.count()):
+        cb.setCurrentIndex(ind)
+        if text in cb.currentText():
+            return ind
+    return -1
+
+
 zero = from_str("01.01.2000")

@@ -2,7 +2,9 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 import openpyxl as xlxs
 from openpyxl.styles import Border, Side, NamedStyle, Font
+from openpyxl.styles.borders import BORDER_THIN
 import datetime as dt
+import os
 from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.database import *
 designer_file = get_path_ui("create_report")
@@ -35,6 +37,7 @@ class CreateReport(QDialog):
                 self.stor_1, self.stor_2, self.stor_3, self.stor_4]}
         self.init_bosses()
         self.init_company()
+        self.init_customer()
         self.doc = xlxs.open(self.path)
         self.init_dict_cells()
         self.init_dicts()
@@ -53,12 +56,21 @@ class CreateReport(QDialog):
         ns.border = Border(left=border, top=border, right=border, bottom=border)
         self.doc.add_named_style(ns)
 
+    def init_customer(self):
+        rows = self.parent.parent.db.get_data("big_boss, mng_boss, status", "company")
+        for row in rows:
+            if row[-1] == "Заказчик":
+                self.cb_customer.addItems(row[:2])
+        pass
+
     def init_data(self):
         fields = ["number", "date", "object", "type_work", "place", "price"]
         for key in fields:
             self.set_field("contract", key, self.contract[key])
         fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank",
-                  "family", "name", "surname", "post", "count_attorney", "date_attorney", "status"]
+                  "big_boss", "big_post", "big_at", "big_d_at",
+                  "mng_boss", "mng_post", "mng_at", "mng_d_at",
+                  "status"]
         for key in fields:
             self.set_field("company", key, self.company[key])
             self.set_field("customer", key, self.customer[key])
@@ -75,21 +87,21 @@ class CreateReport(QDialog):
 
     def init_cult(self):
         part = "culture"
-        self.set_field(part, "company", self.company["name"])
+        self.set_field(part, "company", self.company["company"])
         self.set_field(part, "object", self.contract["object"])
         self.set_field(part, "post_1", self.get_post(self.list_ui["cult"][0], "bosses"))
         self.set_field(part, "post_2", self.get_post(self.list_ui["cult"][1], "bosses"))
         self.set_field(part, "post_3", self.get_post(self.list_ui["cult"][2], "bosses"))
-        self.set_field(part, "boss_1", self.get_short_name(self.list_ui["cult"][0]))
-        self.set_field(part, "boss_2", self.get_short_name(self.list_ui["cult"][1]))
-        self.set_field(part, "boss_3", self.get_short_name(self.list_ui["cult"][3]))
+        self.set_field(part, "boss_1", self.get_short_name(self.list_ui["cult"][0].currentText()))
+        self.set_field(part, "boss_2", self.get_short_name(self.list_ui["cult"][1].currentText()))
+        self.set_field(part, "boss_3", self.get_short_name(self.list_ui["cult"][3].currentText()))
 
     def init_ks2(self):
         part = "KS2"
         self.set_field(part, "title", "сдачи-приемки выполненных  № 1")
-        self.set_field(part, "city", self.parent.city)
-        self.set_field(part, "object", self.customer["object"])
-        self.set_field(part, "type_work", self.customer["type_work"])
+        self.set_field(part, "city", self.parent.parent.city)
+        self.set_field(part, "object", self.contract["object"])
+        self.set_field(part, "type_work", self.contract["type_work"])
         note = 'ПАО "Дорогобуж", ОГРН 1026700535773, именуемый в дальнейшем "Заказчик" в лице ' \
                'Заместителя исполнительного директора - Главного инженера Симакова Павла Николаевича, ' \
                'действующего на основании доверенности № 04-Д/34 от 26.05.2021 г. с одной стороны, и ' \
@@ -102,12 +114,12 @@ class CreateReport(QDialog):
                '{5}, ОГРН {6}, именуемое в дальнейшем "Подрядчик" ' \
                'в лице {7} {8}, действующего на основании {9}, ' \
                'с другой стороны, составили настоящий Акт сдачи-приемки выполненных работ, ' \
-               'именуемый в дальнейшем "Акт", о нижеследующем:'.format(self.customer["name"], self.customer["ogrn"],
-                                                                       self.customer["post"], self.customer["boss"],
-                                                                       self.customer["attorney"],
-                                                                       self.company["name"], self.company["ogrn"],
-                                                                       self.company["post"], self.company["boss"],
-                                                                       self.company["attorney"])
+               'именуемый в дальнейшем "Акт", о нижеследующем:'.format(self.customer["company"], self.customer["ogrn"],
+                                                                       self.customer["big_post"], self.customer["big_boss"],
+                                                                       self.customer["big_at"],
+                                                                       self.company["company"], self.company["ogrn"],
+                                                                       self.company["big_post"], self.company["big_boss"],
+                                                                       self.company["big_at"])
         self.set_field(part, "note", note)
         self.init_table_ks2()
 
@@ -127,46 +139,57 @@ class CreateReport(QDialog):
 
     def init_table(self):
         part = "table"
-        self.set_field(part, "object", self.company["object"])
+        self.set_field(part, "object", self.contract["object"])
         self.set_field(part, "object", "ноябрь" + str(dt.datetime.now().year) + "г.")
 
     def init_m29(self):
-        part = "company"
-        self.set_field(part, "contract", "Договор подряда № " + self.company["number"] + " от " + self.company["date"])
-        self.set_field(part, "add", "Приложение №2 к договору" + self.company["number"] + " от " + self.company["date"])
+        part = "M29"
+        self.set_field(part, "contract", "Договор подряда № " + self.contract["number"] + " от " + self.contract["date"])
+        self.set_field(part, "add", "Приложение №2 к договору" + self.contract["number"] + " от " + self.contract["date"])
         self.set_field(part, "post_1", self.get_post(self.list_ui["M29"][0], "bosses"))
         self.set_field(part, "post_2", self.get_post(self.list_ui["M29"][1], "bosses"))
         self.set_field(part, "post_3", self.get_post(self.list_ui["M29"][2], "bosses"))
-        self.set_field(part, "boss_1", self.get_short_name(self.list_ui["M29"][0]))
-        self.set_field(part, "boss_2", self.get_short_name(self.list_ui["M29"][1]))
-        self.set_field(part, "boss_3", self.get_short_name(self.list_ui["M29"][3]))
+        self.set_field(part, "boss_1", self.get_short_name(self.list_ui["M29"][0].currentText()))
+        self.set_field(part, "boss_2", self.get_short_name(self.list_ui["M29"][1].currentText()))
+        self.set_field(part, "boss_3", self.get_short_name(self.list_ui["M29"][3].currentText()))
 
     def init_table_ks2(self):
-        parts, points, rows = 0, [0], [0]
-        count_rows = sum(rows) + parts
-        cursor = iter(range(count_rows))
-        for row in range(count_rows):
+        thin_border = Border(
+            left=Side(border_style=BORDER_THIN, color='00000000'),
+            right=Side(border_style=BORDER_THIN, color='00000000'),
+            top=Side(border_style=BORDER_THIN, color='00000000'),
+            bottom=Side(border_style=BORDER_THIN, color='00000000')
+        )
+        parts = self.count.value()
+        points = self.points.toPlainText().split(",")
+        rows = self.rows.toPlainText().split(",")
+        count_rows = parts
+        for item in rows:
+            count_rows += int(item)
+        for row in range(14, 14 + count_rows):
             for column in ["A", "B", "C", "D", "E", "F"]:
-                cell = column + next(cursor)
-                self.sheet.cell(cell).style.borders.left.border_style = "empty"
+                cell = column + str(row)
+                self.sheet[cell].border = thin_border
             pass
         cursor = 14
         prev = 0
         for ind in range(len(points)):
-            self.list_table.append(rows[prev:prev+points[ind]])
-            prev = points[ind]
+            self.list_table.append(rows[prev:prev+int(points[ind])])
+            prev = int(points[ind])
         for part in self.list_table:
-            self.create_part(cursor)
             cursor += 1
             for point in range(len(part)):
-                text = self.create_point(point, part[point])
-                for i in range(part[point]):
+                text = self.create_point(point, int(part[point]))
+                for i in range(int(part[point])):
                     row = cursor
-                    self.set_text(row, text)
-                    if text[row][1] == "работа" or part[point] == 1:
+                    self.set_text(row, text[i])
+                    if part[point] == '1':
                         self.list_work.append(cursor)
+                        continue
+                    if text[i][1] == "работа":
+                        self.list_work.append(cursor)
+                        continue
                     if i == 0:
-                        self.create_row(row, "think")
                         self.list_point.append("F" + str(cursor))
                     cursor += 1
         self.create_result(cursor)
@@ -203,66 +226,72 @@ class CreateReport(QDialog):
         self.set_field("culture", "sum", sum)
 
     def create_result(self, cursor):
-        cells = "A" + cursor + ":E" + cursor
+        cells = "A" + str(cursor) + ":E" + str(cursor)
         self.sheet.merge_cells(cells)
-        self.sheet.cell(cells[:2]).value = "Итого по разделам:"
-        self.sheet.cell("F" + str(cursor)).value = "=" + "+".join(self.list_point)
+        self.sheet[cells[:2]].value = "Итого по разделам:"
+        self.sheet["F" + str(cursor)].value = "=" + "+".join(self.list_point)
         cursor += 1
-        cells = "A" + cursor + ":E" + cursor
+        cells = "A" + str(cursor) + ":E" + str(cursor)
         self.sheet.merge_cells(cells)
-        self.sheet.cell(cells[:2]).value = "НДС 20%:"
-        self.sheet.cell("F" + str(cursor)).value = "=" + "F" + str(cursor-1) + "*0,2"
+        self.sheet[cells[:2]].value = "НДС 20%:"
+        self.sheet["F" + str(cursor)].value = "=" + "F" + str(cursor-1) + "*0,2"
         cursor += 1
-        cells = "A" + cursor + ":E" + cursor
+        cells = "A" + str(cursor) + ":E" + str(cursor)
         self.sheet.merge_cells(cells)
-        self.sheet.cell(cells[:2]).value = "Всего с НДС:"
-        self.sheet.cell("F" + str(cursor)).value = "=" + "F" + str(cursor-1) + "F" + str(cursor-2)
+        self.sheet[cells[:2]].value = "Всего с НДС:"
+        self.sheet["F" + str(cursor)].value = "=" + "F" + str(cursor-1) + "F" + str(cursor-2)
         self.cells["KS2"][1]["sum"] = "F" + str(cursor)
 
     def get_cells(self, cell):
         return "A" + str(cell) + ":F" + str(cell)
 
     def set_text(self, row, text):
+        i = 0
         for column in ["A", "B", "C"]:
             cell = column + str(row)
-            self.sheet.cell(cell).value = text[row][column]
+            self.sheet[cell].value = text[i]
+            i += 1
 
     def create_row(self, row, style):
         for column in ["A", "B", "C", "D", "E", "F"]:
             cell = column + str(row)
-            self.sheet.cell(cell).style.borders.left.border_style = style
+            self.sheet[cell].borders = style
         pass
 
-    def create_part(self, row):
+    def create_part(self, _row):
+        row = str(_row)
         cells = "A" + row + ":F" + row
         self.sheet.merge_cells(cells)
-        self.sheet.cell("A" + row).style.borders.left.border_style = "thick"
+        self.sheet["A" + row].style = "thick"
         pass
 
     def create_point(self, point, count_rows):
+        if count_rows == 1:
+            return [(str(point + 1), "", "")]
         if count_rows == 2:
-            return [(str(point), "", ""),
-                    (str(point) + ".1", "работа", "")]
+            return [(str(point + 1), "", ""),
+                    (str(point + 1) + ".1", "работа", "")]
         if count_rows < 5:
-            return [(str(point), "", ""),
-                    (str(point) + ".1", "работа", ""),
+            return [(str(point + 1), "", ""),
+                    (str(point + 1) + ".1", "работа", ""),
                     ("", "", "") * (count_rows-2)]
         if count_rows >= 5:
-            return [(str(point), "", ""),
-                    (str(point) + ".1", "работа", ""),
-                    (str(point) + ".2", "Материал Заказчика", "руб."),
+            return [(str(point + 1), "", ""),
+                    (str(point + 1) + ".1", "работа", ""),
+                    (str(point + 1) + ".2", "Материал Заказчика", "руб."),
                     ("", "Вспомогательные материалы", ""),
-                    (str(point) + ".3", "Материалы Подрядчика", "руб."),
+                    (str(point + 1) + ".3", "Материалы Подрядчика", "руб."),
                     ("", "", "") * (count_rows-5)]
 
     def get_dict(self, table):
         _fields = {"itrs": "family, name, surname, post, status, id",
                    "contracts": "name, customer, number, date, object, type_work, "
                                 "place, price, date_end, nds, status, id",
-                   "company": "company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, big_boss, big_mng, "
-                              "count_attorney, date_attorney, status, id",
-                   "bosses": "family, name, surname, post, email, phone, sex, status, id",
-                   }
+                   "company": "company, adr, ogrn, inn, kpp, bik, korbill, rbill, bank, "
+                              "big_boss, big_post, big_at, big_d_at, "
+                              "mng_boss, mng_post, mng_at, mng_d_at, "
+                              "status, id",
+                   "bosses": "family, name, surname, post, email, phone, sex, status, id"}
         fields = _fields.get(table)
         data = list()
         rows = self.parent.parent.db.get_data(fields, table)
@@ -294,12 +323,43 @@ class CreateReport(QDialog):
         self.close()
 
     def create_report(self):
+        path = get_path("path") + get_path("path_contracts") + "/1030/result.xlsx"
+
         self.init_data()
+        self.doc.save(path)
+        self.doc.close()
+        os.startfile(path)
+        self.doc = xlxs.open(self.path)
+
         self.init_ks2()
+        self.doc.save(path)
+        self.doc.close()
+        os.startfile(path)
+        self.doc = xlxs.open(self.path)
+
         self.init_m29()
+        self.doc.save(path)
+        self.doc.close()
+        os.startfile(path)
+        self.doc = xlxs.open(self.path)
+
         self.init_mat()
+        self.doc.save(path)
+        self.doc.close()
+        os.startfile(path)
+        self.doc = xlxs.open(self.path)
+
         self.init_table()
+        self.doc.save(path)
+        self.doc.close()
+        os.startfile(path)
+        self.doc = xlxs.open(self.path)
+
         self.init_cult()
+        self.doc.save(path)
+        self.doc.close()
+        os.startfile(path)
+        self.doc = xlxs.open(self.path)
 
     def init_dict_cells(self):
         self.cells = {"contract": ("result", {
@@ -313,7 +373,13 @@ class CreateReport(QDialog):
                       "company": ("result", {
                           "company": "B11",
                           "big_boss": "B12",
-                          "big_mng": "B13",
+                          "big_post": "",
+                          "big_at": "",
+                          "big_d_at": "",
+                          "mng_boss": "B12",
+                          "mng_post": "",
+                          "mng_at": "",
+                          "mng_d_at": "",
                           "inn": "B14",
                           "bik": "B15",
                           "kpp": "B16",
@@ -342,7 +408,7 @@ class CreateReport(QDialog):
                           "type_work": "A13",
                           "row": "A16",
                           "sum": ""}),
-                      "culture": ("Культура", {
+                      "culture": ("КУЛЬТУРА", {
                           "company": "D16",
                           "object": "A12",
                           "post_1": "A34",
@@ -351,7 +417,7 @@ class CreateReport(QDialog):
                           "boss_1": "J34",
                           "boss_2": "J37",
                           "boss_3": "J40"}),
-                      "production": ("Выработка", {
+                      "production": ("ВЫРАБОТКА", {
                           "part": "B7",
                           "object": "B8",
                           "contract": "C7",
@@ -364,7 +430,7 @@ class CreateReport(QDialog):
                           "title": "A1",
                           "post_boss": "B11",
                           "boss": "D11"}),
-                      "table": ("Табель", {
+                      "table": ("ТАБЕЛЬ", {
                           "object": "A2",
                           "date": "A3",
                           "worker": "A6"}),
@@ -387,7 +453,7 @@ class CreateReport(QDialog):
                           "post_3": "",
                           "boss_3": "",
                           "date_2": ""}),
-                      "KS3": ("Акт", {
+                      "KS3": ("КС3", {
                           "investor": "",
                           "company": "",
                           "customer": "",
@@ -410,7 +476,7 @@ class CreateReport(QDialog):
                           "price": "",
                           "post_1": "",
                           "boss_1": ""}),
-                      "mat": ("Материалы", {
+                      "mat": ("МАТЕРИАЛЫ", {
                           "title": "A1",
                           "material": "A6"})
                       }
@@ -424,6 +490,9 @@ class CreateReport(QDialog):
         self.sheet = self.doc[self.cells.get(part)[0]]
         cell = self.cells.get(part)[1].get(field)
         print(cell, part, field, val)
+        if cell == "" or not cell:
+            print("NOT ADD")
+            return
         self.sheet[cell].value = val
         pass
 
@@ -473,6 +542,7 @@ class CreateReport(QDialog):
         for ind in range(len(company)):
             if self.parent.parent.company == company[ind]["company"]:
                 self.company = company[ind]
+                self.customer = company[ind]
             print(self.parent.cb_comp.currentText().split(". ")[0])
             if self.parent.cb_comp.currentText().split(". ")[0] == company[ind]["id"]:
                 self.customer = company[ind]
