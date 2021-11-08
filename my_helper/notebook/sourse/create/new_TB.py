@@ -6,41 +6,46 @@ import docx
 import docxtpl
 import os
 from my_helper.notebook.sourse.database import *
-designer_file = get_path_ui("new_TB")
 types_docs = {"1": "/ot_doc.docx", "2": "/ptm_doc.docx", "3": "/eb_doc.docx"}
 types_card = {"1": "/ot_card.docx", "2": "/ptm_card.docx", "3": "/es_card.docx"}
 
 
 class NewTB(QDialog):
     def __init__(self, parent=None):
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("new_TB")
+        if not ui_file:
+            self.status_ = False
+            return
+        try:
+            uic.loadUi(ui_file, self)
+        except:
+            self.status_ = False
+            return
         super(NewTB, self).__init__()
         if not self.check_start():
             return
-            # my_pass
         self.parent = parent
         self.table = "workers"
-        try:
-            self.rows_from_db = self.parent.db.get_data("*", self.table)
-        except:
-            msg(self, my_errors["3_get_db"])
+        self.rows_from_db = self.parent.db.get_data("*", self.table)
+        if self.rows_from_db == ERR:
+            self.status_ = False
             return
         self.count = self.parent.count_people_tb
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
         self.path = dict()
-        self.path["main_folder"] = get_path("path") + get_path("path_pat_tb")
-        self.path["print_folder"] = get_path("path") + get_path("path_tb")
+        path_1 = self.conf.get_path("path")
+        path_2 = self.conf.get_path("path_pat_tb")
+        path_3 = self.conf.get_path("path_tb")
+        if path_1 == ERR or path_2 == ERR or path_3 == ERR:
+            self.status_ = False
+            return
+        self.path["main_folder"] = path_1 + path_2
+        self.path["print_folder"] = path_1 + path_3
         self.list_ui = list()
         self.init_list()
-
-    def check_start(self):
-        self.status_ = True
-        self.path_ = designer_file
-        try:
-            uic.loadUi(designer_file, self)
-            return True
-        except:
-            return msg(self, my_errors["1_get_ui"])
 
     def init_list(self):
         g = iter(range(self.count + 1))
@@ -59,13 +64,17 @@ class NewTB(QDialog):
         for i in range(self.count):
             if self.grid.itemAtPosition(i, 1).widget().isChecked():
                 number = self.grid.itemAtPosition(i, 0).widget().text()
-                list_people.append(self.rows_from_db[int(number)-1])
+                if len(self.rows_from_db) > int(number)-1:
+                    list_people.append(self.rows_from_db[int(number)-1])
+                else:
+                    return msg_er(self, BIG_INDEX)
         return list_people
 
     def ev_ok(self):
         people = self.get_list_people()
         self.create_protocols(people)
-        self.create_cards(people)
+        if self.create_cards(people) == ERR:
+            return
         return True
 
     def ev_cancel(self):
@@ -103,7 +112,7 @@ class NewTB(QDialog):
                     doc.save(path)
                     os.startfile(path, "print")
                 except:
-                    return msg(self, my_errors["4_get_file"] + path)
+                    return msg_er(self, GET_FILE + path)
                 self.close()
 
     def print_doc(self, workers, number_type):
@@ -119,7 +128,7 @@ class NewTB(QDialog):
             doc.save(path)
             os.startfile(self.print_file)
         except:
-            return msg(self, my_errors["4_get_file"] + path)
+            return msg_er(self, GET_FILE + path)
 
     def create_table(self, data, number_type):
         g = iter(range(len(data)))
@@ -136,23 +145,30 @@ class NewTB(QDialog):
             path = self.path["print_folder"] + types_docs[number_type]
             doc.save(path)
         except:
-            return msg(self, my_errors["4_get_file"] + path)
+            return msg_er(self, GET_FILE + path)
 
 
 class CountPeople(QDialog):
     def __init__(self, parent=None):
-        super(CountPeople, self).__init__(parent)
-        if not self.check_start():
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("new_TB")
+        if not ui_file:
+            self.status_ = False
             return
+        try:
+            uic.loadUi(ui_file, self)
+        except:
+            self.status_ = False
+            return
+        super(CountPeople, self).__init__(parent)
         # my_pass
         self.parent = parent
         self.table = "workers"
         self.b_ok.clicked.connect(self.ev_ok)
         self.b_cancel.clicked.connect(self.ev_cancel)
-        try:
-            count_people = len(self.parent.db.get_data("*", self.table))
-        except:
-            msg(self, my_errors["3_get_db"])
+        count_people = len(self.parent.db.get_data("*", self.table))
+        if count_people == ERR:
             return
         self.count.setMaximum(count_people)
         print(count_people)
@@ -166,16 +182,5 @@ class CountPeople(QDialog):
         self.parent.count_people_tb = -1
         self.close()
 
-    def check_start(self):
-        self.status_ = True
-        try:
-            self.path_ = get_path_ui("count")
-        except:
-            return msg(self, my_errors["2_get_ini"] + self.path_)
-        try:
-            uic.loadUi(self.path_, self)
-            return True
-        except:
-            self.status_ = False
-            return msg(self, my_errors["1_get_ui"] + self.path_)
+
 

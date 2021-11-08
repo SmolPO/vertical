@@ -4,12 +4,17 @@ from my_helper.notebook.sourse.database import *
 from my_helper.notebook.sourse.create.new_template import TempForm
 covid = {"S5": 0, "SL": 1, "CV": 2}
 msgs = {"mes": "Сообщение", "atn": "Внимание"}
-designer_file = get_path_ui("new_itr")
 
 
 class NewITR(TempForm):
     def __init__(self, parent):
-        super(NewITR, self).__init__(designer_file, parent, "itrs")
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("new_itr")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(NewITR, self).__init__(ui_file, parent, "itrs")
         if not self.status_:
             return
         # my_pass
@@ -19,19 +24,8 @@ class NewITR(TempForm):
             self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
             self.parent.db.init_list(self.cb_auto, "*", "auto")
         except:
-            msg(self, my_errors["3_get_db"])
+            msg_er(self, GET_DB)
             return
-        """
-        (family, name, surname, post, passport, passport_date, passport_got, adr, live_adr, auto, inn, "
-       "snils, n_employment_contract,date_employment_contract, "
-       "ot_protocol, ot_date, ot_card, "
-       "PTM_protocol, PTM_date, PTM_card, "
-       "es_protocol, es_group, es_card, es_date, "
-       "h_protocol, h_date, h_group, h_card, "
-       "industrial_save, "
-       "st_protocol, st_card, st_date, birthday, "
-       " d_vac_1, d_vac_2, place, vac_doc, vac_type, status, id)",
-        """
         self.list_ui = [self.family, self.name, self.surname, self.post,
                         self.passport, self.passport_date, self.passport_got,
                         self.adr, self.live_adr, self.cb_auto,
