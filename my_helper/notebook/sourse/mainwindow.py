@@ -180,13 +180,19 @@ class MainWindow(QMainWindow):
         path = self.conf.get_path("path") + self.conf.get_path("path_pat_patterns") + files[name]
 
         if name == "Бланк":
-            os.startfile(path)
+            try:
+                os.startfile(path)
+            except:
+                msg_info(self, GET_FILE + path)
             return
         try:
             count, ok = QInputDialog.getInt(self, name, "Кол-во копий")
             if ok:
                 for ind in range(count):
-                    os.startfile(path, "print")
+                    try:
+                        os.startfile(path, "print")
+                    except:
+                        msg_info(self, GET_FILE + path)
         except:
             mes.question(self, "Сообщение", GET_FILE + path, mes.Cancel)
             return
