@@ -32,20 +32,7 @@ from my_tools import Notepad
 from music import Web
 from get_money import GetMoney
 import shutil
-"""
-План
-1. Добавление в БД сотрудника (изменил форму)
-2. Добавление прорабов
-3. Формирование служебок
-4. модуль сканирование
-5. формирование приказов
-6. блокнот и уведомления
-7. склад, накладные
-8. чеки
-9. отправка писем по почте
-10. деньги на ТК
-Срок к концу недели
-"""
+
 key_for_db = "host=95.163.249.246 dbname=Vertical_db user=office password=9024EgrGvz#m87Y1"
 logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 

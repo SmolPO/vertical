@@ -5,34 +5,43 @@ from configparser import ConfigParser
 from PyQt5.QtCore import QDate as Date
 import logging
 from PyQt5.QtWidgets import QMessageBox as mes
+
 path_conf = "B:/my_helper/my_config.ini"
 empty = "(нет)"
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
 statues = ["работает", "отпуск", "уволен"]
-my_errors = {"1_get_ui": "Не удалось найти файл дизайна",
-             "2_get_ini": "Не удалось получить данные из config: ",
-             "3_get_db": "Не удалось получить данные из Базы данных",
-             "4_get_file": " Файл не найден",
-             "5_get_next_id": "Не удалось получить следущий номер",
-             "6_get_sheet": "Не странице в файле ",
-             "7_conn": "Нет подключения к базе данных",
-             "8_init_list": "Не удалось получить данные из Базы данных",
-             "9_commit": "Не удалось добавить данные в базу данных",
-             "10_update": "Не удалось обновить данные в базе данных",
-             "11_kill": "Не удалось удалить данные из базы данных",
-             "12_web": "Не удалось открыть ссылку ",
-             "13_full_all_fields": "Заполните все поля",
-             "14_add_people": "Добавьте сотрудников",
-             "15_add_contract": "Добавьте договор"}
 
+GET_UI = "Не удалось найти файл дизайна: "
+GET_INI = "Не удалось получить данные из config: "
+GET_FILE = "Не удалось найти файл: "
+GET_PAGE = "Нет странице в файле: "
+GET_DB = "Не удалось получить данные из Базы данных"
+GET_NEXT_ID = "Ошибка при работе с БД"
+CREATE_FOLDER = "Не удалось создать папку: "
+CONNECT_DB = "Нет подключения к базе данных"
+UPDATE_DB = "Не удалось обновить данные в базе данных"
+KILL_DB = "Не удалось удалить данные из базы данных"
+ADD_DB = "Не удалось добавить данные в базу данных"
+FULL_ALL = "Заполните все поля"
+ADD_CONTRACT = "Добавьте договор"
+ADD_PEOPLE = "Добавьте сотрудников"
+OPEN_WEB = "Не удалось открыть ссылку "
+ERR = -1
+
+CREATE_DB = "База данных успешно создана"
+CREATE_DOCS = "Не удалось создать файлы с документацией"
+CREATE_ACT = "Не удалось создать исполнительную"
+CREATE_JOURNAL = "Не удалось создать журнал"
+WRONG_DATE = "Дата начала старше даты окончания договора"
 
 dictionary = {"Производитель работ": {"gent": "прооизводителя работ", "datv": "прооизводителю работ"},
               "Технический директор": {"gent": "технического директора", "datv": "техническому директору"}}
 
 
 class DataBase:
-    def __init__(self, path):
+    def __init__(self, parent, path):
+        self.parent = parent
         path_conf = path
         self.db = None
         self.conn = None
@@ -51,54 +60,46 @@ class DataBase:
         try:
             self.conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
             if not self.conn:
-                return False
+                return msg_er(self.parent, CONNECT_DB)
             self.cursor = self.conn.cursor()
-            return True
+            if not self.cursor:
+                return msg_er(self.parent, CONNECT_DB)
         except:
-            print("Нет соединения с базой данных по интернету")
-            return False
+            return msg_er(self.parent, CONNECT_DB)
 
     def get_data(self, fields, table):
-        row = get_from_db(fields, table)
-        print(row)
-        self.execute(row)
-
-        return self.cursor.fetchall()
         try:
-           pass
+            row = get_from_db(fields, table)
+            self.execute(row)
+            return self.cursor.fetchall()
         except:
-            print(row)
-            print("Не удалось получить данные из БД")
-            return []
+            return msg_er(self.parent, GET_DB)
 
     def execute(self, text):
-        self.cursor.execute(text)
         try:
-            pass
+            self.cursor.execute(text)
         except:
-            print(text)
-            print("Не удалось выполнить запрос")
-            return False
+            return msg_er(self.parent, GET_DB)
         return True
 
     def get_next_id(self, table):
-        rows = self.get_data("id", table)
-        if not rows:
-            return 1
-        return 1
-        return int(max(rows)[0]) + 1
+        try:
+            rows = self.get_data("id", table)
+            if not rows:
+                return 1
+            return int(max(rows)[0]) + 1
+        except:
+            return msg_er(self.parent, GET_NEXT_ID)
 
     def my_commit(self, data):
-        print(data)
-        self.connect_to_db()
-        self.cursor.execute(data)
-        self.conn.commit()
         if data:
             try:
-                pass
+                self.connect_to_db()
+                self.cursor.execute(data)
+                self.conn.commit()
+                return True
             except:
-                print("Не удалось сделать коммит.")
-            print("OK")
+                return msg_er(self.parent, ADD_DB)
 
     def init_list(self, item, fields, table, people=False):
         rows = self.get_data(fields, table)
@@ -114,27 +115,28 @@ class DataBase:
             return rows
 
     def my_update(self, data, table):
-        self.cursor.execute(my_update(data, table))
-        self.conn.commit()
         try:
-            pass
+            self.cursor.execute(my_update(data, table))
+            self.conn.commit()
         except:
-            print("Не удалось обновить данные")
+            return msg_er(self.parent, UPDATE_DB)
 
     def kill_value(self, my_id, table):
-        self.execute("DELETE FROM {0} WHERE id = '{1}'".format(table, my_id))
-        self.conn.commit()
         try:
-            pass
+            self.execute("DELETE FROM {0} WHERE id = '{1}'".format(table, my_id))
+            self.conn.commit()
         except:
-            return
+            return msg_er(self.parent, KILL_DB)
 
     def new_note(self, date, name, number):
         self.my_commit(add_to_db((date, name, number), "notes"))
 
     def create_db(self):
-        conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
-        db = conn.cursor()
+        try:
+            conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
+            db = conn.cursor()
+        except:
+            return msg_er(self.parent, CONNECT_DB)
         list_db_ = [
             "CREATE TABLE contracts (name text, customer text, number text, date text, object text, type_work text, "
             "place text, id text)",
@@ -177,63 +179,74 @@ class DataBase:
             try:
                 db.execute(item)
                 conn.commit()
-                print(str(next(g)) + " OK item" + item[13:20])
             except:
                 print("ERROR " + item)
-        print("Create " + str(next(g)) + " database!")
+        msg_info(self.parent, CREATE_DB)
 
 
-def get_path(my_type):
-    config = ConfigParser()
-    config.read(path_conf, encoding="utf-8")
-    return str(config.get('path', my_type))
+class Ini:
+    def __init__(self, parent):
+        self.parent = parent
 
+    def get_path(self, my_type):
+        try:
+            config = ConfigParser()
+            config.read(path_conf, encoding="utf-8")
+            return str(config.get('path', my_type))
+        except:
+            return msg_er(self, GET_INI)
 
-def get_config(my_type):
-    config = ConfigParser()
-    config.read(path_conf, encoding="utf-8")
-    try:
-        return config.get('config', my_type)
-    except:
-        print("get_config")
-        return False
+    def get_config(self, my_type):
+        config = ConfigParser()
+        config.read(path_conf, encoding="utf-8")
+        try:
+            return config.get('config', my_type)
+        except:
+            return msg_er(self, GET_INI)
 
+    def get_from_ini(self, my_type, part):
+        config = ConfigParser()
+        config.read(path_conf, encoding="utf-8")
+        try:
+            return config.get(part, my_type)
+        except:
+            return msg_er(self, GET_INI)
 
-def get_from_ini(my_type, part):
-    config = ConfigParser()
-    config.read(path_conf, encoding="utf-8")
-    try:
-        return config.get(part, my_type)
-    except:
-        print("get_from_ini")
-        return False
+    def get_path_ui(self, my_type):
+        path_2 = self.get_from_ini(my_type, "ui_files")
+        path_1 = self.get_from_ini("ui_files", "ui_files")
+        if path_1 and path_2:
+            return path_1 + path_2
+        else:
+            return msg_er(self, GET_INI)
 
+    def get_next_number(self):
+        try:
+            config = ConfigParser()
+            config.read(path_conf)
+            number_note = config.get('config', 'number')
+            next_number = int(number_note) + 1
+            return int(number_note)
+        except:
+            return msg_er(self, GET_INI)
 
-def get_path_ui(my_type):
-    return get_from_ini("ui_files", "ui_files") + get_from_ini(my_type, "ui_files")
-
-
-def get_next_number():
-    config = ConfigParser()
-    config.read(path_conf)
-    number_note = config.get('config', 'number')
-    next_number = int(number_note) + 1
-    return int(number_note)
-
-
-def set_next_number(n):
-    config = ConfigParser()
-    config.read(path_conf)
-    number_note = config.get('config', 'number')
-    next_number = n
-    config.set("config", 'number', str(next_number))
-    with open(path_conf, 'w') as configfile:
-        config.write(configfile)
-    return int(number_note)
+    def set_next_number(self, n):
+        try:
+            config = ConfigParser()
+            config.read(path_conf)
+            number_note = config.get('config', 'number')
+            next_number = n
+            config.set("config", 'number', str(next_number))
+            with open(path_conf, 'w') as configfile:
+                config.write(configfile)
+            return int(number_note)
+        except:
+            return msg_er(self, GET_INI)
 
 
 def short_name(data):
     print(data)
+    print(data[0] + " " + data[1][0] + "." + data[2][0] + ".")
     return data[0] + " " + data[1][0] + "." + data[2][0] + "."
 
 
@@ -246,9 +259,22 @@ def time_delta(date_1, date_2):
     return (a - b).days
 
 
-def msg(widgets, text):
+logging.basicConfig(filename=Ini("").get_path("path") + "/log_file.log", level=logging.INFO)
+
+
+def msg_er(widgets, text):
     mes.question(widgets, "Сообщение", text, mes.Cancel)
-    return False
+    logging.info(text + str(dt.datetime.now()))
+    return -1
+
+
+def msg_info(widgets, text):
+    mes.question(widgets, "Сообщение", text, mes.Cancel)
+    return True
+
+
+def msg_q(widgets, text):
+    return mes.question(widgets, "Сообщение", text, mes.Ok | mes.Cancel)
 
 
 def from_str(date):

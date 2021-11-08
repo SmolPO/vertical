@@ -33,7 +33,7 @@ class UnlockPass(TempPass):
         self.init_workers()
         self.data = {"number": "", "data": "", "customer": "", "company": "", "start_date": "", "end_date": "",
                      "post": "", "family": "", "name": "", "surname": "", "adr": ""}
-        self.vac_path = self.main_file + "/Вакцинация.docx"
+        self.vac_path = self.main_file + "/Вакцинация_1.docx"
         self.main_file += "/Разблокировка.docx"
         self.count_days = 14
 

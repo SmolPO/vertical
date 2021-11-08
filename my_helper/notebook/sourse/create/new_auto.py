@@ -1,18 +1,18 @@
-from PyQt5.QtWidgets import QMessageBox as mes
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
 from my_helper.notebook.sourse.create.new_template import TempForm
 from my_helper.notebook.sourse.database import *
-
-#  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
-designer_file = get_path_ui("new_auto")
 fields = ["model", "brand", "gov_number", "track_number", "id"]
 
 
 class NewAuto(TempForm):
     def __init__(self, parent=None):
-        super(NewAuto, self).__init__(designer_file, parent, "auto")
+        conf = Ini(self)
+        ui_file = conf.get_path_ui("new_auto")
+        if not ui_file:
+            return
+        super(NewAuto, self).__init__(ui_file, parent, "auto")
         if not self.status_:
             return
         self.is_track.stateChanged.connect(self.have_track)
@@ -22,13 +22,10 @@ class NewAuto(TempForm):
         self.track_number.setText(empty)
 
     def init_list(self):
-        try:
-            rows = self.parent.db.get_data("id, gov_number, model", self.table)
-        except:
-            return msg(self, my_errors["3_get_db"])
+        rows = self.parent.db.get_data("id, gov_number, model", self.table)
+        if rows == ERR:
+            return
         self.cb_select.addItems([empty])
-        if not rows:
-            return False
         for row in rows:
             self.cb_select.addItems([row[0] + ". " + row[1] + " " + row[2]])
 

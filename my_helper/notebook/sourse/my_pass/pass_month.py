@@ -3,6 +3,10 @@ from PyQt5.QtCore import QDate as Date
 from PyQt5.QtWidgets import QMessageBox as mes
 import datetime as dt
 from configparser import ConfigParser
+import docxtpl
+import os
+from docx.text.paragraph import Paragraph
+from docx.oxml.text.paragraph import CT_P
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 from my_helper.notebook.sourse.database import *
 import logging
@@ -33,7 +37,9 @@ class MonthPass(TempPass):
         self.init_workers()
         self.init_cb_month()
         self.set_dates(self.cb_manual_set.isChecked())
+        self.vac_path = self.main_file + "/Вакцинация_2.docx"
         self.main_file += "/pass_month.docx"
+
 
     # инициализация
     def init_cb_month(self):
@@ -114,6 +120,9 @@ class MonthPass(TempPass):
             doc.tables[1].rows[i].cells[6].text = item[8]
             i += 1
         doc.save(path)
+        os.startfile(path)
+        set_next_number(self.number.value() + 1)
+        self.create_vac(people)
 
     def check_input(self):
         if self.list_ui[0].currentText() == "(нет)" and not self.cb_all.isChecked():
@@ -123,38 +132,87 @@ class MonthPass(TempPass):
     def _ev_ok(self):
         return True
 
-    def create_vac(self, data_vac):
+    def create_vac(self, people):
+        people.sort(key=lambda x: x[-2])
+        list_people = {"2 дозы": [], "1 доза": [], "болел": []}
+        for item in people:
+            list_people[item[-2]].append(item)
         doc = docx.Document(self.vac_path)
-        next_id = set_next_number(int(self.number) + 1)
-        doc.tables[0].rows[0].cells[0].text = "Исх. " + next_id
-        doc.tables[0].rows[1].cells[0].text = "от " + self.date.text()
-
-        if data_vac[3][:2] == "SP5":
-            doc.tables[1].add_column(200)
-            doc.tables[1].rows[0].cells[3].text = "Дата первой прививки"
-            doc.tables[1].rows[0].cells[4].text = "Дата второй прививки"
-            doc.tables[1].rows[0].cells[5].text = "Место вакцинации"
-
-            doc.tables[1].rows[1].cells[3].text = data_vac[0]
-            doc.tables[1].rows[2].cells[4].text = data_vac[1]
-            doc.tables[1].rows[3].cells[5].text = data_vac[2]
-            pass
-        elif data_vac[3][:2] == "LT":
-            self.data["d_vac_1"] = data_vac[0]
-            self.data["place"] = data_vac[2]
-            doc.tables[1].rows[0].cells[3].text = "Дата прививки"
-            doc.tables[1].rows[0].cells[4].text = "Место вакцинации"
-            doc.tables[1].rows[1].cells[3].text = data_vac[0]
-            doc.tables[1].rows[2].cells[4].text = data_vac[2]
-        elif data_vac[3][:2] == "CV":
-            self.data["d_vac_1"] = data_vac[0]
-            self.data["vac_doc"] = data_vac[3][2:]
-            doc.tables[1].rows[0].cells[3].text = "Номер сертификата"
-            doc.tables[1].rows[0].cells[4].text = "Дата получения"
-
-            doc.tables[1].rows[1].cells[3].text = data_vac[0]
-            doc.tables[1].rows[2].cells[4].text = data_vac[3]
-            pass
-        path = get_path("path_notes")
+        next_id = get_next_number()
+        doc.tables[0].rows[0].cells[0].text = "Исх. " + str(next_id)
+        doc.tables[0].rows[1].cells[0].text = "от " + self.d_note.text()
+        ind = 0
+        for key in list_people.keys():
+            list_people[key].sort(key=lambda x: x[0][0])
+            flag = True
+            for man in list_people[key]:
+                if flag:
+                    if not man:
+                        continue
+                    ind = 1
+                    if key == "2 дозы":
+                        note = "2 дозы"
+                        column = 6
+                        self.init_table(doc, note, column)
+                        self.init_SP5(doc, ind)
+                    elif key == "1 доза":
+                        note = "1 доза"
+                        column = 5
+                        self.init_table(doc, note, column)
+                        self.init_LT(doc, ind)
+                    elif key == "болел":
+                        note = "болел"
+                        column = 5
+                        self.init_table(doc, note, column)
+                        self.init_LT(doc, ind)
+                    flag = False
+                doc.tables[-1].add_row()
+                add_list = [str(ind), short_name(man[:3]), man[3]]
+                if man[-2] == "2 дозы":
+                    add_list += [man[-6], man[-5], man[-4]]
+                elif man[-2] == "1 дозы":
+                    add_list += [man[-6], man[-4]]
+                elif man[-2] == "болел":
+                    add_list += [man[-6], man[-3]]
+                for i in range(len(add_list)):
+                    doc.tables[-1].rows[1].cells[i].text = add_list[i]
+                ind += 1
+        self.add_footer(doc)
+        path = get_path("path") + get_path("path_notes_docs") + "/vac_" + str(dt.datetime.now().date()) + ".docx"
         doc.save(path)
+        os.startfile(path)
         pass
+
+    def init_SP5(self, doc, ind):
+        doc.tables[-1].rows[0].cells[3].text = "Дата первой прививки"
+        doc.tables[-1].rows[0].cells[4].text = "Дата второй прививки"
+        doc.tables[-1].rows[0].cells[5].text = "Место вакцинации"
+        pass
+
+    def init_LT(self, doc, ind):
+        doc.tables[-1].rows[0].cells[3].text = "Дата прививки"
+        doc.tables[-1].rows[0].cells[4].text = "Место вакцинации"
+        pass
+
+    def init_CV(self, doc,  ind):
+        doc.tables[-1].rows[0].cells[3].text = "Номер сертификата"
+        doc.tables[-1].rows[0].cells[4].text = "Дата получения"
+        pass
+
+    def init_table(self, doc, note, column):
+        doc.add_paragraph(note)
+        doc.add_table(rows=1, cols=column)
+        doc.tables[-1].rows[0].cells[0].text = "№"
+        doc.tables[-1].rows[0].cells[1].text = "ФИО"
+        doc.tables[-1].rows[0].cells[2].text = "Должность"
+
+    def add_footer(self, doc):
+        boss = self.parent.db.execute("SELECT big_post, big_boss "
+                                      "FROM company "
+                                      "WHERE company = '{0}'".format(self.parent.company))
+        big_boss = self.parent.db.cursor.fetchall()
+        note = big_boss[0][0] + "_"*15 + short_name(big_boss[0][1].split(" "))
+        doc.add_paragraph(note)
+
+    def init_part(self, key):
+        return False

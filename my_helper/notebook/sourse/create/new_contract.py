@@ -1,18 +1,13 @@
-from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from PyQt5.QtWidgets import QMessageBox as mes
 import os
 import PyPDF2
 from my_helper.notebook.sourse.create.new_template import TempForm
 from my_helper.notebook.sourse.database import *
 from my_helper.notebook.sourse.acts.journal import Journal
 from my_helper.notebook.sourse.acts.report import CreateReport
-
-# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
-designer_file = get_path_ui("new_contract")
 fields = ["name", "customer", "number", "date", "object", "type_work", "place", "id"]
 statues_cntr = ["Начат", "Заершен"]
 _zero = "01.01.2000"
@@ -20,28 +15,32 @@ _zero = "01.01.2000"
 
 class NewContact(TempForm):
     def __init__(self, parent=None):
-        super(NewContact, self).__init__(designer_file, parent, "contracts")
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("new_contract")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(NewContact, self).__init__(ui_file, parent, "contracts")
         if not self.status_:
             return
         self.init_mask()
         self.b_docs.clicked.connect(self.create_docs)
         self.b_menu.clicked.connect(self.start_menu)
         self.cb_select.activated[str].connect(self.ev_select)
-        try:
-            self.parent.db.init_list(self.cb_select, "number, id", self.table)
-            self.init_company()
-        except:
-            msg(self, my_errors["3_get_db"])
+        if self.parent.db.init_list(self.cb_select, "number, id", self.table) == ERR:
+            self.status_ = False
             return
-        self.list_ui = [self.name, self.cb_comp, self.number, self.date, self.my_object, self.work, self.part,
-                        self.price, self.date_end, self.nds, self.avans, self.status]
-
-        self.slice_set = 0
-        self.slice_get = 0
-        self.slice_clean = 0
-        self.slice_select = len(self.list_ui)
+        self.list_ui = [self.name, self.cb_comp, self.number, self.date, self.my_object, self.work,
+                        self.part, self.price, self.date_end, self.nds, self.avans, self.status]
         self.cb_comp.addItem(self.parent.customer)
         self.b_menu.setEnabled(False)
+        path_1 = self.conf.get_path("path")
+        path_2 = self.conf.get_path("path_contracts")
+        if path_1 == ERR or path_2 == ERR:
+            self.status_ = False
+            return
+        self.path = path_1 + path_2
 
     def init_mask(self):
         symbols = QREVal(QRE("[а-яА-Я ]{30}"))
@@ -54,26 +53,6 @@ class NewContact(TempForm):
         self.b_menu.setEnabled(False) if text == empty else self.b_menu.setEnabled(True)
         return True
 
-    def init_company(self):
-        self.companies = self.parent.db.get_data("*", "company")
-        for item in self.companies:
-            if item[-2] == "Заказчик":
-                self.cb_comp.addItem(item[-1] + ". " + item[0])
-
-    def _set_data(self, data):
-        g = iter(range(len(self.rows_from_db) + 1))
-        for i in range(10):
-            self.cb_comp.setCurrentIndex(i)
-            print(self.cb_comp.currentText() + ".")
-        for item in self.companies:
-            if data[1] == item[0]:
-                my_id = self.get_id(data[1], 0, "company")
-                ind = self.cb_comp.findText(my_id + ". " + data[1])
-                self.cb_comp.setCurrentIndex(ind)
-                break
-        path_docs = get_path("path") + get_path("path_contracts")
-        self.path = path_docs + "/" + self.number.text()
-
     def get_id(self, val, field, table):
         rows = self.parent.db.get_data("*", table)
         for item in rows:
@@ -85,29 +64,47 @@ class NewContact(TempForm):
         if not self.check_input():
             return
         contract = str(self.number.text())
-        path_docs = get_path("path") + get_path("path_contracts")
-        self.path = path_docs + "/" + contract
-        folders = self.check_folder(contract, path_docs)
+        folders = self.check_folder(contract, self.path)
+        if folders == ERR:
+            return ERR
+        self.path += "/" + contract
         if folders:
             for item in folders:
-                os.mkdir(self.path + item)
-        self.create_acts()
-        self.create_doc()
-        self.create_journal()
+                try:
+                    os.mkdir(self.path + item)
+                except:
+                    return msg_er(self, CREATE_FOLDER)
+
+        if self.create_acts():
+            msg_info(self, CREATE_ACT)
+        if self.create_doc() == ERR:
+            msg_info(self, CREATE_DOCS)
+        if self.create_journal():
+            msg_info(self, CREATE_JOURNAL)
 
     def check_folder(self, contract, path):
         path_docs = path + "/" + contract
         _folders = ["", "/Документы", "/Документы/ППР", "/Документы/Договор", "/Документы/Приложение",
                     "/Документы/Приложение/Фото", "/Документы/Приложение/Накладные"]
         folders = []
-        current_folder = os.listdir(path)
+        current_folder = s_list_dir(self, path)
+        if current_folder == ERR:
+            return ERR
         if not contract in current_folder:
             return _folders
         else:
-            current_folder = os.listdir(path_docs)
+
+            current_folder = s_list_dir(self, path_docs)
+            if current_folder == ERR:
+                return ERR
+
             if not "Документы" in current_folder:
                 return _folders[1:]
-            current_folder = os.listdir(path_docs + "/Документы")
+
+            current_folder = s_list_dir(self, path_docs + "/Документы")
+            if current_folder == ERR:
+                return ERR
+
             if not "ППР" in current_folder:
                 folders.append(_folders[2])
             if not "Договор" in current_folder:
@@ -115,45 +112,60 @@ class NewContact(TempForm):
             if not "Приложение" in current_folder:
                 return _folders[4:]
             else:
-                current_folder = os.listdir(path_docs + "/Документы/Приложение")
+
+                current_folder = s_list_dir(self, path_docs + "/Документы/Приложение")
+                if current_folder == ERR:
+                    return ERR
+
                 if not "Фото" in current_folder:
                     folders.append(_folders[5])
                 if not "Накладные" in current_folder:
                     folders.append(_folders[6])
-        return folders
-        pass
 
     def create_doc(self):
-        folder = get_path("path") + get_path("path_scan")
+        path_1 = self.conf.get_path("path")
+        path_2 = self.conf.get_path("path_scan")
+        if path_1 == ERR or path_2 == ERR:
+            return ERR
+        folder = path_1 + path_2
         types = ["Договор", "ЕКР", "Дефектная", "Материалы"]
         for file in types:
-            answer = mes.question(self, "Добавление " + file,
-                                  "Отсканируйте " + file + " в PDF по порядку и затем нажмите ОК. ",
-                                  mes.Ok | mes.Cancel)
+            answer = msg_q(self,  "Отсканируйте " + file + " в PDF по порядку и затем нажмите ОК.")
             if answer == mes.Ok:
-                answer = mes.question(self, "Добавление " + file, "Вы точно отсканировали?", mes.Ok | mes.Cancel)
+                answer = msg_q(self, "Вы точно отсканировали?")
                 if answer == mes.Ok:
                     pdf_merger = PyPDF2.PdfFileMerger()
-                    files = os.listdir(folder)
+                    files = s_list_dir(folder)
+                    if files == ERR:
+                        return ERR
                     path_to = self.path + "/документы/Договор/" + file + ".pdf"
                     for doc in files:
                         if ".pdf" in doc:
-                            pdf_merger.append(str(folder + "/" + doc))
-                    pdf_merger.write(path_to)
+                            try:
+                                pdf_merger.append(str(folder + "/" + doc))
+                            except:
+                                return msg_er(self, GET_FILE + str(folder + "/" + doc))
+                    try:
+                        pdf_merger.write(path_to)
+                    except:
+                        return msg_er(self, GET_FILE + path_to)
                     pdf_merger.close()
                     for doc in files:
-                        os.remove(str(folder + "/" + doc))
+                        try:
+                            os.remove(str(folder + "/" + doc))
+                        except:
+                            return msg_er(self, GET_FILE + str(folder + "/" + doc))
 
     def create_journal(self):
-        answer = mes.question(self, "Создание журнала работ", "Создать журнал работ?", mes.Ok | mes.Cancel)
+        answer = msg_q(self, "Создать журнал работ?")
         if answer == mes.Ok:
             wnd = Journal(self)
+            if not wnd.status_:
+                return ERR
             wnd.exec_()
-        else:
-            return
 
     def create_acts(self):
-        answer = mes.question(self, "Создание Исполнительной", "Создать исполнительную?", mes.Ok | mes.Cancel)
+        answer = msg_q(self, "Создать исполнительную?")
         if answer == mes.Ok:
             wnd = CreateReport(self)
             wnd.exec_()
@@ -164,9 +176,11 @@ class NewContact(TempForm):
         if "" in list([self.name.text(), self.number.text(),
                        self.my_object.toPlainText(), self.work.toPlainText(),
                       self.part.text(), self.price.text(), self.date_end.text()]) or self.date.text() == _zero:
-            return msg(self, "Заполните все поля")
+            msg_info(self, FULL_ALL)
+            return False
         if yong_date(young=self.date.text(), old=self.date_end.text()):
-            return msg(self, "Дата начала старше даты окончания договора")
+            msg_info(self, WRONG_DATE)
+            return False
         return True
 
     def _ev_ok(self):
@@ -177,16 +191,21 @@ class NewContact(TempForm):
 
     def start_menu(self):
         wnd = MenuContract(self, self.path)
+        if not wnd.status_:
+            return ERR
         wnd.exec_()
-
-
-designer_file_menu = get_path_ui("menu_contract")
 
 
 class MenuContract(QDialog):
     def __init__(self, parent=None, path=None):
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("menu_contract")
+        if not ui_file:
+            self.status_ = False
+            return
         super(MenuContract, self).__init__()
-        uic.loadUi(designer_file_menu, self)
+        uic.loadUi(ui_file, self)
         self.parent = parent
         self.b_act.clicked.connect(self.open_file)
         self.b_journal.clicked.connect(self.open_file)
@@ -204,15 +223,25 @@ class MenuContract(QDialog):
         self.check_files()
 
     def check_files(self):
-        files = os.listdir(self.path)
+        files = s_list_dir(self, self.path)
+        if files == ERR:
+            return
+
         if "Документы" in files:
-            files = os.listdir(self.path + "/Документы")
+            files = s_list_dir(self, self.path + "/Документы")
+            if files == ERR:
+                return
+
             if "Журнал работ.docx" in files:
                 self.b_journal.setEnabled(True)
             if "Исполнительная.xlsx" in files:
                 self.b_act.setEnabled(True)
             if "Договор" in files:
-                files = os.listdir(self.path + "/Документы/Договор")
+
+                files = s_list_dir(self, self.path + "/Документы/Договор")
+                if files == ERR:
+                    return
+
                 if "ЕКР.pdf" in files:
                     self.b_ekr.setEnabled(True)
                 if "Дефектная.pdf" in files:
@@ -229,4 +258,14 @@ class MenuContract(QDialog):
                  "Договор": "/Документы/Договор.pdf",
                  "Журнал": "/Журнал работ.docx",
                  "Материалы": "/Документы/Материалы.pdf"}
-        os.startfile(self.path + files[text])
+        try:
+            os.startfile(self.path + files[text])
+        except:
+            return msg_er(self, GET_FILE + self.path + files[text])
+
+
+def s_list_dir(self, path):
+    try:
+        return os.listdir(path)
+    except:
+        return msg_er(self, GET_FILE + path)

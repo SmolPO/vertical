@@ -82,9 +82,8 @@ class TempPass(QDialog):
         doc.render(self.data)
         path = print_file
         doc.save(path)
-        os.startfile(path)
         self._create_data(path)
-        set_next_number(int(self.number.text()) + 1)
+        set_next_number(get_next_number())
         self.close()
 
     def new_worker(self):

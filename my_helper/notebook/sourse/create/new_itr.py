@@ -1,7 +1,5 @@
-from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.database import *
 from my_helper.notebook.sourse.create.new_template import TempForm
 covid = {"S5": 0, "SL": 1, "CV": 2}

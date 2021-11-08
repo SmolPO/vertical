@@ -1,22 +1,23 @@
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.create.new_template import TempForm
 from my_helper.notebook.sourse.database import *
-
-designer_file = get_path_ui("new_boss")
 fields = ["family", "name", "surname", "post", "email", "phone", "id"]
 
 
 class NewBoss(TempForm):
     def __init__(self, parent):
-        super(NewBoss, self).__init__(designer_file, parent, "bosses")
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("new_boss")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(NewBoss, self).__init__(ui_file, parent, "bosses")
         if not self.status_:
             return
-        try:
-            self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
-        except:
-            msg(self, my_errors["3_get_db"])
+        if self.parent.db.init_list(self.cb_select, "*", "itrs", people=True) == ERR:
+            self.status_ = False
             return
         self.list_ui = list([self.family, self.name, self.surname, self.post, self.email, self.phone, self.cb_sex])
 
