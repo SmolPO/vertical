@@ -1,17 +1,19 @@
-from PyQt5.QtCore import QDate as Date
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
-from PyQt5.QtWidgets import QMessageBox as mes
-import datetime as dt
 from my_helper.notebook.sourse.database import *
 from my_helper.notebook.sourse.create.new_template import TempForm
-designer_file = get_path_ui("new_worker")
 msgs = {"mes": "Сообщение", "atn": "Внимание"}
 
 
 class NewWorker(TempForm):
     def __init__(self, parent=None):
-        super(NewWorker, self).__init__(designer_file, parent, "workers")
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("new_worker")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(NewWorker, self).__init__(ui_file, parent, "workers")
         if not self.status_:
             return
         # my_pass
@@ -26,11 +28,12 @@ class NewWorker(TempForm):
                         self.n_prot, self.n_card, self.d_prot, self.cb_contract,
                         self.d_vac_1, self.d_vac_2, self.place,
                         self.vac_doc, self.cb_vac, self.status]
-        try:
-            self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
-            self.parent.db.init_list(self.cb_contract, "name, id", "contracts")
-        except:
-            mes.question(self, "Внимание", my_errors["2_get_path"], mes.Cancel)
+        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
+        if self.rows_from_db == ERR:
+            self.status_ = False
+            return
+        if self.parent.db.init_list(self.cb_contract, "name, id", "contracts") == ERR:
+            self.status_ = False
             return
         self.auto_numbers = ()
         self.my_mem = ""

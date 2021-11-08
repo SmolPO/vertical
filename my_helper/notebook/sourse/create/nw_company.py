@@ -2,7 +2,6 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.create.new_template import TempForm
 from my_helper.notebook.sourse.database import *
-designer_file = get_path_ui("add_company")
 fields = ["company", "adr", "ogrn", "inn", "kpp", "bik", "korbill", "rbill", "bank", "family", "name", "surname",
           "post", "count_attorney", "date_attorney", "id"]
 statues_com = ["Заказчик", "Подрядчик", "Прочее"]
@@ -10,7 +9,13 @@ statues_com = ["Заказчик", "Подрядчик", "Прочее"]
 
 class NewCompany(TempForm):
     def __init__(self, parent=None):
-        super(NewCompany, self).__init__(designer_file, parent, "company")
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("add_company")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(NewCompany, self).__init__(ui_file, parent, "company")
         if not self.status_:
             return
         self.init_mask()
@@ -19,10 +24,9 @@ class NewCompany(TempForm):
                         self.big_boss, self.big_post, self.big_at, self.big_d_at,
                         self.mng_boss, self.mng_post, self.mng_at, self.mng_d_at,
                         self.cb_status]
-        try:
-            self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
-        except:
-            msg(self, my_errors["2_get_path"])
+        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
+        if self.rows_from_db == ERR:
+            self.status_ = False
             return
 
     def init_mask(self):

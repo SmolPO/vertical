@@ -42,7 +42,7 @@ class TempForm (QDialog):
         data = set(self.get_data())
         if data == ERR:
             return
-        empty = {"", "01.01.2000", "(нет)"}
+        empty = {"", ZERO, NOT}
         if data.intersection(empty):
             msg_info(self, FULL_ALL)
             return
@@ -53,7 +53,7 @@ class TempForm (QDialog):
         return True
 
     def ev_ok(self):
-        if not self.check_input():
+        if not self.check_input() or self.check_input() == ERR:
             return False
         data = self.get_data()
         if not data:
@@ -286,29 +286,22 @@ class TempForm (QDialog):
             return ERR
         return data
 
-    def _create_filename(self):
-        my_list = [[], []]
-        list_id = []
-
-        for item in self.rows_from_db:
-            my_list[0].append(item[3].split("/")[-1].split("_")[0])
-            my_list[1].append(item[3].split("/")[-1].split("_")[1][:-4])
-        for item in my_list:
-            if my_list[0] == self.date.text():
-                list_id.append(my_list[1])
-
     def create_report(self, value, date, people):
+        path_1 = self.conf.get_path("path")
+        path_2 = self.conf.get_path("path_bills")
+        if path_1 == ERR or path_2 == ERR:
+            return ERR
+        path = path_1 + path_2 +  "/" + str(dt.datetime.now().year) + \
+                                  "/" + str(dt.datetime.now().month) + \
+                                  "/" + str(dt.datetime.now().month) + str(dt.datetime.now().year) + ".xlsx"
         try:
-            wb = openpyxl.load_workbook(get_path("path") + get_path("path_bills") +
-                                    "/" + str(dt.datetime.now().year) +
-                                    "/" + str(dt.datetime.now().month) +
-                                    "/" + str(dt.datetime.now().month) + str(dt.datetime.now().year) + ".xlsx")
+            wb = openpyxl.load_workbook(path)
         except:
-            return msg(self, my_errors["4_get_file"])
+            return msg_er(self, GET_FILE + path)
         try:
             sheet = wb['bills']
         except:
-            return msg(self, my_errors["6_get_sheet"])
+            return msg_er(self, GET_PAGE + 'bills')
         row = sheet['F2'].value
         sheet['A' + str(row + 3)].value = int(row) + 1
         sheet['B' + str(row + 3)].value = date
@@ -316,19 +309,10 @@ class TempForm (QDialog):
         sheet['D' + str(row + 3)].value = people
         sheet['F2'].value = int(row) + 1
         try:
-            wb.save(get_path("path") + get_path("path_bills") +
-                        "/" + str(dt.datetime.now().year) +
-                        "/" + str(dt.datetime.now().month) +
-                        "/" + str(dt.datetime.now().month) + str(dt.datetime.now().year) + ".xlsx")
+            wb.save(path)
+            os.startfile(path)
         except:
-            return msg(self, my_errors["4_get_file"])
-        try:
-            os.startfile(get_path("path") + get_path("path_bills") +
-                        "/" + str(dt.datetime.now().year) +
-                        "/" + str(dt.datetime.now().month) +
-                        "/" + str(dt.datetime.now().month) + str(dt.datetime.now().year) + ".xlsx")
-        except:
-            return msg(self, my_errors["4_get_file"])
+            return msg_er(self, GET_FILE + path)
 
 
 def set_cb_text(combobox, data, rows):
