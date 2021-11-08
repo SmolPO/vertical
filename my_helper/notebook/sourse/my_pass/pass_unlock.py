@@ -6,6 +6,8 @@ import logging
 import openpyxl
 import pymorphy2
 import docxtpl
+from docx.oxml.text.paragraph import CT_P
+from docx.text.paragraph import Paragraph
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 from my_helper.notebook.sourse.database import *
 designer_file = get_path_ui("pass_unlock")
@@ -44,10 +46,15 @@ class UnlockPass(TempPass):
         family = self.cb_worker.currentText()
         morph = pymorphy2.MorphAnalyzer()
         people = self.check_row(family)  # на форме фамилия в виде Фамилия И.
+        post = people[3]
+        if post in dictionary.keys():
+            post = dictionary[post]['datv']
+        else:
+            post = morph.parse(people[3])[0].inflect({'datv'})[0]
         self.data["family"] = morph.parse(people[0])[0].inflect({'datv'})[0].capitalize()
         self.data["name"] = morph.parse(people[1])[0].inflect({'datv'})[0].capitalize()
         self.data["surname"] = morph.parse(people[2])[0].inflect({'datv'})[0].capitalize()
-        self.data["post"] = morph.parse(people[3])[0].inflect({'datv'})[0]
+        self.data["post"] = post
         self.data["adr"] = people[8]
         self.data["start_date"] = self.d_from.text()
         self.data["end_date"] = self.d_to.text()
@@ -74,7 +81,7 @@ class UnlockPass(TempPass):
     def create_vac(self, family):
         note = ["Настоящим письмом информируем Вас о прохождение вакцинации от Covid-19 сотрудником ООО «Вертикаль»"]
         people = self.check_row(family)
-        data_vac = people[-5:-1]
+        data_vac = people[-6:-1]
         doc = docx.Document(self.vac_path)
         next_id = set_next_number(int(self.number.value()) + 1)
         doc.tables[0].rows[0].cells[0].text = "Исх. " + str(next_id)
@@ -82,7 +89,11 @@ class UnlockPass(TempPass):
         doc.tables[1].rows[1].cells[0].text = "1"
         doc.tables[1].rows[1].cells[1].text = " ".join(people[:3])
         doc.tables[1].rows[1].cells[2].text = people[3]
-        if data_vac[3][:2] == "S5":
+        p = CT_P.add_p_before(doc.tables[1]._element)
+        p2 = Paragraph(p, doc.tables[1]._parent)
+        p2.text = note
+        print(doc.paragraphs[1].text)
+        if data_vac[4] == "2 дозы":
             doc.tables[1].add_column(200)
             doc.tables[1].rows[0].cells[3].text = "Дата первой прививки"
             doc.tables[1].rows[0].cells[4].text = "Дата второй прививки"
@@ -91,23 +102,24 @@ class UnlockPass(TempPass):
             doc.tables[1].rows[1].cells[3].text = data_vac[0]
             doc.tables[1].rows[1].cells[4].text = data_vac[1]
             doc.tables[1].rows[1].cells[5].text = data_vac[2]
-            pass
-        elif data_vac[3][:2] == "SL":
+
+        elif data_vac[4] == "1 дозы":
             self.data["d_vac_1"] = data_vac[0]
             self.data["place"] = data_vac[2]
             doc.tables[1].rows[0].cells[3].text = "Дата прививки"
             doc.tables[1].rows[0].cells[4].text = "Место вакцинации"
             doc.tables[1].rows[1].cells[3].text = data_vac[0]
             doc.tables[1].rows[1].cells[4].text = data_vac[2]
-        elif data_vac[3][:2] == "CV":
+
+        elif data_vac[4] == "болел":
             self.data["d_vac_1"] = data_vac[0]
             self.data["vac_doc"] = data_vac[3][2:]
             doc.tables[1].rows[0].cells[3].text = "Номер сертификата"
             doc.tables[1].rows[0].cells[4].text = "Дата получения"
 
-            doc.tables[1].rows[1].cells[3].text = data_vac[0]
-            doc.tables[1].rows[1].cells[4].text = data_vac[3]
-            pass
+            doc.tables[1].rows[1].cells[3].text = data_vac[3]
+            doc.tables[1].rows[1].cells[4].text = data_vac[0]
+        next_id = set_next_number(int(self.number.value()) + 1)
         path = get_path("path") + get_path("path_notes_docs") + "/" + str(next_id) + "_" + self.d_note.text() + ".docx"
         doc.save(path)
         os.startfile(path)

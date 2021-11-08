@@ -42,7 +42,7 @@ class TempPass(QDialog):
         self.people_all = self.parent.db.get_data(fields, "workers") + self.parent.db.get_data(fields, "itrs")
         self.people_mark = list()
         fields = "family, name, surname, post, passport, passport_got, " \
-                 "birthday, adr,  live_adr, d_vac_1, d_vac_2, place, vac_doc, id"
+                 "birthday, adr,  live_adr, d_vac_1, d_vac_2, place, vac_doc, vac_type, id"
         rows_w = self.parent.db.get_data(fields, "workers")
         rows_i = self.parent.db.get_data(fields, "itrs")
         self.all_people = rows_w + rows_i

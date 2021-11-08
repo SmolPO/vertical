@@ -179,8 +179,12 @@ class GetMoney(QDialog):
         text.append(str(self.sb_value.value()))
         text.append("р. на банковскую карту ")
         for item in itr[:4]:
-            morph.parse(item)[0].inflect({'gent'})[0].capitalize()
-            text.append(morph.parse(item)[0].inflect({'gent'})[0].capitalize())
+            post = item
+            if post in dictionary.keys():
+                word = dictionary[post]["gent"]
+            else:
+                word = morph.parse(item)[0].inflect({'gent'})[0].capitalize()
+            text.append(word)
         text.append(" для:\n")
         if self.cb_day.isChecked():
             cost = self.sb_days.value() * self.sb_emploeeyrs.value() * self.sb_cost.value()
