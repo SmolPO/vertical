@@ -9,15 +9,18 @@ from docx.text.paragraph import Paragraph
 from docx.oxml.text.paragraph import CT_P
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 from my_helper.notebook.sourse.database import *
-import logging
 import docx
-#  logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
-designer_file = get_path_ui("pass_month")
 
 
 class MonthPass(TempPass):
     def __init__(self, parent):
-        super(MonthPass, self).__init__(designer_file, parent, "workers")
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("pass_month")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(MonthPass, self).__init__(ui_file, parent, "workers")
         if not self.status_:
             return
         self.b_save.clicked.connect(self.save_pattern)
@@ -76,10 +79,9 @@ class MonthPass(TempPass):
         next_month = self.list_month.index(self.cb_month.currentText()) + 1
         # если конец года: увеличить год и месяц в 1
         if next_month == 13:
-            try:
-                self.new_year__week = get_from_ini('config', 'new_year')
-            except:
-                return msg(self, my_errors["3_get_db"])
+            self.new_year__week = self.conf.get_from_ini('config', 'new_year')
+            if self.new_year__week == ERR:
+                return ERR
             next_day = self.new_year__week
             next_month = "01"  # MessageBox для ввода первого дня
             next_year = str(dt.datetime.now().year + 1)
@@ -100,7 +102,10 @@ class MonthPass(TempPass):
     def _create_data(self, path):
         # Заполнить таблицу
         people = []
-        doc = docx.Document(path)
+        try:
+            doc = docx.Document(path)
+        except:
+            return msg_er(self, GET_FILE)
         if self.cb_all.isChecked():
             people = self.all_people
         else:
@@ -119,14 +124,18 @@ class MonthPass(TempPass):
             doc.tables[1].rows[i].cells[5].text = item[7]
             doc.tables[1].rows[i].cells[6].text = item[8]
             i += 1
-        doc.save(path)
-        os.startfile(path)
-        set_next_number(self.number.value() + 1)
-        self.create_vac(people)
+        try:
+            doc.save(path)
+            os.startfile(path)
+        except:
+            return msg_er(self, GET_FILE)
+        self.conf.set_next_number(self.number.value() + 1)
+        if self.create_vac(people) == ERR:
+            return ERR
 
     def check_input(self):
-        if self.list_ui[0].currentText() == "(нет)" and not self.cb_all.isChecked():
-            return msg(self, my_errors["14_add_people"])
+        if self.list_ui[0].currentText() == NOT and not self.cb_all.isChecked():
+            return msg_er(self, ADD_PEOPLE)
         return True
 
     def _ev_ok(self):
@@ -138,7 +147,7 @@ class MonthPass(TempPass):
         for item in people:
             list_people[item[-2]].append(item)
         doc = docx.Document(self.vac_path)
-        next_id = get_next_number()
+        next_id = self.conf.get_next_number()
         doc.tables[0].rows[0].cells[0].text = "Исх. " + str(next_id)
         doc.tables[0].rows[1].cells[0].text = "от " + self.d_note.text()
         ind = 0
@@ -177,8 +186,13 @@ class MonthPass(TempPass):
                 for i in range(len(add_list)):
                     doc.tables[-1].rows[1].cells[i].text = add_list[i]
                 ind += 1
-        self.add_footer(doc)
-        path = get_path("path") + get_path("path_notes_docs") + "/vac_" + str(dt.datetime.now().date()) + ".docx"
+        if self.add_footer(doc) == ERR:
+            return ERR
+        path_1 = self.get_path("path")
+        path_2 = self.get_path("path_notes_docs")
+        if path_1 == ERR or path_2 == ERR:
+            return ERR
+        path = path_1 + path_2 + "/vac_" + str(dt.datetime.now().date()) + ".docx"
         doc.save(path)
         os.startfile(path)
         pass
@@ -207,10 +221,13 @@ class MonthPass(TempPass):
         doc.tables[-1].rows[0].cells[2].text = "Должность"
 
     def add_footer(self, doc):
-        boss = self.parent.db.execute("SELECT big_post, big_boss "
-                                      "FROM company "
-                                      "WHERE company = '{0}'".format(self.parent.company))
-        big_boss = self.parent.db.cursor.fetchall()
+        try:
+            self.parent.db.execute("SELECT big_post, big_boss "
+                                          "FROM company "
+                                          "WHERE company = '{0}'".format(self.parent.company))
+            big_boss = self.parent.db.cursor.fetchall()
+        except:
+            return ERR
         note = big_boss[0][0] + "_"*15 + short_name(big_boss[0][1].split(" "))
         doc.add_paragraph(note)
 

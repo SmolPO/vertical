@@ -1,17 +1,17 @@
-from PyQt5.QtWidgets import QMessageBox as mes
-from PyQt5.QtCore import QDate as Date
-import datetime as dt
 import docx
-import logging
 from my_helper.notebook.sourse.database import *
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
-designer_file = get_path_ui("pass_get")
 
 
 class GetPass(TempPass):
     def __init__(self, parent):
-        super(GetPass, self).__init__(designer_file, parent, "workers")
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("pass_get")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(GetPass, self).__init__(ui_file, parent, "workers")
         if not self.status_:
             return
         # my_pass
@@ -30,15 +30,11 @@ class GetPass(TempPass):
         self.init_contracts()
 
     def init_contracts(self):
-        try:
-            contracts = self.parent.db.get_data("id, name", "contracts")
-        except:
-            return msg(self, my_errors["3_get_db"])
-        if not contracts:
-            return False
+        contracts = self.parent.db.get_data("id, name", "contracts")
+        if contracts == ERR or not contracts:
+            return ERR
         for row in contracts:
             self.cb_contract.addItem(row[0] + "." + row[1])
-        return True
 
     def init_workers(self):
         for item in self.list_ui:
@@ -46,30 +42,23 @@ class GetPass(TempPass):
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
-        try:
-            people = self.parent.db.get_data("family, name, surname, post, passport, "
+        people = self.parent.db.get_data("family, name, surname, post, passport, "
                                          "passport_got, birthday, adr,  live_adr", "workers")
-        except:
-            return msg(self, my_errors["3_get_db"])
-        if not people:
-            return False
+        if people == ERR or not people:
+            return ERR
         for name in people:
             family = name[0] + " " + ".".join([name[1][0], name[2][0]]) + "."
             for item in self.list_ui:
                 item.addItem(family)
-        return True
 
-    # получить данные
-    # для заполнения текста
     def _get_data(self):
         self.data["start_date"] = self.d_from.text()
         self.data["end_date"] = self.d_to.text()
         self.data["customer"] = self.parent.customer
         self.data["company"] = self.parent.company
-        try:
-            rows = self.parent.db.get_data("id, number, date", "contracts")
-        except:
-            return msg(self, my_errors["3_get_db"])
+        rows = self.parent.db.get_data("id, number, date", "contracts")
+        if rows == ERR:
+            return ERR
         for contract in rows:
             if self.cb_contract.currentText().split(".")[0] == str(contract[0]):
                 self.data["contract"] = contract[1]
@@ -78,32 +67,36 @@ class GetPass(TempPass):
 
     # обработчики кнопок
     def _ev_ok(self):
-        if self.list_ui[0].currentText() == "(нет)":
-            return msg(self, my_errors["14_add_people"])
-        if self.cb_contract.currentText() == "(нет)":
-            return msg(self, my_errors["15_add_contract"])
+        if self.list_ui[0].currentText() == NOT:
+            msg_er(self, ADD_PEOPLE)
+            return False
+        if self.cb_contract.currentText() == NOT:
+            msg_info(self, ADD_CONTRACT)
+            return False
         return True
 
     def _create_data(self, path):
         # Заполнить таблицу
         workers = []
         for elem in self.list_ui:
-            if elem.currentText() != "(нет)":
+            if elem.currentText() != NOT:
                 workers.append(self.get_worker(elem.currentText()))
         i = 1
-        doc = docx.Document(path)
-        for people in workers:
-            doc.tables[1].add_row()
-            doc.tables[1].rows[i].cells[0].text = str(i)
-            doc.tables[1].rows[i].cells[1].text = " ".join(people[0:3])
-            doc.tables[1].rows[i].cells[2].text = people[3]
-            doc.tables[1].rows[i].cells[3].text = people[6]
-            doc.tables[1].rows[i].cells[4].text = " ".join(people[4:6])
-            doc.tables[1].rows[i].cells[5].text = people[7]
-            doc.tables[1].rows[i].cells[6].text = people[8]
-            i += 1
-        doc.save(path)
+        try:
+            doc = docx.Document(path)
+            for people in workers:
+                doc.tables[1].add_row()
+                doc.tables[1].rows[i].cells[0].text = str(i)
+                doc.tables[1].rows[i].cells[1].text = " ".join(people[0:3])
+                doc.tables[1].rows[i].cells[2].text = people[3]
+                doc.tables[1].rows[i].cells[3].text = people[6]
+                doc.tables[1].rows[i].cells[4].text = " ".join(people[4:6])
+                doc.tables[1].rows[i].cells[5].text = people[7]
+                doc.tables[1].rows[i].cells[6].text = people[8]
+                i += 1
+            doc.save(path)
+        except:
+            return msg_er(self, GET_FILE)
 
     def check_input(self):
-
         return True

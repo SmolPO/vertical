@@ -27,7 +27,7 @@ from my_helper.notebook.sourse.my_pass.pass_get import GetPass
 from my_helper.notebook.sourse.my_pass.pass_auto import AutoPass
 from my_helper.notebook.sourse.my_pass.pass_drive import DrivePass
 from my_helper.notebook.sourse.settings import Settings
-from database import DataBase, get_path, get_config, get_from_ini, my_errors
+from database import *
 from my_tools import Notepad
 from music import Web
 from get_money import GetMoney

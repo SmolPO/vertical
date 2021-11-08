@@ -5,17 +5,21 @@ import os
 import logging
 import openpyxl
 import pymorphy2
-import docxtpl
 from docx.oxml.text.paragraph import CT_P
 from docx.text.paragraph import Paragraph
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 from my_helper.notebook.sourse.database import *
-designer_file = get_path_ui("pass_unlock")
 
 
 class UnlockPass(TempPass):
     def __init__(self, parent):
-        super(UnlockPass, self).__init__(designer_file, parent, "workers")
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("pass_month")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(UnlockPass, self).__init__(ui_file, parent, "workers")
         if not self.status_:
             return
         self.parent = parent
@@ -25,10 +29,9 @@ class UnlockPass(TempPass):
                                              str(dt.datetime.now().month),
                                              str(dt.datetime.now().year)])))
         self.cb_all_days.stateChanged.connect(self.all_days)
-        try:
-            self.rows_from_db = self.parent.db.get_data("*", self.table)
-        except:
-            msg(self, my_errors["3_get_db"])
+        self.rows_from_db = self.parent.db.get_data("*", self.table)
+        if self.rows_from_db == ERR:
+            self.status_ = False
             return
         self.init_workers()
         self.data = {"number": "", "data": "", "customer": "", "company": "", "start_date": "", "end_date": "",
@@ -75,15 +78,19 @@ class UnlockPass(TempPass):
 
     def _create_data(self, _):
         family = self.cb_worker.currentText()
-        self.create_vac(family)
+        if self.create_vac(family) == ERR:
+            return ERR
         pass
 
     def create_vac(self, family):
         note = ["Настоящим письмом информируем Вас о прохождение вакцинации от Covid-19 сотрудником ООО «Вертикаль»"]
         people = self.check_row(family)
         data_vac = people[-6:-1]
-        doc = docx.Document(self.vac_path)
-        next_id = set_next_number(int(self.number.value()) + 1)
+        try:
+            doc = docx.Document(self.vac_path)
+        except:
+            return ERR
+        next_id = self.conf.set_next_number(int(self.number.value()) + 1)
         doc.tables[0].rows[0].cells[0].text = "Исх. " + str(next_id)
         doc.tables[0].rows[1].cells[0].text = "от " + self.d_note.text()
         doc.tables[1].rows[1].cells[0].text = "1"
@@ -92,8 +99,7 @@ class UnlockPass(TempPass):
         p = CT_P.add_p_before(doc.tables[1]._element)
         p2 = Paragraph(p, doc.tables[1]._parent)
         p2.text = note
-        print(doc.paragraphs[1].text)
-        if data_vac[4] == "2 дозы":
+        if data_vac[4] == SPUTNIK:
             doc.tables[1].add_column(200)
             doc.tables[1].rows[0].cells[3].text = "Дата первой прививки"
             doc.tables[1].rows[0].cells[4].text = "Дата второй прививки"
@@ -103,7 +109,7 @@ class UnlockPass(TempPass):
             doc.tables[1].rows[1].cells[4].text = data_vac[1]
             doc.tables[1].rows[1].cells[5].text = data_vac[2]
 
-        elif data_vac[4] == "1 дозы":
+        elif data_vac[4] == SP_LITE:
             self.data["d_vac_1"] = data_vac[0]
             self.data["place"] = data_vac[2]
             doc.tables[1].rows[0].cells[3].text = "Дата прививки"
@@ -111,7 +117,7 @@ class UnlockPass(TempPass):
             doc.tables[1].rows[1].cells[3].text = data_vac[0]
             doc.tables[1].rows[1].cells[4].text = data_vac[2]
 
-        elif data_vac[4] == "болел":
+        elif data_vac[4] == COVID:
             self.data["d_vac_1"] = data_vac[0]
             self.data["vac_doc"] = data_vac[3][2:]
             doc.tables[1].rows[0].cells[3].text = "Номер сертификата"
@@ -119,8 +125,14 @@ class UnlockPass(TempPass):
 
             doc.tables[1].rows[1].cells[3].text = data_vac[3]
             doc.tables[1].rows[1].cells[4].text = data_vac[0]
-        next_id = set_next_number(int(self.number.value()) + 1)
-        path = get_path("path") + get_path("path_notes_docs") + "/" + str(next_id) + "_" + self.d_note.text() + ".docx"
-        doc.save(path)
-        os.startfile(path)
-        pass
+        next_id = self.conf.set_next_number(int(self.number.value()) + 1)
+        path_1 = self.conf.get_path("path")
+        path_2 = self.conf.get_path("path_notes_docs")
+        if path_1 == ERR or path_2 == ERR:
+            return ERR
+        path = path_1 + path_2 + "/" + str(next_id) + "_" + self.d_note.text() + ".docx"
+        try:
+            doc.save(path)
+            os.startfile(path)
+        except:
+            return ERR

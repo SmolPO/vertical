@@ -1,20 +1,21 @@
 from PyQt5 import uic
 from PyQt5.QtCore import Qt
-import datetime as dt
 import os
 import docxtpl
-from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 from my_helper.notebook.sourse.database import *
-import logging
-# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
-designer_file = get_path_ui("pass_auto")
 
 
 class AutoPass(TempPass):
     def __init__(self, parent):
-        super(AutoPass, self).__init__(designer_file, parent, "auto")
-        uic.loadUi(designer_file, self)
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("pass_auto")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(AutoPass, self).__init__(ui_file, parent, "auto")
+        uic.loadUi(ui_file, self)
         # my_pass
         self.b_open.clicked.connect(self.my_open_file)
         self.b_clean.clicked.connect(self.clean_data)
@@ -25,24 +26,28 @@ class AutoPass(TempPass):
         self.data = {"number": "", "date": "", "start_date": "", "end_date": "",
                      "auto": list(), "gov_numbers": list(), "people": list(list())}
 
-        self.init_auto()
-        self.init_drivers()
+        if self.init_auto() == ERR:
+            self.status_ = False
+            return
+        if self.init_drivers() == ERR:
+            self.status_ = False
+            return
         self.list_ui = list([self.driver_1, self.driver_2, self.driver_3, self.driver_4,
                              self.driver_5, self.driver_6, self.driver_7])
         self.count = 0
-        try:
-            self.main_file = get_path("path") + get_path("path_pat_notes") + "/pass_auto.docx"
-            self.print_file = get_path("path") + get_path("path_notes_docs")
-        except:
-            msg(self, my_errors["2_get_ini"])
+        paths = [self.conf.get_path("path"), self.conf.get_path("path_pat_notes"),
+                 self.conf.get_path("path_notes_docs")]
+        if ERR in paths:
+            self.status_ = False
             return
+        self.main_file = paths[0] + paths[1] + "/pass_auto.docx"
+        self.print_file = paths[0] + paths[2]
 
     # инициализация
     def init_drivers(self):
-        try:
-            drivers = self.parent.db.get_data("family, name", self.table)
-        except:
-            return msg(self, my_errors["2_get_ini"])
+        drivers = self.parent.db.get_data("family, name", self.table)
+        if drivers == ERR:
+            return ERR
         for item in self.list_ui:
             item.addItem(empty)
         for row in drivers:
@@ -51,26 +56,26 @@ class AutoPass(TempPass):
                 item.activated[str].connect(self.new_driver)
 
     def init_auto(self):
-        auto = list()
-        try:
-            auto = self.parent.db.get_data("model, gov_number", "auto")
-        except:
-            return msg(self, my_errors["2_get_ini"])
+        auto = self.parent.db.get_data("model, gov_number", "auto")
+        if auto == ERR:
+            return ERR
         auto.append([empty])
         for row in auto:
             self.cb_auto.addItem(row[0])
 
     # для заполнения текста
     def get_data(self):
-        try:
-            rows = self.parent.db.get_data("*", "auto")
-        except:
-            return msg(self, my_errors["2_get_ini"])
+        rows = self.parent.db.get_data("*", "auto")
+        if rows == ERR or not rows:
+            return ERR
         for row in rows:
             if self.cb_auto.currentText() in row:
                 self.data["auto"].append(" ".join(row[:2]))
                 self.data["gov_number"].append(row[2])
-        for row in self.parent.db.get_data("family, name, surname, birthday, passport", "drivers"):
+        rows = self.parent.db.get_data("family, name, surname, birthday, passport", "drivers")
+        if rows == ERR or not rows:
+            return ERR
+        for row in rows:
             for item in self.list_ui:
                 if item.currentText()[:-3] in row:
                     self.data["people"][self.count].append(" ".join(row))
@@ -83,7 +88,8 @@ class AutoPass(TempPass):
 
     # обработчики кнопок
     def ev_ok(self):
-        if not self.get_data():
+        data = self.get_data()
+        if data == ERR or not data:
             return
         try:
             path = self.main_file
@@ -93,7 +99,7 @@ class AutoPass(TempPass):
             doc.save(path)
             os.startfile(path)
         except:
-            return msg(self, my_errors["4_get_file"] + path)
+            return msg_er(self, GET_FILE + path)
 
     def _set_enabled(self, status):
         self.d_note.setEnabled(status)
@@ -148,7 +154,10 @@ class AutoPass(TempPass):
         if not self.cb_chouse.isChecked():
             month = self.list_month.index(self.cb_month.currentText()) + 1
             if month == 13:
-                day, month, year = get_config("new_year"), "01", str(dt.datetime.now().year + 1)  # работаем с 9 января
+                new_year_day = self.conf.get_config("new_year")
+                if new_year_day == ERR or not new_year_day:
+                    return ERR
+                day, month, year = new_year_day, "01", str(dt.datetime.now().year + 1)  # работаем с 9 января
             else:
                 day, month, year = "01", str(month), str(dt.datetime.now().year)
                 if int(month) < 10:

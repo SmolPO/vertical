@@ -1,17 +1,17 @@
 from PyQt5.QtCore import Qt
-import datetime as dt
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-from PyQt5.QtWidgets import QMessageBox as mes
-#  сделать мессаджбоксы на Сохранить
 from my_helper.notebook.sourse.database import *
-import logging
-# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
-designer_file = get_path_ui("pass_driver")
 
 
 class DrivePass(TempPass):
     def __init__(self, parent):
-        super(DrivePass, self).__init__(designer_file, parent, "drivers")
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("pass_driver")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(DrivePass, self).__init__(ui_file, parent, "drivers")
         if not self.status_:
             return
         self.cb_contracts.activated[str].connect(self.contract_changed)
@@ -39,34 +39,25 @@ class DrivePass(TempPass):
     # инициализация
     def init_drivers(self):
         self.cb_drivers.addItem(empty)
-        try:
-            people = self.parent.db.get_data("family, name", self.table)
-        except:
-            return msg(self, my_errors["3_get_db"])
-        if not people:
-            return
+        people = self.parent.db.get_data("family, name", self.table)
+        if people == ERR or not people:
+            return ERR
         for row in people:
             self.cb_drivers.addItem(" ".join((row[0], row[1][0] + ".")))
 
     def init_auto(self):
         self.cb_auto.addItem(empty)
-        try:
-            auto = self.parent.db.get_data("gov_number", "auto")
-        except:
-            return msg(self, my_errors["3_get_db"])
-        if not auto:
-            return
+        auto = self.parent.db.get_data("gov_number", "auto")
+        if auto == ERR or not auto:
+            return ERR
         for row in auto:
             self.cb_auto.addItem(row[0])
 
     def init_contracts(self):
         self.cb_contracts.addItem(empty)
-        try:
-            contracts = self.parent.db.get_data("name", "contracts")
-        except:
-            return msg(self, my_errors["3_get_db"])
-        if not contracts:
-            return
+        contracts = self.parent.db.get_data("name", "contracts")
+        if contracts == ERR or not contracts:
+            return ERR
         for row in contracts:
             self.cb_contracts.addItem(row[0])
 
@@ -85,10 +76,9 @@ class DrivePass(TempPass):
         self.change_note()
 
     def contract_changed(self):
-        try:
-            rows = self.parent.db.get_data("*", "contracts")
-        except:
-            return msg(self, my_errors["3_get_db"])
+        rows = self.parent.db.get_data("*", "contracts")
+        if rows == ERR or not rows:
+            return ERR
         for row in rows:
             if self.cb_contracts.currentText() == row[0]:
                 self.work = " ".join(row[4:7])
@@ -123,24 +113,19 @@ class DrivePass(TempPass):
             self.cb_contracts.setEnabled(True)
 
     def auto_changed(self):
-        try:
-            rows = self.parent.db.get_data("*", "auto")
-        except:
-            return msg(self, my_errors["3_get_db"])
+        rows = self.parent.db.get_data("*", "auto")
+        if rows == ERR or not rows:
+            return ERR
         for row in rows:
-            print(self.cb_auto.currentText(), row[0])
             if self.cb_auto.currentText() == row[0]:
                 self.data["auto"] = " ".join(row[1:3])
                 self.data["gov_number"] = row[0]
                 self.data["track"] = " " if row[-2] == empty else "п/п " + row[-2]
 
     def driver_changed(self):
-        try:
-            people = self.parent.db.get_data("*", self.table)
-        except:
-            return msg(self, my_errors["3_get_db"])
-        if not people:
-            return
+        people = self.parent.db.get_data("*", self.table)
+        if people == ERR or not people:
+            return ERR
         for row in people:
             if self.cb_drivers.currentText()[:-3] == row[0]:
                 self.data["passport"] = " ".join(row[:-1])
@@ -152,5 +137,6 @@ class DrivePass(TempPass):
     def check_input(self):
         for key in self.data.keys():
             if self.data[key] == empty or self.data[key] == "":
-                return msg(self, my_errors["13_full_all_fields"])
+                msg_info(self, FULL_ALL)
+                return False
         return True
