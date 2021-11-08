@@ -2,14 +2,16 @@ import docx
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 from my_helper.notebook.sourse.database import *
 
-#  сделать мессаджбоксы на Сохранить
-
-designer_file = get_path_ui("pass_week")
-
 
 class WeekPass(TempPass):
     def __init__(self, parent):
-        super(WeekPass, self).__init__(designer_file, parent, "contracts")
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("pass_week")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(WeekPass, self).__init__(ui_file, parent, "contracts")
         self.parent = parent
         self.table = "contracts"
         if not self.status_:
@@ -31,9 +33,15 @@ class WeekPass(TempPass):
                      "part": "", "company": "", "customer": "", "post_boss": "", "boss_part": ""}
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4,
                         self.worker_5, self.worker_6, self.worker_7, self.worker_8, self.worker_9)
-        self.init_object()
-        self.init_boss()
-        self.init_workers()
+        if self.init_object() == ERR:
+            self.status_ = False
+            return
+        if self.init_boss() == ERR:
+            self.status_ = False
+            return
+        if self.init_workers() == ERR:
+            self.status_ = False
+            return
         self.main_file += "/pass_week.docx"
 
     # заполнение список
@@ -56,12 +64,11 @@ class WeekPass(TempPass):
             self.cb_object.addItem(row[0])
 
     def init_boss(self):
-        try:
-            rows = self.parent.db.get_data("family, name, surname, post", "bosses")
-        except:
-            return msg(self, my_errors["3_get_db"])
+        rows = self.parent.db.get_data("family, name, surname, post", "bosses")
+        if rows == ERR:
+            return msg_er(self, GET_DB)
         for people in rows:
-            family = people[0] + " " + people[1][0] + ". " + people[2][0] + "."
+            family = short_name(people[:3])
             self.cb_boss_part.addItem(family)       # брать из БД
 
     def init_workers(self):
@@ -95,7 +102,11 @@ class WeekPass(TempPass):
 
         # Заполнить таблицу
     def _create_data(self, path):
-        doc = docx.Document(path)
+        try:
+            doc = docx.Document(path)
+        except:
+            msg_er(self, GET_FILE + path)
+            return ERR
         i = 1
         list_people = list()
         for elem in self.list_ui:
@@ -115,7 +126,11 @@ class WeekPass(TempPass):
             doc.tables[1].rows[i].cells[5].text = people[7]
             doc.tables[1].rows[i].cells[6].text = people[8]
             i += 1
+        try:
             doc.save(path)
+        except:
+            msg_er(self, GET_FILE + path)
+            return ERR
         return True
 
     def check_row(self, row):
@@ -135,5 +150,5 @@ class WeekPass(TempPass):
 
     def check_input(self):
         if self.list_ui[0].currentText() == empty:
-            return msg(self, my_errors["14_add_people"])
+            return msg_er(self, ADD_PEOPLE)
         return True

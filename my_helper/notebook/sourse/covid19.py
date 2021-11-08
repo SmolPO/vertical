@@ -1,15 +1,12 @@
 import openpyxl as xlsx
-from PyQt5.QtWidgets import QMessageBox as mes
 from openpyxl.styles import Side, Border
 import os
-import logging
-import datetime as dt
 from my_helper.notebook.sourse.database import *
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 
 
 class NewCovid:
     def __init__(self, parent=None):
+        self.conf = Ini(self)
         self.parent = parent
         self.border = Border(top=Side(border_style='thin', color='FF000000'),
                            right=Side(border_style='thin', color='FF000000'),
@@ -18,13 +15,12 @@ class NewCovid:
 
     def create_covid(self):
         list_people = list()
-        try:
-            rows = self.parent.db.get_data("family, name, surname, post, status, id", "workers") + \
-                   self.parent.db.get_data("family, name, surname, post, status, id", "itrs")
-        except:
-            return msg(self, my_errors["3_get_db"])
+        rows = self.parent.db.get_data("family, name, surname, post, status, id", "workers") + \
+               self.parent.db.get_data("family, name, surname, post, status, id", "itrs")
+        if ERR in rows:
+            return
         if not rows:
-            return msg(self, my_errors["3_get_db"])
+            return msg_info(self, GET_DB)
         for row in rows:
             if row[-2] == statues[0]:
                 list_people.append({"family": short_name(row), "post": row[3]})
@@ -32,17 +28,17 @@ class NewCovid:
         if not list_people:
             mes.question(self.parent, "Сообщение", "Нет рабочих в Базе данных", mes.Cancel)
             return
-        path = get_path("path") + get_path("path_pat_covid")
+        path = self.conf.get_path("path") + self.conf.get_path("path_pat_covid")
         path_save = path
         try:
             doc = xlsx.open(path)
         except:
-            return msg(self, my_errors["4_get_file"])
+            return msg_er(self, GET_FILE)
         try:
             page = "covid"
             sheet = doc[page]
         except:
-            return msg(self, my_errors["6_get_sheet"])
+            return msg_er(self, GET_PAGE)
         delta = 2
         count_column = 9
         for ind in range(1, 50):

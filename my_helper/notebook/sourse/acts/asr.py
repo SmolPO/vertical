@@ -1,19 +1,21 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
 from PyQt5.QtWidgets import QMessageBox as mes
-from my_helper.notebook.sourse.database import get_path_ui, get_path, get_config
+from my_helper.notebook.sourse.database import *
 import docxtpl
 import os
 import datetime as dt
 import pymorphy2
 
-designer_file = get_path_ui("asr")
+
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 
 
 class Asr(QDialog):
     def __init__(self, parent):
         super(Asr, self).__init__()
+        self.conf = Ini(self)
+        self.ui_file = self.conf.get_path_ui("asr")
         if not self.check_start():
             return
         self.parent = parent
@@ -28,17 +30,16 @@ class Asr(QDialog):
         self.init_bosses()
         self.init_SI()
         self.ind = 0
-        self.path = get_path("path") + get_path("path_pat_patterns")
+        self.path = self.conf.get_path("path") + self.conf.get_path("path_pat_patterns")
         self.my_id = 0
 
     def check_start(self):
         self.status_ = True
-        self.path_ = designer_file
         try:
-            uic.loadUi(designer_file, self)
+            uic.loadUi(self.ui_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file, mes.Cancel)
             self.status_ = False
             return False
 
@@ -83,7 +84,7 @@ class Asr(QDialog):
         data["month"] = morph.parse(self.month.currentText())[0].inflect({'gent'})[0].capitalize().lower()
         data["year"] = self.year.currentText()
         data["number"] = number
-        data["company"] = get_config("company")
+        data["company"] = self.conf.get_config("company")
         return data
 
     def get_data(self):
@@ -127,7 +128,7 @@ class Asr(QDialog):
             mes.question(self, "Сообщение", "Файл " + path + " не найден", mes.Ok)
             return False
         doc.render(self.data)
-        path = get_path("path") + get_path("path_contracts") + "/1030/102021" + "/1.docx"
+        path = self.conf.get_path("path") + self.conf.get_path("path_contracts") + "/1030/102021" + "/1.docx"
         doc.save(path)
         os.startfile(path)
         self.save_pattern()

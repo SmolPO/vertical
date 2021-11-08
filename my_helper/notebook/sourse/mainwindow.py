@@ -19,7 +19,7 @@ from my_helper.notebook.sourse.create.new_contract import NewContact
 from my_helper.notebook.sourse.create.material import NewMaterial
 from my_helper.notebook.sourse.create.new_TB import NewTB, CountPeople
 from my_helper.notebook.sourse.acts.acts import Acts
-from my_email import send
+from my_email import *
 from my_helper.notebook.sourse.my_pass.pass_week import WeekPass
 from my_helper.notebook.sourse.my_pass.pass_unlock import UnlockPass
 from my_helper.notebook.sourse.my_pass.pass_month import MonthPass
@@ -31,27 +31,25 @@ from database import *
 from my_tools import Notepad
 from music import Web
 from get_money import GetMoney
-import shutil
-
-key_for_db = "host=95.163.249.246 dbname=Vertical_db user=office password=9024EgrGvz#m87Y1"
-logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
 
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.path = "B:/my_helper/my_config.ini"
+        self.conf = Ini(self)
         try:
-            uic.loadUi(get_path("path") + get_path("ui_files") + '/main_menu.ui', self)
+            path_1 = self.conf.get_path("path")
+            path_2 = self.conf.get_path("ui_files")
+            uic.loadUi(path_1 + path_2 + '/main_menu.ui', self)
         except:
-            mes.question(self, "Сообщение", my_errors["1_ui"] +
-                         get_path("path") + get_path("ui_files") + '/main_menu.ui', mes.Cancel)
+            msg_er(self, GET_UI + path_1 + path_2 + '/main_menu.ui')
             return
         try:
-            self.db = DataBase(self.path)
+            self.db = DataBase(self, self.path)
             self.db.connect_to_db()
         except:
-            mes.question(self, "Сообщение", my_errors["3_conn"], mes.Cancel)
+            msg_er(self, CONNECT_DB)
             return
         self.b_pass_week.clicked.connect(self.start_wnd)
         self.b_pass_month.clicked.connect(self.start_wnd)
@@ -86,7 +84,6 @@ class MainWindow(QMainWindow):
         fileMenu = menu.addMenu("Настройки")
         fileMenu.addAction(exitAction)
 
-        # self.b_connect.clicked.connect(self.ev_connect)
         self.b_empty.clicked.connect(self.ev_btn_start_file)
 
         self.b_scan.clicked.connect(self.ev_btn_start_file)
@@ -95,12 +92,6 @@ class MainWindow(QMainWindow):
 
         self.b_scan.setEnabled(False)
         company = self.db.get_data("*", "company")
-        # self.db.execute("UPDATE company SET id = '1' where status = '1'")
-        # self.db.execute("UPDATE bosses SET id = '2' where status = '2'")
-        # self.db.execute("DELETE FROM company WHERE id = '1'")
-        # self.db.execute("DELETE FROM company WHERE id = '2'")
-        # self.db.execute("DELETE FROM contracts WHERE id = '3'")
-        # self.db.conn.commit()
         for item in company:
             if item[-2] == "Подрядчик":
                 self.company = item
@@ -109,8 +100,8 @@ class MainWindow(QMainWindow):
 
         self.get_param_from_widget = None
         self.current_build = "Объект"
-        self.company = get_config("company")
-        self.customer = get_config("customer")
+        self.company = self.conf.get_config("company")
+        self.customer = self.conf.get_config("customer")
         self.new_worker = []
         self.data_to_db = None
         self.init_notif()
@@ -159,7 +150,6 @@ class MainWindow(QMainWindow):
             self.count_people_tb = int()
             wnd = CountPeople(self)
             if not wnd.status_:
-                mes.question(self, "Сообщение", my_errors["1_ui"] + wnd._path, mes.Cancel)
                 return
             wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
             wnd.exec_()
@@ -178,8 +168,7 @@ class MainWindow(QMainWindow):
         else:
             return
         if not wnd.status_:
-            mes.question(self, "Сообщение", my_errors["1_ui"] + wnd.path_, mes.Cancel)
-            return
+             return
         wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
         wnd.exec_()
 
@@ -188,7 +177,7 @@ class MainWindow(QMainWindow):
                  "Накладная": "/Накладная.xlsx",
                  "Бланк": "/Бланк.doc"}
         name = self.sender().text()
-        path = get_path("path") + get_path("path_pat_patterns") + files[name]
+        path = self.conf.get_path("path") + self.conf.get_path("path_pat_patterns") + files[name]
 
         if name == "Бланк":
             os.startfile(path)
@@ -199,7 +188,7 @@ class MainWindow(QMainWindow):
                 for ind in range(count):
                     os.startfile(path, "print")
         except:
-            mes.question(self, "Сообщение", my_errors["4_not_file"] + path, mes.Cancel)
+            mes.question(self, "Сообщение", GET_FILE + path, mes.Cancel)
             return
 
     def get_new_data(self, data):
@@ -209,7 +198,7 @@ class MainWindow(QMainWindow):
         # read
         sender = self.sender()
         notif = sender.get_text()
-        f = open(get_path("main_path") + "/notif.txt", "r")
+        f = open(self.conf.get_path("main_path") + "/notif.txt", "r")
         buffer = ""
         for line in f.readlines():
             if notif in line and line[1] == "0":
@@ -218,7 +207,7 @@ class MainWindow(QMainWindow):
                 mes = line
             buffer = buffer + mes
         f.close()
-        f = open(get_config("main_path") + "/notif.txt", "w")
+        f = open(self.conf.get_config("main_path") + "/notif.txt", "w")
         f.write(buffer)
         f.close()
 
@@ -229,15 +218,15 @@ class MainWindow(QMainWindow):
         r_butt = QCheckBox(message)
         r_butt.clicked.connect(self.on_click_notif)
         self.ui_notification.addWidget(r_butt)
-        f = open(get_config("main_path") + "/notif.txt", "a")
+        f = open(self.conf.get_config("main_path") + "/notif.txt", "a")
         f.write(str([mode, message]) + "\n")
 
     def get_weather(self):
-        s_city = get_from_ini("city", "weather")
+        s_city = self.conf.get_from_ini("city", "weather")
         city_id = 0
-        appid = get_from_ini("appid", "weather")
+        appid = self.conf.get_from_ini("appid", "weather")
         try:
-            res = requests.get(get_from_ini("site_find", "weather"),
+            res = requests.get(self.conf.get_from_ini("site_find", "weather"),
                                params={'q': s_city, 'type': 'like', 'units': 'metric', 'APPID': appid})
             data = res.json()
             city_id = data['list'][0]['id']
@@ -246,7 +235,7 @@ class MainWindow(QMainWindow):
             self.l_temp.setText("температура")
             pass
         try:
-            res = requests.get(get_from_ini("site_weather", "weather"),
+            res = requests.get(self.conf.get_from_ini("site_weather", "weather"),
                                params={'id': city_id, 'units': 'metric', 'lang': 'ru', 'APPID': appid})
             data = res.json()
             self.l_weather.setText(data['weather'][0]['description'])

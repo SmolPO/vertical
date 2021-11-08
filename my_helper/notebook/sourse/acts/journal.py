@@ -4,17 +4,18 @@ from PyQt5.QtWidgets import QMessageBox as mes
 import docxtpl
 import os
 import datetime as dt
-from my_helper.notebook.sourse.database import get_path_ui, get_path, get_config
-designer_file = get_path_ui("journal")
+from my_helper.notebook.sourse.database import *
 
 
 class Journal(QDialog):
     def __init__(self, parent):
         super(Journal, self).__init__()
+        self.conf = Ini(self)
+        self.ui_file = self.conf.get_path_ui("journal")
         if not self.check_start():
             return
         self.parent = parent
-        self.path = parent.path + get_path("docs") + "/Журнал.docx"
+        self.path = parent.path + self.conf.get_path("docs") + "/Журнал.docx"
         self.b_print.clicked.connect(self.ev_print)
         self.data = dict()
         self.init_bosses()
@@ -22,12 +23,12 @@ class Journal(QDialog):
 
     def check_start(self):
         self.status_ = True
-        self.path_ = designer_file
+        self.path_ = self.conf.get_path_ui("journal")
         try:
-            uic.loadUi(designer_file, self)
+            uic.loadUi(self.ui_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file, mes.Cancel)
             self.status_ = False
             return False
 
@@ -69,7 +70,7 @@ class Journal(QDialog):
         if not self.check_input():
             return False
         try:
-            path = get_path("path") + get_path("path_pat_patterns") + "/Журнал.docx"
+            path = self.conf.get_path("path") + self.conf.get_path("path_pat_patterns") + "/Журнал.docx"
             doc = docxtpl.DocxTemplate(path)
         except:
             mes.question(self, "Сообщение", "Файл " + path + " не найден", mes.Ok)

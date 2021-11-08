@@ -4,24 +4,24 @@ from PyQt5.QtWidgets import QDialog, QFileDialog
 from PyQt5.QtWidgets import QInputDialog
 import PyPDF2
 import pytesseract
-import os
 from datetime import datetime as dt
 from my_helper.notebook.sourse.database import *
 from my_helper.notebook.sourse.my_email import *
-from my_email import send
+from my_email import *
 
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'
 sub = "Ковидный журнал " + "ООО 'Вертикаль'"
 to_email = "kalent_ivan@mail.ru"
 body_text = "Доброе утро!"
 folder = "B:/my_helper/Сканы"
-designer_file_pdf = get_path_ui("pdf_module")
-designer_file_email = get_path_ui("email")
 
 
 class PDFModule(QDialog):
     def __init__(self, parent):
         super(PDFModule, self).__init__()
+        self.conf = Ini(self)
+        self.ui_file_1 = self.conf.get_path_ui("pdf_module")
+        self.ui_file_2 = self.conf.get_path_ui("email")
         self.parent = parent
         if not self.check_start():
             return
@@ -31,12 +31,12 @@ class PDFModule(QDialog):
 
     def check_start(self):
         self.status_ = True
-        self.path_ = designer_file_pdf
+        self.path_ = self.ui_file_1
         try:
-            uic.loadUi(designer_file_pdf, self)
+            uic.loadUi(self.ui_file_1, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file_pdf, mes.Cancel)
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file_1, mes.Cancel)
             self.status_ = False
             return False
 
@@ -44,15 +44,15 @@ class PDFModule(QDialog):
         path_file = self.check_input_c19()
         if not path_file:
             return False
-        path_to = get_path("path") + get_path("path_covid") + "/" + str(dt.now().date()) + ".pdf"
+        path_to = self.conf.get_path("path") + self.conf.get_path("path_covid") + "/" + str(dt.now().date()) + ".pdf"
         answer = mes.question(self, "Сообщение", "Отправить ковидны журнал на почту " + to_email, mes.Ok | mes.Cancel)
         if answer == mes.Ok:
             os.replace(path_file, path_to)
-            send(sub, body_text, to_email, path_to)
+            SendPost(self).send(sub, body_text, to_email, path_to)
         pass
 
     def check_input_c19(self):
-        folder = get_path("path") + get_path("path_scan")
+        folder = self.conf.get_path("path") + self.conf.get_path("path_scan")
         if len(os.listdir(folder)) > 1:
             file_name = QFileDialog.getOpenFileName(self, "Выбрать файл",
                                                          folder, "PDF Files(*.pdf)")
@@ -64,11 +64,11 @@ class PDFModule(QDialog):
             return folder + "/" + os.listdir(folder)[0]
 
     def check_input_n(self):
-        folder = get_path("path") + get_path("path_scan")
+        folder = self.conf.get_path("path") + self.conf.get_path("path_scan")
         try:
             files = os.listdir(folder)
         except:
-            mes.question(self, "Сообщение", my_errors["5_not_file"] + folder, mes.Cancel)
+            mes.question(self, "Сообщение", GET_FILE + folder, mes.Cancel)
             return False
         files.sort()
         if not files:
@@ -82,11 +82,11 @@ class PDFModule(QDialog):
         return True
 
     def ev_note(self):
-        folder = get_path("path") + get_path("path_scan")
+        folder = self.conf.get_path("path") + self.conf.get_path("path_scan")
         try:
             files = os.listdir(folder)
         except:
-            mes.question(self, "Сообщение", my_errors["5_not_file"] + folder, mes.Cancel)
+            mes.question(self, "Сообщение", GET_FILE + folder, mes.Cancel)
             return False
         files.sort()
         if not self.check_input_n():
@@ -95,7 +95,7 @@ class PDFModule(QDialog):
         if not text:
             return
         pdf_merger = PyPDF2.PdfFileMerger()
-        path_to = get_path("path") + get_path("path_notes_pdf") + "/" + str(text) + "_" + str(dt.datetime.now().date()) + ".pdf"
+        path_to = self.conf.get_path("path") + self.conf.get_path("path_notes_pdf") + "/" + str(text) + "_" + str(dt.datetime.now().date()) + ".pdf"
         for doc in files:
             print(str(folder + "/" + doc))
             if ".pdf" in doc:
@@ -111,10 +111,10 @@ class PDFModule(QDialog):
             os.remove(str(folder + "/" + doc))
 
     def ev_open(self):
-        folder = get_path("path") + get_path("path_scan")
+        folder = self.conf.get_path("path") + self.conf.get_path("path_scan")
         files = os.listdir(folder)
         if not files:
-            msg(self, "Файлы не найдены. Отсканируйте в PDF и программа сама их объединит по порядку")
+            mes(self, "Файлы не найдены. Отсканируйте в PDF и программа сама их объединит по порядку")
             return
         text, ok = QInputDialog.getText(self, "Название", "Название документа")
         dirlist = QFileDialog.getExistingDirectory(self, "Выбрать папку", folder)

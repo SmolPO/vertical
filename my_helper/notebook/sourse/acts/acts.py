@@ -7,17 +7,18 @@ from my_helper.notebook.sourse.acts.journal import Journal
 from my_helper.notebook.sourse.acts.asr import Asr
 from my_helper.notebook.sourse.acts.contract import Contract
 from my_helper.notebook.sourse.acts.report import CreateReport
-from my_helper.notebook.sourse.database import get_path, get_path_ui, my_errors
-designer_file = get_path_ui("acts")
+from my_helper.notebook.sourse.database import *
 
 
 class Acts(QDialog):
     def __init__(self, parent):
         super(Acts, self).__init__()
+        self.conf = Ini(self)
+        self.ui_file = self.conf.get_path_ui("acts")
         if not self.check_start():
             return
         self.parent = parent
-        uic.loadUi(designer_file, self)
+        uic.loadUi(self.ui_file, self)
         self.b_save.clicked.connect(self.ev_save)
         self.b_asr.clicked.connect(self.ev_start)
         self.b_add.clicked.connect(self.ev_add)
@@ -26,18 +27,17 @@ class Acts(QDialog):
         self.b_create.clicked.connect(self.ev_xlsx)
         self.b_exit.clicked.connect(self.ev_exit)
         self.cb_select.activated[str].connect(self.ev_select)
-        self.path = get_path("path") + get_path("path_contracts")
+        self.path = self.conf.get_path("path") + self.conf.get_path("path_contracts")
         self.contract = ""
         self.init_contracts()
 
     def check_start(self):
         self.status_ = True
-        self.path_ = designer_file
         try:
-            uic.loadUi(designer_file, self)
+            uic.loadUi(self.ui_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file, mes.Cancel)
             self.status_ = False
             return False
 
@@ -74,12 +74,12 @@ class Acts(QDialog):
             return False
         self.filename, tmp = QFileDialog.getOpenFileName(self,
                                                          "Выбрать файл",
-                                                         get_path("path") + get_path("path_scan"),
+                                                         self.conf.get_path("path") + self.conf.get_path("path_scan"),
                                                          "*.*(*.*)")
         if not self.filename:
             return
         tmp = self.filename.split(".")[-1]
-        path_save = self.path + "/" + "".join(self.cb_select.currentText().split(". ")[1:]) + get_path("others")
+        path_save = self.path + "/" + "".join(self.cb_select.currentText().split(". ")[1:]) + self.conf.get_path("others")
         name, ok = QInputDialog.getText(self, "Введите имя файла", "Имя (без расширения)")
         if ok:
             try:
@@ -87,14 +87,14 @@ class Acts(QDialog):
                 os.replace(self.filename, path_save)
                 mes.question(self, "Сообщение", "Файл добавлен", mes.Ok)
             except:
-                mes.question(self, "Сообщение", my_errors["4_not_file"] + path_save, mes.Cancel)
+                mes.question(self, "Сообщение", GET_FILE + path_save, mes.Cancel)
                 return
         pass
 
     def ev_latter(self):
         try:
-            path_from = get_path("path") + get_path("path_pat_patterns") + "/Бланк.doc"
-            path_to = get_path("path") + "/Исходящие/Письма/Письмо.doc"
+            path_from = self.conf.get_path("path") + self.conf.get_path("path_pat_patterns") + "/Бланк.doc"
+            path_to = self.conf.get_path("path") + "/Исходящие/Письма/Письмо.doc"
             os.replace(path_from, path_to)
             os.startfile(path_to)
         except:

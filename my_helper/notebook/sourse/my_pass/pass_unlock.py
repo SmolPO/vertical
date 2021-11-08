@@ -15,7 +15,7 @@ class UnlockPass(TempPass):
     def __init__(self, parent):
         self.status_ = True
         self.conf = Ini(self)
-        ui_file = self.conf.get_path_ui("pass_month")
+        ui_file = self.conf.get_path_ui("pass_unlock")
         if not ui_file:
             self.status_ = False
             return

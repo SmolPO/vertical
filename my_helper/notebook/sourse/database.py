@@ -270,8 +270,6 @@ class Ini:
 
 
 def short_name(data):
-    print(data)
-    print(data[0] + " " + data[1][0] + "." + data[2][0] + ".")
     return data[0] + " " + data[1][0] + "." + data[2][0] + "."
 
 

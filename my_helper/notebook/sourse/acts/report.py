@@ -7,13 +7,14 @@ import datetime as dt
 import os
 from PyQt5.QtWidgets import QMessageBox as mes
 from my_helper.notebook.sourse.database import *
-designer_file = get_path_ui("create_report")
 idx_table = 25
 
 
 class CreateReport(QDialog):
     def __init__(self, parent):
         super(CreateReport, self).__init__()
+        self.conf = Ini(self)
+        self.ui_file = self.conf.get_path_ui("create_report")
         if not self.check_start():
             return
         self.parent = parent
@@ -22,7 +23,7 @@ class CreateReport(QDialog):
         self.list_table = []
         self.list_point = []
         self.list_work = []
-        self.path = get_path("path") + get_path("path_pat_patterns") + "/Исполнительная.xlsx"
+        self.path = self.conf.get_path("path") + self.conf.get_path("path_pat_patterns") + "/Исполнительная.xlsx"
         self.data = dict()
         self.list_ui = {"KS2": [
             self.act_1, self.act_2, self.act_3, self.act_4, self.act_5,
@@ -323,7 +324,7 @@ class CreateReport(QDialog):
         self.close()
 
     def create_report(self):
-        path = get_path("path") + get_path("path_contracts") + "/1030/result.xlsx"
+        path = self.conf.get_path("path") + self.conf.get_path("path_contracts") + "/1030/result.xlsx"
 
         self.init_data()
         self.doc.save(path)
@@ -550,11 +551,11 @@ class CreateReport(QDialog):
 
     def check_start(self):
         self.status_ = True
-        self.path_ = designer_file
+
         try:
-            uic.loadUi(designer_file, self)
+            uic.loadUi(self.ui_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file, mes.Cancel)
             self.status_ = False
             return False

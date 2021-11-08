@@ -1,17 +1,19 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QFileDialog
 from configparser import ConfigParser
-from database import get_path_ui, my_errors
+from database import *
 from PyQt5.QtWidgets import QMessageBox as mes
-designer_file = get_path_ui("settings")
+
 
 
 class Settings(QDialog):
     def __init__(self, parent=None):
         super(Settings, self).__init__()
+        self.conf = Ini(self)
+        self.ui_file = self.conf.get_path_ui("settings")
         if not self.check_start():
             return
-        uic.loadUi(designer_file, self)
+        uic.loadUi(self.ui_file, self)
         self.parent = parent
         # my_pass
         self.b_ok.clicked.connect(self.ev_OK)
@@ -21,12 +23,11 @@ class Settings(QDialog):
 
     def check_start(self):
         self.status_ = True
-        self.path_ = designer_file
         try:
-            uic.loadUi(designer_file, self)
+            uic.loadUi(self.ui_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + designer_file, mes.Cancel)
+            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file, mes.Cancel)
             self.status_ = False
             return False
 
@@ -66,7 +67,7 @@ class Settings(QDialog):
             self.password_db.setText(config.get('database', 'password_db'))
             self.new_year.setValue(int(config.get('config', 'new_year')))
         except:
-            mes.question(self, "Сообщение", my_errors["8_get_data"], mes.Cancel)
+            mes.question(self, "Сообщение", GET_INI, mes.Cancel)
             return False
 
     def save_data(self, data):
@@ -82,6 +83,6 @@ class Settings(QDialog):
             with open('config.ini', 'w') as configfile:
                 config.write(configfile)
         except:
-            mes.question(self, "Сообщение", my_errors["8_get_data"], mes.Cancel)
+            mes.question(self, "Сообщение", GET_INI, mes.Cancel)
             return False
 

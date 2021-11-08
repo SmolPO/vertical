@@ -1,12 +1,5 @@
 from PyQt5.QtCore import Qt
-from PyQt5.QtCore import QDate as Date
-from PyQt5.QtWidgets import QMessageBox as mes
-import datetime as dt
-from configparser import ConfigParser
-import docxtpl
 import os
-from docx.text.paragraph import Paragraph
-from docx.oxml.text.paragraph import CT_P
 from my_helper.notebook.sourse.my_pass.pass_template import TempPass
 from my_helper.notebook.sourse.database import *
 import docx
@@ -188,8 +181,8 @@ class MonthPass(TempPass):
                 ind += 1
         if self.add_footer(doc) == ERR:
             return ERR
-        path_1 = self.get_path("path")
-        path_2 = self.get_path("path_notes_docs")
+        path_1 = self.conf.get_path("path")
+        path_2 = self.conf.get_path("path_notes_docs")
         if path_1 == ERR or path_2 == ERR:
             return ERR
         path = path_1 + path_2 + "/vac_" + str(dt.datetime.now().date()) + ".docx"
