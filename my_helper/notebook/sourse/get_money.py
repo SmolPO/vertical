@@ -10,11 +10,11 @@ class GetMoney(QDialog):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("get_money")
-        uic.loadUi(ui_file)
         if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(GetMoney, self).__init__()
+        uic.loadUi(ui_file, self)
         self.parent = parent
         self.table = "finance"
         self.b_ok.clicked.connect(self.ev_ok)
@@ -58,9 +58,9 @@ class GetMoney(QDialog):
         self.my_id.setValue(self.next_id)
         self.data = {"date": "", "post": "", "family": "", "text": ""}
         self.change_note()
-        paths = [self.confget_path("path"), self.confget_path("path_pat_notes"),
-                 self.confget_from_ini("get_money", "patterns"),
-                 self.confget_path("path"), self.confget_path("path_bills")]
+        paths = [self.conf.get_path("path"), self.conf.get_path("path_pat_notes"),
+                 self.conf.get_from_ini("get_money", "patterns"),
+                 self.conf.get_path("path"), self.conf.get_path("path_bills")]
         if ERR in paths:
             return
         self.main_file = "".join(paths[:3])

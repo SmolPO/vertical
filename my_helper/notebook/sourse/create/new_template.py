@@ -27,7 +27,10 @@ class TempForm (QDialog):
         self.rows_from_db = self.parent.db.get_data("*", self.table)
         if self.rows_from_db == ERR:
             return
-        self.current_id = int(self.rows_from_db[-1][-1]) + 1
+        if not self.rows_from_db:
+            self.current_id = 1
+        else:
+            self.current_id = int(self.rows_from_db[-1][-1]) + 1
         self.vac = False
         self.bill = False
 
@@ -70,7 +73,10 @@ class TempForm (QDialog):
         if text == empty:
             self.clean_data()
             self.but_status("add")
-            self.current_id = int(self.rows_from_db[-1][-1]) + 1
+            if not self.rows_from_db:
+                self.current_id = 1
+            else:
+                self.current_id = int(self.rows_from_db[-1][-1]) + 1
             return
         else:
             self.but_status("change")
@@ -120,6 +126,8 @@ class TempForm (QDialog):
             elif "QComboBox" in str(type(item)):
                 if item.currentText().split(". ")[0].isdigit():
                     val = "".join(item.currentText().split(". ")[1:])
+                else:
+                    val = ""
             elif "QSpinBox" in str(type(item)):
                 val = str(item.value())
             elif "QCheckBox" in str(type(item)):
@@ -158,7 +166,7 @@ class TempForm (QDialog):
         if not data:
             return
         answer = msg_q(self, CHANGE_NOTE + str(data) + "?")
-        if answer == mes.OK:
+        if answer == mes.Ok:
             data[-1] = str(self.current_id)
             if self.parent.db.my_update(data, self.table) == ERR:
                 return

@@ -75,7 +75,7 @@ logging.basicConfig(filename="D:/my_helper/log_file.log", level=logging.INFO)
 
 def msg_er(widgets, text):
     mes.question(widgets, "Сообщение", text, mes.Ok)
-    logging.info(text + str(dt.datetime.now()))
+    logging.info(text + " " + str(dt.datetime.now()))
     return -1
 
 
@@ -92,7 +92,6 @@ class DataBase:
     def __init__(self, parent, path):
         self.parent = parent
         path_conf = path
-        self.db = None
         self.conn = None
         self.cursor = None
         config = ConfigParser()
@@ -102,10 +101,16 @@ class DataBase:
             self.name_db = config.get('database', 'name_db')
             self.user_db = config.get('database', 'user_db')
             self.password_db = config.get('database', 'password_db')
+            self.port = config.get('database', 'port')
         except:
             return
 
     def connect_to_db(self):
+        self.conn = psycopg2.connect(dbname=self.name_db,
+                                     user=self.user_db,
+                                     password=self.password_db,
+                                     host=self.ip,
+                                     port=self.port)
         try:
             self.conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
             if not self.conn:
@@ -181,12 +186,6 @@ class DataBase:
         self.my_commit(add_to_db((date, name, number), "notes"))
 
     def create_db(self):
-        conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
-        db = conn.cursor()
-        try:
-            pass
-        except:
-            return msg_er(self.parent, CONNECT_DB)
         some_str = "CREATE TABLE "
         tables = ""
         for key in db_keys.keys():
@@ -196,11 +195,13 @@ class DataBase:
                 res_str += word + " text, "
             row = some_str + key + " " + res_str[:-2] + ")"
             try:
-                db.execute(row)
-                conn.commit()
-            except:
-                logging.debug(key + "is NOT created")
-            logging.debug(key + "is created")
+                self.cursor.execute(row)
+                self.conn.commit()
+            except Exception as ex:
+                print(key + " is NOT created. " + str(ex))
+                logging.debug(key + " is NOT created. " + str(ex))
+                continue
+            logging.debug(key + " is created")
 
 
 class Ini:
@@ -213,7 +214,8 @@ class Ini:
             config.read(path_conf, encoding="utf-8")
             return str(config.get('path', my_type))
         except:
-            return msg_er(self, GET_INI)
+            msg_er(self, GET_INI)
+            return ERR
 
     def get_config(self, my_type):
         config = ConfigParser()
@@ -221,7 +223,8 @@ class Ini:
         try:
             return config.get('config', my_type)
         except:
-            return msg_er(self, GET_INI)
+            msg_er(self, GET_INI)
+            return ERR
 
     def get_from_ini(self, my_type, part):
         config = ConfigParser()
@@ -229,7 +232,8 @@ class Ini:
         try:
             return config.get(part, my_type)
         except:
-            return msg_er(self, GET_INI)
+            msg_er(self, GET_INI)
+            return ERR
 
     def get_path_ui(self, my_type):
         path_2 = self.get_from_ini(my_type, "ui_files")
@@ -237,7 +241,8 @@ class Ini:
         if path_1 and path_2:
             return path_1 + path_2
         else:
-            return msg_er(self, GET_INI)
+            msg_er(self, GET_INI)
+            return ERR
 
     def get_next_number(self):
         try:
@@ -247,7 +252,8 @@ class Ini:
             next_number = int(number_note) + 1
             return int(number_note)
         except:
-            return msg_er(self, GET_INI)
+            msg_er(self, GET_INI)
+            return ERR
 
     def set_next_number(self, n):
         try:
@@ -260,7 +266,8 @@ class Ini:
                 config.write(configfile)
             return int(number_note)
         except:
-            return msg_er(self, GET_INI)
+            msg_er(self, GET_INI)
+            return ERR
 
     def set_val(self, section, field, val):
         try:
@@ -271,7 +278,8 @@ class Ini:
                 config.write(configfile)
             return True
         except:
-            return msg_er(self.parent, GET_INI)
+            msg_er(self, GET_INI)
+            return ERR
 
 
 def short_name(data):
@@ -299,16 +307,17 @@ def from_str(date):
 
 zero = from_str(ZERO)
 
+
 def yong_date(young, old):
     if int(young[6:10]) > int(old[6:10]):
         return True
     if int(young[6:10]) < int(old[6:10]):
         return False
 
-    if int(young[2:4]) > int(old[2:4]):
+    if int(young[3:5]) > int(old[3:5]):
         return True
-    if int(young[2:4]) < int(old[2:4]):
-        return old
+    if int(young[3:5]) < int(old[3:5]):
+        return False
 
     if int(young[:2]) > int(old[:2]):
         return True

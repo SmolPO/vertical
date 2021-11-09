@@ -20,11 +20,12 @@ class NewMaterial(TempForm):
         self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table)
         if self.rows_from_db == ERR:
             return
+        if self.parent.db.init_list(self.cb_contracts, "number, id", "contracts") == ERR:
+            return
         self.init_mask()
         self.list_ui = [self.value, self.name, self.cb_contracts, self.cb_si]
 
     def init_mask(self):
-        self.name.setValidator(QREVal(QRE("[а-яА-Я 0-9]{9}")))
         self.value.setValidator(QREVal(QRE("[0-9]{9}")))
 
     def _ev_select(self, text):

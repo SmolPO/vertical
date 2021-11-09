@@ -38,17 +38,19 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.path = "D:/my_helper/my_config.ini"
         self.conf = Ini(self)
+        path_1 = self.conf.get_path("path")
+        path_2 = self.conf.get_path("ui_files")
+        if path_1 == ERR or path_2 == ERR:
+            return
         try:
-            path_1 = self.conf.get_path("path")
-            path_2 = self.conf.get_path("ui_files")
-            if path_1 == ERR or path_2 == ERR:
-                return
             uic.loadUi(path_1 + path_2 + '/main_menu.ui', self)
         except:
             msg_er(self, GET_UI + path_1 + path_2 + '/main_menu.ui')
             return
 
         self.db = DataBase(self, self.path)
+        if self.db.connect_to_db() == ERR:
+            return
         check = self.conf.get_config("is_create_db")
         if check == ERR:
             return
@@ -57,10 +59,6 @@ class MainWindow(QMainWindow):
                 return
             if self.conf.set_val("config", "is_create_db", "1") == ERR:
                 return
-        if self.db.connect_to_db() == ERR:
-            return
-
-        msg_er(self, CONNECT_DB)
         self.b_pass_week.clicked.connect(self.start_wnd)
         self.b_pass_month.clicked.connect(self.start_wnd)
         self.b_pass_auto.clicked.connect(self.start_wnd)

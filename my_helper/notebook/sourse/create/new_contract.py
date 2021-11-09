@@ -41,10 +41,6 @@ class NewContact(TempForm):
         self.path = path_1 + path_2
 
     def init_mask(self):
-        symbols = QREVal(QRE("[а-яА-Я ]{30}"))
-        self.name.setValidator(symbols)
-        self.number.setValidator(QREVal(QRE("[а-яА-Яa-zA-Z /_-., 0-9]{1000}")))
-        self.part.setValidator(QREVal(QRE("[а-яА-Яa-zA-Z /_-., 0-9]{1000}")))
         self.price.setValidator(QREVal(QRE("[,0-9]{1000}")))
 
     def _select(self, text):
