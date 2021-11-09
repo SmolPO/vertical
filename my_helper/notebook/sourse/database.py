@@ -1,4 +1,4 @@
-from my_helper.notebook.sourse.inserts import get_from_db, my_update, add_to_db
+from inserts import *
 import psycopg2
 import datetime as dt
 from configparser import ConfigParser

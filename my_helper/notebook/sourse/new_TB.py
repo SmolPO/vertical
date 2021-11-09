@@ -1,4 +1,3 @@
-
 from PyQt5.QtWidgets import QMessageBox as mes
 from PyQt5.QtWidgets import QDialog, QCheckBox, QLabel
 from PyQt5 import uic
