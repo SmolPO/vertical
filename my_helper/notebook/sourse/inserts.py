@@ -1,3 +1,5 @@
+import logging
+logging.basicConfig(filename="D:/my_helper/log_file.log", level=logging.INFO)
 
 db_keys = {"auto": "(gov_number, brand, model, track_number, id)",
            "drivers": "(family, name, surname, birthday, passport, adr, id)",
@@ -29,25 +31,31 @@ db_keys = {"auto": "(gov_number, brand, model, track_number, id)",
 
 
 def get_person(person):
-    return "SELECT * FROM workers WHERE family={0}".format(person)
+    row = "SELECT * FROM workers WHERE family={0}".format(person)
+    logging.debug(row)
+    return row
 
 
 def get_from_db(fields, db):
     insert = "SELECT " + fields + " FROM " + db
+    logging.debug(insert)
     return insert
 
 
 def add_to_db(data, table):
     result = "('" + "', '".join(data) + "')"
     names_colomn = db_keys[table]
-    return "INSERT INTO {0} {1} VALUES {2}".format(table, names_colomn, result)
+    row = "INSERT INTO {0} {1} VALUES {2}".format(table, names_colomn, result)
+    logging.debug(row)
+    return row
 
 
 def my_update(data, table):
     fields = db_keys.get(table)
     my_id = data[-1]
     result = "('" + "', '".join(data) + "')"
-    print(data)
-    return "UPDATE {0} SET {1} = {2} where id = '{3}'".format(table, fields, result, my_id)
+    row = "UPDATE {0} SET {1} = {2} where id = '{3}'".format(table, fields, result, my_id)
+    logging.debug(row)
+    return row
 
 

@@ -2,8 +2,6 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.database import *
 from my_helper.notebook.sourse.create.new_template import TempForm
-covid = {"S5": 0, "SL": 1, "CV": 2}
-msgs = {"mes": "Сообщение", "atn": "Внимание"}
 
 
 class NewITR(TempForm):
@@ -11,7 +9,7 @@ class NewITR(TempForm):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("new_itr")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(NewITR, self).__init__(ui_file, parent, "itrs")
@@ -20,11 +18,12 @@ class NewITR(TempForm):
         # my_pass
         self.init_mask()
         self.cb_vac.activated[str].connect(self.change_vac)
-        try:
-            self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
-            self.parent.db.init_list(self.cb_auto, "*", "auto")
-        except:
-            msg_er(self, GET_DB)
+        self.rows_from_db = self.parent.db.init_list(self.cb_select, "*", self.table, people=True)
+        if self.rows_from_db == ERR:
+            self.status_ = False
+            return
+        if self.parent.db.init_list(self.cb_auto, "*", "auto") == ERR:
+            self.status_ = False
             return
         self.list_ui = [self.family, self.name, self.surname, self.post,
                         self.passport, self.passport_date, self.passport_got,

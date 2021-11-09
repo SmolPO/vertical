@@ -8,7 +8,7 @@ class WeekPass(TempPass):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("pass_week")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(WeekPass, self).__init__(ui_file, parent, "contracts")
@@ -96,8 +96,10 @@ class WeekPass(TempPass):
             return False
         self.data["boss_part"] = self.cb_boss_part.currentText()
         self.data["post_boss"] = "Начальник цеха"
-        self.get_contract(self.cb_object.currentText())
-        self.get_week_days()
+        if self.get_contract(self.cb_object.currentText()) == ERR:
+            return
+        if self.get_week_days() == ERR:
+            return
         return True
 
         # Заполнить таблицу
@@ -111,7 +113,7 @@ class WeekPass(TempPass):
         list_people = list()
         for elem in self.list_ui:
             family = elem.currentText()
-            if family != "(нет)":
+            if family != NOT:
                 doc.tables[1].add_row()
                 item = self.check_row(family)
                 if item:
@@ -129,8 +131,7 @@ class WeekPass(TempPass):
         try:
             doc.save(path)
         except:
-            msg_er(self, GET_FILE + path)
-            return ERR
+            return msg_er(self, GET_FILE + path)
         return True
 
     def check_row(self, row):

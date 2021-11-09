@@ -8,7 +8,7 @@ class DrivePass(TempPass):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("pass_driver")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(DrivePass, self).__init__(ui_file, parent, "drivers")
@@ -30,9 +30,15 @@ class DrivePass(TempPass):
         self.contract = ""
         self.my_text = ""
         self.contracts = [[]]
-        self.init_auto()
-        self.init_drivers()
-        self.init_contracts()
+        if self.init_auto() == ERR:
+            self.status_ = False
+            return
+        if self.init_drivers() == ERR:
+            self.status_ = False
+            return
+        if self.init_contracts() == ERR:
+            self.status_ = False
+            return
         self.d_arrive.setDate(dt.datetime.now().date())
         self.main_file += "/pass_drive.docx"
 

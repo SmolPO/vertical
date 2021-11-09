@@ -36,21 +36,31 @@ from get_money import GetMoney
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.path = "B:/my_helper/my_config.ini"
+        self.path = "D:/my_helper/my_config.ini"
         self.conf = Ini(self)
         try:
             path_1 = self.conf.get_path("path")
             path_2 = self.conf.get_path("ui_files")
+            if path_1 == ERR or path_2 == ERR:
+                return
             uic.loadUi(path_1 + path_2 + '/main_menu.ui', self)
         except:
             msg_er(self, GET_UI + path_1 + path_2 + '/main_menu.ui')
             return
-        try:
-            self.db = DataBase(self, self.path)
-            self.db.connect_to_db()
-        except:
-            msg_er(self, CONNECT_DB)
+
+        self.db = DataBase(self, self.path)
+        check = self.conf.get_config("is_create_db")
+        if check == ERR:
             return
+        if check == "0":
+            if self.db.create_db() == ERR:
+                return
+            if self.conf.set_val("config", "is_create_db", "1") == ERR:
+                return
+        if self.db.connect_to_db() == ERR:
+            return
+
+        msg_er(self, CONNECT_DB)
         self.b_pass_week.clicked.connect(self.start_wnd)
         self.b_pass_month.clicked.connect(self.start_wnd)
         self.b_pass_auto.clicked.connect(self.start_wnd)
@@ -92,6 +102,8 @@ class MainWindow(QMainWindow):
 
         self.b_scan.setEnabled(False)
         company = self.db.get_data("*", "company")
+        if company == ERR:
+            return
         for item in company:
             if item[-2] == "Подрядчик":
                 self.company = item
@@ -99,17 +111,25 @@ class MainWindow(QMainWindow):
                 self.customer = item
 
         self.get_param_from_widget = None
-        self.current_build = "Объект"
         self.company = self.conf.get_config("company")
         self.customer = self.conf.get_config("customer")
+        if self.company == ERR:
+            self.company = "<Подрядчик>"
+        if self.customer == ERR:
+            self.company = "<Заказчик>"
         self.new_worker = []
         self.data_to_db = None
         self.init_notif()
         self.get_weather()
-        self.city = "г. Дорогобуж"
+        self.city = self.conf.get_config("city")
+        if self.city == ERR:
+            self.city = "<город>"
 
     def ev_settings(self):
         wnd = Settings(self)
+        if not wnd.status_:
+            return
+        wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
         wnd.exec_()
 
     def start_wnd(self):
@@ -138,11 +158,13 @@ class MainWindow(QMainWindow):
         _wnd = forms.get(name, "")
         if _wnd:
             if _wnd[1]:
-                if self.is_have_some(_wnd[1]):
+                check = self.is_have_some(_wnd[1])
+                if check == ERR:
+                    return
+                elif check:
                     wnd = _wnd[0](self)
                 else:
-                    mes.question(self, "Сообщение", "База данных пока не заполнена. Введите " + trans[_wnd[1]],
-                                 mes.Cancel)
+                    msg_info(self, "База данных пока не заполнена. Добавбте сначала " + trans[_wnd[1]])
                     return
             else:
                 wnd = _wnd[0](self)
@@ -177,7 +199,10 @@ class MainWindow(QMainWindow):
                  "Накладная": "/Накладная.xlsx",
                  "Бланк": "/Бланк.doc"}
         name = self.sender().text()
-        path = self.conf.get_path("path") + self.conf.get_path("path_pat_patterns") + files[name]
+        paths = [self.conf.get_path("path"), self.conf.get_path("path_pat_patterns")]
+        if ERR in paths:
+            return
+        path = "".join(paths) + files[name]
 
         if name == "Бланк":
             try:
@@ -251,10 +276,11 @@ class MainWindow(QMainWindow):
             self.l_temp.setText("температура")
 
     def is_have_some(self, table):
-        auto = self.db.get_data("*", table)
-        if not auto:
-            QMessageBox.question(self, "ВНИМАНИЕ", "Для начала добавьте кого-то/что-то)", QMessageBox.Ok)
-            return False
+        data = self.db.get_data("*", table)
+        if data == ERR:
+            return ERR
+        if not data:
+             return False
         return True
 
 

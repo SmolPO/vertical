@@ -14,13 +14,13 @@ class SendPost(QDialog):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("email")
+        if not ui_file or ui_file == ERR:
+            self.status_ = False
+            return
         try:
             uic.loadUi(ui_file, self)
         except:
             self.status_ = True
-            return
-        if not ui_file:
-            self.status_ = False
             return
         super(SendPost, self).__init__()
         self.db = db
@@ -38,8 +38,7 @@ class SendPost(QDialog):
         self.body_text = self.note.toPlainText()
         if not self.check_input():
             return False
-        answer = mes.question(self, "Сообщение", "Отправить письмо на почту ? " + self.to_email,
-                              mes.Ok | mes.Cancel)
+        answer = msg_q(self, "Отправить письмо на почту ? " + self.to_email)
         if answer == mes.Ok:
             self.send(self.my_sub, self.body_text, self.to_email, self.path)
             self.close()
@@ -58,13 +57,13 @@ class SendPost(QDialog):
         return True
 
     def send(self, subject, body_text, to_email, file_to_attach):
-        server = self.conf.get_from_ini("smtp", "post")
-        user = self.conf.get_from_ini("my_email", "post")
-        password = self.conf.get_from_ini("password", "post")
-        if server == ERR or user == ERR or password == ERR:
+        data = [self.conf.get_from_ini("smtp", "post"),
+                self.conf.get_from_ini("my_email", "post"),
+                self.conf.get_from_ini("password", "post")]
+        if ERR in data:
             return False
         recipients = to_email
-        sender = user
+        sender = data[1]
         subject = subject
         text = body_text
 
@@ -74,7 +73,7 @@ class SendPost(QDialog):
 
         msg = MIMEMultipart('alternative')
         msg['Subject'] = subject
-        msg['From'] = user
+        msg['From'] = data[1]
         msg['To'] = recipients
 
         part_text = MIMEText(text, 'plain')
@@ -87,8 +86,8 @@ class SendPost(QDialog):
         msg.attach(part_text)
         msg.attach(part_file)
 
-        mail = smtplib.SMTP_SSL('smtp.mail.ru', 465)
-        mail.login(user, password)
+        mail = smtplib.SMTP_SSL(data[0], 465)
+        mail.login(data[1], data[2])
         mail.sendmail(sender, recipients, msg.as_string())
         mail.quit()
         return

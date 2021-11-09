@@ -3,15 +3,13 @@ from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.create.new_template import TempForm
 from my_helper.notebook.sourse.database import *
 
-fields = ["family", "name", "surname", "birthday", "passport", "id"]
-
 
 class NewDriver(TempForm):
     def __init__(self, parent=None):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("new_driver")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(NewDriver, self).__init__(ui_file, parent, "drivers")

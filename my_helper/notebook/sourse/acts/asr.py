@@ -6,8 +6,6 @@ import docxtpl
 import os
 import datetime as dt
 import pymorphy2
-
-
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 
 
@@ -16,7 +14,7 @@ class Asr(QDialog):
         super(Asr, self).__init__()
         self.conf = Ini(self)
         self.ui_file = self.conf.get_path_ui("asr")
-        if not self.check_start():
+        if self.check_start() == ERR:
             return
         self.parent = parent
         self.contract = parent.contract
@@ -27,10 +25,19 @@ class Asr(QDialog):
         self.b_close.clicked.connect(self.ev_close)
         self.cb_select.activated[str].connect(self.ev_select)
         self.numbers.textChanged.connect(self.change_count)
-        self.init_bosses()
-        self.init_SI()
+        if self.init_bosses() == ERR:
+            self.status_ = False
+            return
+        if self.init_SI() == ERR:
+            self.status_ = False
+            return
         self.ind = 0
-        self.path = self.conf.get_path("path") + self.conf.get_path("path_pat_patterns")
+        path_1 = self.conf.get_path("path")
+        path_2 = self.conf.get_path("path_pat_patterns")
+        if path_1 == ERR or path_2 == ERR:
+            self.status_ = False
+            return
+        self.path = path_1 + path_2
         self.my_id = 0
 
     def check_start(self):
@@ -39,19 +46,21 @@ class Asr(QDialog):
             uic.loadUi(self.ui_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file, mes.Cancel)
             self.status_ = False
-            return False
+            return msg_er(self, GET_UI)
 
     def change_count(self):
-        print(len(self.numbers.toPlainText().split(",")))
         self.count.setValue(len(self.numbers.toPlainText().split(",")))
 
     def init_bosses(self):
-        self.parent.parent.db.init_list(self.boss_1, "id, family, name, surname", "itrs", people=True)
-        self.parent.parent.db.init_list(self.boss_2, "id, family, name, surname", "itrs", people=True)
-        self.parent.parent.db.init_list(self.boss_3, "id, family, name, surname", "bosses", people=True)
-        self.parent.parent.db.init_list(self.boss_4, "id, family, name, surname", "bosses", people=True)
+        if self.parent.parent.db.init_list(self.boss_1, "id, family, name, surname", "itrs", people=True) == ERR:
+            return msg_er(self, GET_DB)
+        if self.parent.parent.db.init_list(self.boss_2, "id, family, name, surname", "itrs", people=True) == ERR:
+            return msg_er(self, GET_DB)
+        if self.parent.parent.db.init_list(self.boss_3, "id, family, name, surname", "bosses", people=True) == ERR:
+            return msg_er(self, GET_DB)
+        if self.parent.parent.db.init_list(self.boss_4, "id, family, name, surname", "bosses", people=True) == ERR:
+            return msg_er(self, GET_DB)
         pass
 
     def init_SI(self):
@@ -70,12 +79,13 @@ class Asr(QDialog):
         for ind in range(1, 5):
             boss = bosses[ind-1].currentText()
             post = self.get_post(boss.split(".")[0], tables[ind-1])
+            if post == ERR:
+                return ERR
             family = boss[boss.index(".")+2:]
             val = post + "__" + family + "_"*(100-len(post + "__" + family))
             data["boss_" + str(ind)] = val
         val = "_______" if self.sb_value.value() == 0 else "__" + str(self.sb_value.value()) + "__"
         data["work"] = self.work.toPlainText() + val + self.cb_SI.currentText()
-        print(data["work"])
         materials = self.material.currentText() if self.material.currentText() != "(нет)" else "_"*40
         data["material"] = materials
         data["next_work"] = self.next_work.toPlainText()
@@ -84,7 +94,10 @@ class Asr(QDialog):
         data["month"] = morph.parse(self.month.currentText())[0].inflect({'gent'})[0].capitalize().lower()
         data["year"] = self.year.currentText()
         data["number"] = number
-        data["company"] = self.conf.get_config("company")
+        company = self.conf.get_config("company")
+        if company == ERR:
+            return ERR
+        data["company"] = company
         return data
 
     def get_data(self):
@@ -102,7 +115,6 @@ class Asr(QDialog):
         rows = self.parent.parent.db.get_data("*", table)
         for item in rows:
             if str(item[-1]) == my_id:
-                print(item)
                 return item[3]
         return "."
 
@@ -121,17 +133,23 @@ class Asr(QDialog):
         else:
             number = self.numbers.toPlainText().split(",")[ind]
         self.data = self.create_data(day_start, day_end, number)
-        path = self.path + "/asr.docx"
+        if data == ERR:
+            return
+        path = self.path + ASR_FILE
         try:
             doc = docxtpl.DocxTemplate(path)
         except:
-            mes.question(self, "Сообщение", "Файл " + path + " не найден", mes.Ok)
-            return False
+            return msg_er(self, GET_FILE + path)
+
         doc.render(self.data)
-        path = self.conf.get_path("path") + self.conf.get_path("path_contracts") + "/1030/102021" + "/1.docx"
-        doc.save(path)
-        os.startfile(path)
-        self.save_pattern()
+        path_1 = self.conf.get_path("path")
+        path_2 = self.conf.get_path("path_contracts")
+        path = path_1 + path_2 + "/1030/102021" + "/1.docx"
+        try:
+            doc.save(path)
+            os.startfile(path)
+        except:
+            return msg_er(self, GET_FILE + path)
 
     def save_pattern(self):
         data = list()
@@ -151,6 +169,8 @@ class Asr(QDialog):
 
     def ev_select(self):
         rows = self.parent.parent.db.get_data("*", "asrs")
+        if rows == ERR:
+            return
         for row in rows:
             if self.cb_select.currentText().split(". ")[0] == row[-1]:
                 print(row)
@@ -167,76 +187,73 @@ class Asr(QDialog):
             pass
 
     def ev_change(self):
-        answer = mes.question(self, "Изменение записи", "Вы действительно хотите изменить запись на " +
-                              str(self.get_data()) + "?", mes.Ok | mes.Cancel)
+        data = self.get_data()
+        if data == ERR:
+            return
+        answer = msg_q(self, "Вы действительно хотите изменить запись на " + str(data) + "?")
         if answer == mes.Ok:
-            data = self.get_data()
             data.append(str(self.my_id))
-            self.parent.db.my_update(data, self.table)
-            answer = mes.question(self, "Сообщение", "Запись изменена", mes.Ok)
-            if answer == mes.Ok:
-                self.close()
+            if self.parent.db.my_update(data, self.table) == ERR:
+                return
+            answer = msg_q(self, CHANGED_NOTE)
+            self.close()
 
     def ev_kill(self):
-        answer = mes.question(self, "Удаление записи", "Вы действительно хотите удалить запись " +
-                              str(self.get_data()) + "?", mes.Ok | mes.Cancel)
+        data = self.get_data()
+        if data == ERR:
+            return
+        answer = msg_q(self, "Вы действительно хотите удалить запись " + str(data) + "?")
         if answer == mes.Ok:
-            self.parent.db.kill_value(self.my_id, self.table)
-            answer = mes.question(self, "Сообщение", "Запись удалена", mes.Ok)
-            if answer == mes.Ok:
-                self.close()
+            if self.parent.db.kill_value(self.my_id, self.table) == ERR:
+                return
+            msg_info(self, KILLD_NOTE)
+            self.close()
 
     def ev_close(self):
         self.close()
 
     def check_input(self):
-        print(len(self.numbers.toPlainText().split(",")),
-              len(self.days_start.toPlainText().split(",")),
-              len(self.numbers.toPlainText().split(",")))
         if len(self.work.toPlainText()) < 3:
-            mes.question(self, "Сообщение", "Укажите вид работ", mes.Ok)
+            msg_info(self, "Укажите вид работ")
             return False
         elif len(self.next_work.toPlainText()) < 3:
-            mes.question(self, "Сообщение", "Укажите следующие работы", mes.Ok)
+            msg_info(self, "Укажите следующие работы")
             return False
         elif self.cb_SI.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите единицы измерения", mes.Ok)
+            msg_info(self, "Укажите единицы измерения")
             return False
         elif self.month.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите месяц", mes.Ok)
+            msg_info(self, "Укажите месяц")
             return False
         elif self.boss_1.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите первого босса", mes.Ok)
+            msg_info(self, "Укажите первого босса")
             return False
         elif self.boss_2.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите второго босса", mes.Ok)
+            msg_info(self, "Укажите второго босса")
             return False
         elif self.boss_3.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите третьего босса", mes.Ok)
+            msg_info(self, "Укажите третьего босса")
             return False
         elif self.boss_4.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите четвертого босса", mes.Ok)
+            msg_info(self, "Укажите четвертого босса")
             return False
         elif self.count.value() == 0:
-            mes.question(self, "Сообщение", "Укажите количество актов", mes.Ok)
+            msg_info(self, "Укажите количество актов")
             return False
         elif len(self.days_start.toPlainText().split(",")) != \
                 len(self.days_end.toPlainText().split(",")):
-            mes.question(self, "Сообщение", "Количесттво дней начала не совпадает с количеством дней окончания",
-                         mes.Ok)
+            msg_info(self, "Количесттво дней начала не совпадает с количеством дней окончания")
             return False
 
         elif self.numbers.toPlainText().split(",") != "" and \
              len(self.days_start.toPlainText().split(",")) != \
              len(self.numbers.toPlainText().split(",")):
-            mes.question(self, "Сообщение",
-                         "Не совпадает кол-во дней и кол-во номеров актов. Проверьте. Дней начала: " +
+            msg_info(self, "Не совпадает кол-во дней и кол-во номеров актов. Проверьте. Дней начала: " +
                          str(len(self.days_start.toPlainText().split(","))) + ", Номеров: " +
-                         str(len(self.numbers.toPlainText().split(","))),
-                         mes.Ok)
+                         str(len(self.numbers.toPlainText().split(","))))
             return False
         elif self.days_start.toPlainText().split(",") != "" and \
              len(self.days_start.toPlainText().split(",")) != self.count.value():
-            mes.question(self, "Сообщение", "Количество бланков не совпадает с количеством дат", mes.Ok)
+            msg_info(self, "Количество бланков не совпадает с количеством дат")
             return False
         return True

@@ -21,7 +21,13 @@ class PDFModule(QDialog):
         super(PDFModule, self).__init__()
         self.conf = Ini(self)
         self.ui_file_1 = self.conf.get_path_ui("pdf_module")
+        if self.ui_file_1 == ERR:
+            self.status_ = False
+            return
         self.ui_file_2 = self.conf.get_path_ui("email")
+        if self.ui_file_2 == ERR:
+            self.status_ = False
+            return
         self.parent = parent
         if not self.check_start():
             return
@@ -36,53 +42,63 @@ class PDFModule(QDialog):
             uic.loadUi(self.ui_file_1, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file_1, mes.Cancel)
+            msg_er(self, GET_UI + self.ui_file_1)
             self.status_ = False
             return False
 
     def ev_covid(self):
         path_file = self.check_input_c19()
-        if not path_file:
+        if not path_file or path_file == ERR:
             return False
-        path_to = self.conf.get_path("path") + self.conf.get_path("path_covid") + "/" + str(dt.now().date()) + ".pdf"
-        answer = mes.question(self, "Сообщение", "Отправить ковидны журнал на почту " + to_email, mes.Ok | mes.Cancel)
+        paths = [self.conf.get_path("path"), self.conf.get_path("path_covid")]
+        if ERR in paths:
+            return
+        path_to = paths[0] + paths[1] + "/" + str(dt.now().date()) + PDF
+        answer = msg_info(self, "Отправить ковидный журнал на почту " + to_email)
         if answer == mes.Ok:
-            os.replace(path_file, path_to)
+            try:
+                os.replace(path_file, path_to)
+            except:
+                msg_info(self, GET_FILE + path_file)
             SendPost(self).send(sub, body_text, to_email, path_to)
         pass
 
     def check_input_c19(self):
-        folder = self.conf.get_path("path") + self.conf.get_path("path_scan")
+        folder = self.get_folder()
         if len(os.listdir(folder)) > 1:
             file_name = QFileDialog.getOpenFileName(self, "Выбрать файл",
                                                          folder, "PDF Files(*.pdf)")
-            return folder + "/" + os.listdir(folder)[0]
+            if not file_name:
+                return
+            return folder + "/" + file_name
         elif not os.listdir(folder):
-            mes.question(self, "Сообщение", "Файл не найден. Отсканируйте ковидный журнал в формате PDF", mes.Cancel)
+            msg_info(self, "В папке {0} нет отсканированных файлов. "
+                           "Отсканируйте файл и повторите попытку".format(folder))
             return False
         else:
             return folder + "/" + os.listdir(folder)[0]
 
     def check_input_n(self):
-        folder = self.conf.get_path("path") + self.conf.get_path("path_scan")
+        folder = self.get_folder()
         try:
             files = os.listdir(folder)
         except:
-            mes.question(self, "Сообщение", GET_FILE + folder, mes.Cancel)
-            return False
+            msg_info(self, GET_FILE + folder)
+            return
         files.sort()
         if not files:
-            mes.question(self, "Сообщение", "Файл не найден. Отсканируйте служебную в формате PDF", mes.Cancel)
+            msg_info(self, "В папке {0} нет отсканированных файлов. "
+                           "Отсканируйте файл и повторите попытку".format(folder))
             return False
         for file in files:
             if not ".pdf" in file:
-                mes.question(self, "Сообщение", "В папке есть не только файлы .pdf. "
-                                                "Оставляйте в папке только необходимые файлы", mes.Cancel)
+                msg_info(self, "В папке {0} нет отсканированных файлов в формате .pdf, "
+                               "отсканируйте файл в формате .pdf и повторите попытку".format(folder))
                 return False
         return True
 
     def ev_note(self):
-        folder = self.conf.get_path("path") + self.conf.get_path("path_scan")
+        folder = self.get_folder()
         try:
             files = os.listdir(folder)
         except:
@@ -95,10 +111,12 @@ class PDFModule(QDialog):
         if not text:
             return
         pdf_merger = PyPDF2.PdfFileMerger()
-        path_to = self.conf.get_path("path") + self.conf.get_path("path_notes_pdf") + "/" + str(text) + "_" + str(dt.datetime.now().date()) + ".pdf"
+        paths = [self.conf.get_path("path"), self.conf.get_path("path_notes_pdf")]
+        if ERR in paths:
+            return
+        path_to = "".join(paths) + "/" + str(text) + "_" + str(dt.datetime.now().date()) + PDF
         for doc in files:
-            print(str(folder + "/" + doc))
-            if ".pdf" in doc:
+            if PDF in doc:
                 pdf_merger.append(str(folder + "/" + doc))
         pdf_merger.write(path_to)
         wnd = SendPost(self.parent.db, path_to)
@@ -111,7 +129,7 @@ class PDFModule(QDialog):
             os.remove(str(folder + "/" + doc))
 
     def ev_open(self):
-        folder = self.conf.get_path("path") + self.conf.get_path("path_scan")
+        folder = self.get_folder()
         files = os.listdir(folder)
         if not files:
             mes(self, "Файлы не найдены. Отсканируйте в PDF и программа сама их объединит по порядку")
@@ -119,18 +137,22 @@ class PDFModule(QDialog):
         text, ok = QInputDialog.getText(self, "Название", "Название документа")
         dirlist = QFileDialog.getExistingDirectory(self, "Выбрать папку", folder)
         if ok:
-            path = dirlist + "/" + text + ".pdf"
+            path = dirlist + "/" + text + PDF
         else:
             return
         pdf_merger = PyPDF2.PdfFileMerger()
         for doc in files:
-            print(str(folder + "/" + doc))
-            if ".pdf" in doc:
+            if PDF in doc:
                 pdf_merger.append(str(folder + "/" + doc))
         pdf_merger.write(path)
-        msg(self, "Файл успешно объединен и сохранен")
+        msg_info(self, "Файл успешно объединен и сохранен")
         return
 
+    def get_folder(self):
+        paths = [self.conf.get_path("path"), self.conf.get_path("path_scan")]
+        if ERR in paths:
+            return ERR
+        return "".join(paths)
 
 """def check_file(parent):
     files = os.listdir(folder)

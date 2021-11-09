@@ -15,7 +15,7 @@ class NewTB(QDialog):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("new_TB")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         try:
@@ -24,8 +24,6 @@ class NewTB(QDialog):
             self.status_ = False
             return
         super(NewTB, self).__init__()
-        if not self.check_start():
-            return
         self.parent = parent
         self.table = "workers"
         self.rows_from_db = self.parent.db.get_data("*", self.table)
@@ -72,7 +70,8 @@ class NewTB(QDialog):
 
     def ev_ok(self):
         people = self.get_list_people()
-        self.create_protocols(people)
+        if self.create_protocols(people) == ERR:
+            return
         if self.create_cards(people) == ERR:
             return
         return True
@@ -89,9 +88,9 @@ class NewTB(QDialog):
             if not man[_key] in printed_docs:
                 for field in fields:
                     worker.append(man[field])
-                print(worker)
                 for key in types_docs.keys():
-                    self.print_doc(worker, key)
+                    if self.print_doc(worker, key) == ERR:
+                        return ERR
                 printed_docs.append(man[_key])
         return
     
@@ -153,7 +152,7 @@ class CountPeople(QDialog):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("new_TB")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         try:
@@ -171,7 +170,6 @@ class CountPeople(QDialog):
         if count_people == ERR:
             return
         self.count.setMaximum(count_people)
-        print(count_people)
 
     def ev_ok(self):
         self.parent.count_people_tb = self.count.value()

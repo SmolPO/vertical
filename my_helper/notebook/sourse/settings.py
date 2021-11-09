@@ -1,9 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QFileDialog
-from configparser import ConfigParser
 from database import *
 from PyQt5.QtWidgets import QMessageBox as mes
-
 
 
 class Settings(QDialog):
@@ -13,7 +11,6 @@ class Settings(QDialog):
         self.ui_file = self.conf.get_path_ui("settings")
         if not self.check_start():
             return
-        uic.loadUi(self.ui_file, self)
         self.parent = parent
         # my_pass
         self.b_ok.clicked.connect(self.ev_OK)
@@ -27,7 +24,7 @@ class Settings(QDialog):
             uic.loadUi(self.ui_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file, mes.Cancel)
+            msg_er(self, GET_UI + self.ui_file)
             self.status_ = False
             return False
 
@@ -44,6 +41,8 @@ class Settings(QDialog):
         self.filename, tmp = QFileDialog.getOpenFileName(self,
                                                          "Выбрать файл",
                                                          "C:/", "*.*")
+        if not self.filename:
+            return
         self.path.setText(self.filename)
 
     def get_data(self):
@@ -58,8 +57,8 @@ class Settings(QDialog):
 
     def init_data(self):
         config = ConfigParser()
-        config.read('config.ini')
         try:
+            config.read('config.ini')
             self.path.setText(config.get('path', 'path'))
             self.ip.setText(config.get('database', 'ip'))
             self.name_db.setText(config.get('database', 'name_db'))
@@ -67,8 +66,7 @@ class Settings(QDialog):
             self.password_db.setText(config.get('database', 'password_db'))
             self.new_year.setValue(int(config.get('config', 'new_year')))
         except:
-            mes.question(self, "Сообщение", GET_INI, mes.Cancel)
-            return False
+            return  msg_er(self, GET_INI)
 
     def save_data(self, data):
         config = ConfigParser()
@@ -83,6 +81,5 @@ class Settings(QDialog):
             with open('config.ini', 'w') as configfile:
                 config.write(configfile)
         except:
-            mes.question(self, "Сообщение", GET_INI, mes.Cancel)
-            return False
+            return msg_er(self, GET_INI)
 

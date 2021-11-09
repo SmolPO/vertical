@@ -11,7 +11,7 @@ class AutoPass(TempPass):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("pass_auto")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(AutoPass, self).__init__(ui_file, parent, "auto")

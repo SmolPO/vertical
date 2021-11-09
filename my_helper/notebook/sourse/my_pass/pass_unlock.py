@@ -16,7 +16,7 @@ class UnlockPass(TempPass):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("pass_unlock")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(UnlockPass, self).__init__(ui_file, parent, "workers")
@@ -135,4 +135,4 @@ class UnlockPass(TempPass):
             doc.save(path)
             os.startfile(path)
         except:
-            return ERR
+            return msg_er(self, GET_FILE + path)

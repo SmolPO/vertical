@@ -8,9 +8,7 @@ from my_helper.notebook.sourse.create.new_template import TempForm
 from my_helper.notebook.sourse.database import *
 from my_helper.notebook.sourse.acts.journal import Journal
 from my_helper.notebook.sourse.acts.report import CreateReport
-fields = ["name", "customer", "number", "date", "object", "type_work", "place", "id"]
-statues_cntr = ["Начат", "Заершен"]
-_zero = "01.01.2000"
+statues_cntr = ["Начат", "Завершен"]
 
 
 class NewContact(TempForm):
@@ -53,13 +51,6 @@ class NewContact(TempForm):
         self.b_menu.setEnabled(False) if text == empty else self.b_menu.setEnabled(True)
         return True
 
-    def get_id(self, val, field, table):
-        rows = self.parent.db.get_data("*", table)
-        for item in rows:
-            if item[field] == val:
-                return item[-1]
-        pass
-
     def create_docs(self):
         if not self.check_input():
             return
@@ -93,7 +84,6 @@ class NewContact(TempForm):
         if not contract in current_folder:
             return _folders
         else:
-
             current_folder = s_list_dir(self, path_docs)
             if current_folder == ERR:
                 return ERR
@@ -168,6 +158,8 @@ class NewContact(TempForm):
         answer = msg_q(self, "Создать исполнительную?")
         if answer == mes.Ok:
             wnd = CreateReport(self)
+            if not wnd.status_:
+                return ERR
             wnd.exec_()
         else:
             return
@@ -175,7 +167,7 @@ class NewContact(TempForm):
     def check_input(self):
         if "" in list([self.name.text(), self.number.text(),
                        self.my_object.toPlainText(), self.work.toPlainText(),
-                      self.part.text(), self.price.text(), self.date_end.text()]) or self.date.text() == _zero:
+                      self.part.text(), self.price.text(), self.date_end.text()]) or self.date.text() == ZERO:
             msg_info(self, FULL_ALL)
             return False
         if yong_date(young=self.date.text(), old=self.date_end.text()):

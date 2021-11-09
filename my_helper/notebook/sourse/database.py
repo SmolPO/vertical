@@ -5,8 +5,9 @@ from configparser import ConfigParser
 from PyQt5.QtCore import QDate as Date
 import logging
 from PyQt5.QtWidgets import QMessageBox as mes
+from inserts import db_keys
 
-path_conf = "B:/my_helper/my_config.ini"
+path_conf = "D:/my_helper/my_config.ini"
 empty = "(нет)"
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
@@ -44,8 +45,11 @@ CHECK_COVID = "Не правильно заполнены данные по ва
 
 KILLD_NOTE = "Запись удалена"
 KILL_NOTE = "Вы действительно хотите удалить запись: "
+ER_KILL_NOTE = "Не удалось удалить данные"
 CHANGED_NOTE = "Запись изменена"
 CHANGE_NOTE = "Вы действительно хотите изменить запись на "
+ADDED_FILE = "Файл добавлен"
+ADDED_NOTE = "Запись добавлена"
 YES = "да"
 NO = "нет"
 PLACE_VAC = "Укажите место прививки"
@@ -60,8 +64,28 @@ COVID = "болел"
 ZERO = "01.01.2000"
 NOT = "(нет)"
 
+ASR_FILE = "/asr.docx"
+JORNAL_FILE = "/Журнал.docx"
+PDF = ".pdf"
+
 dictionary = {"Производитель работ": {"gent": "прооизводителя работ", "datv": "прооизводителю работ"},
               "Технический директор": {"gent": "технического директора", "datv": "техническому директору"}}
+logging.basicConfig(filename="D:/my_helper/log_file.log", level=logging.INFO)
+
+
+def msg_er(widgets, text):
+    mes.question(widgets, "Сообщение", text, mes.Ok)
+    logging.info(text + str(dt.datetime.now()))
+    return -1
+
+
+def msg_info(widgets, text):
+    mes.question(widgets, "Сообщение", text, mes.Ok)
+    return True
+
+
+def msg_q(widgets, text):
+    return mes.question(widgets, "Сообщение", text, mes.Ok | mes.Cancel)
 
 
 class DataBase:
@@ -157,56 +181,26 @@ class DataBase:
         self.my_commit(add_to_db((date, name, number), "notes"))
 
     def create_db(self):
+        conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
+        db = conn.cursor()
         try:
-            conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
-            db = conn.cursor()
+            pass
         except:
             return msg_er(self.parent, CONNECT_DB)
-        list_db_ = [
-            "CREATE TABLE contracts (name text, customer text, number text, date text, object text, type_work text, "
-            "place text, id text)",
-            "CREATE TABLE bosses (family text, name text, surname text, post text, email text, phone text, sex text"
-            ", id text)",
-            "CREATE TABLE drivers (family text, name text, surname text, birthday text, passport text, adr text,"
-            " id text)",
-            "CREATE TABLE company (company text, adr text, ogrn text, inn text, kpp text, bik text, korbill text, "
-            "rbill text, bank text, family text, name text, surname text, post text, count_attorney text,"
-            "date_attorney text, id text)",
-            "CREATE TABLE auto (model text, brand text, gov_number text, track_number text, id text)",
-            "CREATE TABLE drivers (family text, name text, surname text, birthday text, passport text, adr text,"
-            " id text)",
-            "CREATE TABLE contracts (name text, customer text, number text, date text, object text, type_work text, "
-            "place text, id text)",
-            "CREATE TABLE bosses (family text, name text, surname text, post text, email text, phone text, sex text,"
-            " id text)",
-            "CREATE TABLE musics (name text, link text, id text)",
-            "CREATE TABLE materials (name text, measure text, value text, provider text, contract text, id text)",
-            "CREATE TABLE workers (family text, name text, surname text, birthday text, post text, phone text, "
-            "passport text, passport_got text, adr text, live_adr text, inn text, snils text, numb_contract text, "
-            "date_contract text, numb_h text, numb_group_h text, date_h text, numb_study text, numb_study_card text,"
-            "d_study text, numb_protocol text, numb_card text, d_protocol text, object text, id text)",
-            "CREATE TABLE itrs (family text, name text, surname text, post text, passport text, passport_date text, "
-            "passport_got text, adr text, live_adr text, auto text, inn text, "
-            "snils text, n_employment_contract text, date_employment_contract text, "
-            "ot_protocol text, ot_date text, ot_card text, "
-            "PTM_protocol text, PTM_date text, PTM_card text, "
-            "es_protocol text, es_group text, es_card text, es_date text, "
-            "h_protocol text, h_date text, h_group text, h_card text, "
-            "industrial_save text, "
-            "st_protocol text, st_card text, st_date text, birthday text, id text)",
-            "CREATE TABLE finance (id text, date text, value text, recipient text, comment text, id text)",
-            "CREATE TABLE bills (date text, value text, buyer text, name_file text, comment text, id text)",
-            "CREATE TABLE notes (date text, name text, id text)",
-            "CREATE TABLE asrs (work text, value text, si text, material text, days text, month text, year text, "
-            "boss_1 text, boss_2 text, boss_3 text, boss_4 text, contract text, id text)"]
-        g = iter(range(len(list_db_)))
-        for item in list_db_:
+        some_str = "CREATE TABLE "
+        tables = ""
+        for key in db_keys.keys():
+            fields = db_keys[key][1:-1].split(", ")
+            res_str = "("
+            for word in fields:
+                res_str += word + " text, "
+            row = some_str + key + " " + res_str[:-2] + ")"
             try:
-                db.execute(item)
+                db.execute(row)
                 conn.commit()
             except:
-                print("ERROR " + item)
-        msg_info(self.parent, CREATE_DB)
+                logging.debug(key + "is NOT created")
+            logging.debug(key + "is created")
 
 
 class Ini:
@@ -268,6 +262,17 @@ class Ini:
         except:
             return msg_er(self, GET_INI)
 
+    def set_val(self, section, field, val):
+        try:
+            config = ConfigParser()
+            config.read(path_conf)
+            config.set(section, field, str(val))
+            with open(path_conf, 'w') as configfile:
+                config.write(configfile)
+            return True
+        except:
+            return msg_er(self.parent, GET_INI)
+
 
 def short_name(data):
     return data[0] + " " + data[1][0] + "." + data[2][0] + "."
@@ -282,24 +287,6 @@ def time_delta(date_1, date_2):
     return (a - b).days
 
 
-logging.basicConfig(filename=Ini("").get_path("path") + "/log_file.log", level=logging.INFO)
-
-
-def msg_er(widgets, text):
-    mes.question(widgets, "Сообщение", text, mes.Cancel)
-    logging.info(text + str(dt.datetime.now()))
-    return -1
-
-
-def msg_info(widgets, text):
-    mes.question(widgets, "Сообщение", text, mes.Cancel)
-    return True
-
-
-def msg_q(widgets, text):
-    return mes.question(widgets, "Сообщение", text, mes.Ok | mes.Cancel)
-
-
 def from_str(date):
     symbols = [".", ",", "-", "/", "_"]
     for item in symbols:
@@ -310,6 +297,7 @@ def from_str(date):
             if len(tmp[2]) == 4:
                 return Date(int(tmp[2]), int(tmp[1]), int(tmp[0]))
 
+zero = from_str(ZERO)
 
 def yong_date(young, old):
     if int(young[6:10]) > int(old[6:10]):
@@ -343,4 +331,3 @@ def get_index(cb, text):
     return -1
 
 
-zero = from_str("01.01.2000")

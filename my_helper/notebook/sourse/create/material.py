@@ -6,9 +6,10 @@ from my_helper.notebook.sourse.database import *
 
 class NewMaterial(TempForm):
     def __init__(self, parent=None):
-        conf = Ini(self)
-        ui_file = conf.get_path_ui("materials")
-        if not ui_file:
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("materials")
+        if not ui_file or ui_file == ERR:
+            self.status_ = False
             return
         super(NewMaterial, self).__init__(ui_file, parent, "materials")
         if not self.status_:
@@ -28,7 +29,7 @@ class NewMaterial(TempForm):
 
     def _ev_select(self, text):
         self.slice_select = len(text)
-        if text != "(нет)":
+        if text != NOT:
             self.add_new = False
         else:
             self.add_new = True

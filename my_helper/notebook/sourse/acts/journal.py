@@ -12,31 +12,45 @@ class Journal(QDialog):
         super(Journal, self).__init__()
         self.conf = Ini(self)
         self.ui_file = self.conf.get_path_ui("journal")
+        if self.ui_file == ERR:
+            self.status_ = False
+            return
         if not self.check_start():
             return
         self.parent = parent
-        self.path = parent.path + self.conf.get_path("docs") + "/Журнал.docx"
+        self.path = parent.path + self.conf.get_path("docs") + JORNAL_FILE
         self.b_print.clicked.connect(self.ev_print)
         self.data = dict()
-        self.init_bosses()
+        if self.init_bosses() == ERR:
+            return
         self.name.append("По ")
 
     def check_start(self):
         self.status_ = True
         self.path_ = self.conf.get_path_ui("journal")
+        if self.path_ == ERR:
+            return
         try:
             uic.loadUi(self.ui_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file, mes.Cancel)
+            msg_info(self, "Не удалось открыть форму " + self.ui_file)
             self.status_ = False
             return False
 
     def init_bosses(self):
-        self.parent.parent.db.init_list(self.boss_1, "*", "itrs", people=True)
-        self.parent.parent.db.init_list(self.boss_2, "*", "itrs", people=True)
-        self.parent.parent.db.init_list(self.boss_3, "*", "bosses", people=True)
-        self.parent.parent.db.init_list(self.boss_4, "*", "bosses", people=True)
+        if self.parent.parent.db.init_list(self.boss_1, "*", "itrs", people=True) == ERR:
+            self.status_ = False
+            return False
+        if self.parent.parent.db.init_list(self.boss_2, "*", "itrs", people=True) == ERR:
+            self.status_ = False
+            return False
+        if self.parent.parent.db.init_list(self.boss_3, "*", "bosses", people=True) == ERR:
+            self.status_ = False
+            return False
+        if self.parent.parent.db.init_list(self.boss_4, "*", "bosses", people=True) == ERR:
+            self.status_ = False
+            return False
         pass
 
     def get_data(self):
@@ -59,9 +73,10 @@ class Journal(QDialog):
 
     def get_post(self, my_id, table):
         rows = self.parent.parent.db.get_data("*", table)
+        if rows == ERR:
+            return ERR
         for item in rows:
             if str(item[-1]) == my_id:
-                print(item)
                 return item[3]
         return "."
 
@@ -73,32 +88,36 @@ class Journal(QDialog):
             path = self.conf.get_path("path") + self.conf.get_path("path_pat_patterns") + "/Журнал.docx"
             doc = docxtpl.DocxTemplate(path)
         except:
-            mes.question(self, "Сообщение", "Файл " + path + " не найден", mes.Ok)
+            msg_er(self, GET_FILE + path)
             return False
         doc.render(self.data)
-        doc.save(self.parent.path + "/Журнал работ.docx")
+        try:
+            doc.save(self.parent.path + JORNAL_FILE)
+        except:
+            msg_er(self, GET_FILE + self.parent.path + JORNAL_FILE)
+            return False
         self.close()
 
     def check_input(self):
         if self.number.value() == 0:
-            mes.question(self, "Сообщение", "Укажите номер журнала", mes.Ok)
+            msg_info(self, "Укажите номер журнала")
             return False
         if self.date.text() == "01.01.2000":
-            mes.question(self, "Сообщение", "Укажите дату начала работ", mes.Ok)
+            msg_info(self, "Укажите дату начала работ")
             return False
         if self.boss_1.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите первого босса", mes.Ok)
+            msg_info(self, "Укажите первого босса")
             return False
         if self.boss_2.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите второго босса", mes.Ok)
+            msg_info(self, "Укажите второго босса")
             return False
         if self.boss_3.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите третьего босса", mes.Ok)
+            msg_info(self, "Укажите третьего босса")
             return False
         if self.boss_4.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите четвертого босса", mes.Ok)
+            msg_info(self, "Укажите четвертого босса")
             return False
         if self.name.toPlainText() == "" or len(self.name.toPlainText()) < 3:
-            mes.question(self, "Сообщение", "Укажите название журнала", mes.Ok)
+            msg_info(self, "Укажите название журнала")
             return False
         return True

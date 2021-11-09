@@ -2,7 +2,6 @@ from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from my_helper.notebook.sourse.create.new_template import TempForm
 from my_helper.notebook.sourse.database import *
-fields = ["family", "name", "surname", "post", "email", "phone", "id"]
 
 
 class NewBoss(TempForm):
@@ -10,7 +9,7 @@ class NewBoss(TempForm):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("new_boss")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(NewBoss, self).__init__(ui_file, parent, "bosses")

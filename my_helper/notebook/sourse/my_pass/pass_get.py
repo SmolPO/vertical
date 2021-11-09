@@ -8,7 +8,7 @@ class GetPass(TempPass):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("pass_get")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(GetPass, self).__init__(ui_file, parent, "workers")
@@ -26,8 +26,12 @@ class GetPass(TempPass):
         self.data = {"customer": "", "company": "", "start_date": "", "end_date": "",
                      "contract": "", "date_contract": "", "number": "", "date": ""}
         self.main_file += "/pass_get.docx"
-        self.init_workers()
-        self.init_contracts()
+        if self.init_workers() == ERR:
+            self.status_ = False
+            return
+        if self.init_contracts() == ERR:
+            self.status_ = False
+            return
 
     def init_contracts(self):
         contracts = self.parent.db.get_data("id, name", "contracts")
@@ -96,7 +100,7 @@ class GetPass(TempPass):
                 i += 1
             doc.save(path)
         except:
-            return msg_er(self, GET_FILE)
+            return msg_er(self, GET_FILE + path)
 
     def check_input(self):
         return True

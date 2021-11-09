@@ -664,3 +664,6 @@ INFO:pymorphy2.opencorpora_dict.wrapper:Loading dictionaries from B:\pythonProje
 INFO:pymorphy2.opencorpora_dict.wrapper:format: 2.4, revision: 417127, updated: 2020-10-11T15:05:51.070345
 INFO:pymorphy2.opencorpora_dict.wrapper:Loading dictionaries from B:\pythonProject\vertical\venv\lib\site-packages\pymorphy2_dicts_ru\data
 INFO:pymorphy2.opencorpora_dict.wrapper:format: 2.4, revision: 417127, updated: 2020-10-11T15:05:51.070345
+INFO:root:Нет подключения к базе данных2021-11-09 11:23:38.224205
+INFO:root:Не удалось получить данные из Базы данных2021-11-09 11:23:40.079301
+INFO:root:Не удалось получить данные из Базы данных2021-11-09 11:23:41.469810

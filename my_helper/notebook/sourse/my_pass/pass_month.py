@@ -10,7 +10,7 @@ class MonthPass(TempPass):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("pass_month")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(MonthPass, self).__init__(ui_file, parent, "workers")
@@ -30,12 +30,15 @@ class MonthPass(TempPass):
         self.list_ui = (self.worker_1, self.worker_2, self.worker_3, self.worker_4, self.worker_5, self.worker_6,
                         self.worker_7, self.worker_8, self.worker_9, self.worker_10)
         self.data = {"customer": "", "company": "", "start_date": "", "end_date": "", "number": "", "date": ""}
-        self.init_workers()
-        self.init_cb_month()
+        if self.init_workers() == ERR:
+            self.status_ = False
+            return
+        if self.init_cb_month() == ERR:
+            self.status_ = False
+            return
         self.set_dates(self.cb_manual_set.isChecked())
         self.vac_path = self.main_file + "/Вакцинация_2.docx"
         self.main_file += "/pass_month.docx"
-
 
     # инициализация
     def init_cb_month(self):
@@ -98,12 +101,12 @@ class MonthPass(TempPass):
         try:
             doc = docx.Document(path)
         except:
-            return msg_er(self, GET_FILE)
+            return msg_er(self,  + path)
         if self.cb_all.isChecked():
             people = self.all_people
         else:
             for elem in self.list_ui:
-                if elem.currentText() != "(нет)":
+                if elem.currentText() != NOT:
                     people.append(self.check_row(elem.currentText()))
         i = 1
         people.sort(key=lambda x: x[0])
@@ -121,7 +124,7 @@ class MonthPass(TempPass):
             doc.save(path)
             os.startfile(path)
         except:
-            return msg_er(self, GET_FILE)
+            return msg_er(self, GET_FILE + path)
         self.conf.set_next_number(self.number.value() + 1)
         if self.create_vac(people) == ERR:
             return ERR
@@ -139,7 +142,10 @@ class MonthPass(TempPass):
         list_people = {"2 дозы": [], "1 доза": [], "болел": []}
         for item in people:
             list_people[item[-2]].append(item)
-        doc = docx.Document(self.vac_path)
+        try:
+            doc = docx.Document(self.vac_path)
+        except:
+            return msg_er(self, GET_FILE + self.vac_path)
         next_id = self.conf.get_next_number()
         doc.tables[0].rows[0].cells[0].text = "Исх. " + str(next_id)
         doc.tables[0].rows[1].cells[0].text = "от " + self.d_note.text()
@@ -152,43 +158,44 @@ class MonthPass(TempPass):
                     if not man:
                         continue
                     ind = 1
-                    if key == "2 дозы":
-                        note = "2 дозы"
+                    if key == SPUTNIK:
+                        note = SPUTNIK
                         column = 6
                         self.init_table(doc, note, column)
                         self.init_SP5(doc, ind)
-                    elif key == "1 доза":
-                        note = "1 доза"
+                    elif key == SP_LITE:
+                        note = SP_LITE
                         column = 5
                         self.init_table(doc, note, column)
                         self.init_LT(doc, ind)
-                    elif key == "болел":
-                        note = "болел"
+                    elif key == COVID:
+                        note = COVID
                         column = 5
                         self.init_table(doc, note, column)
                         self.init_LT(doc, ind)
                     flag = False
                 doc.tables[-1].add_row()
                 add_list = [str(ind), short_name(man[:3]), man[3]]
-                if man[-2] == "2 дозы":
+                if man[-2] == SPUTNIK:
                     add_list += [man[-6], man[-5], man[-4]]
-                elif man[-2] == "1 дозы":
+                elif man[-2] == SP_LITE:
                     add_list += [man[-6], man[-4]]
-                elif man[-2] == "болел":
+                elif man[-2] == COVID:
                     add_list += [man[-6], man[-3]]
                 for i in range(len(add_list)):
                     doc.tables[-1].rows[1].cells[i].text = add_list[i]
                 ind += 1
         if self.add_footer(doc) == ERR:
             return ERR
-        path_1 = self.conf.get_path("path")
-        path_2 = self.conf.get_path("path_notes_docs")
-        if path_1 == ERR or path_2 == ERR:
+        paths = [self.conf.get_path("path"), self.conf.get_path("path_notes_docs")]
+        if ERR in paths:
             return ERR
-        path = path_1 + path_2 + "/vac_" + str(dt.datetime.now().date()) + ".docx"
-        doc.save(path)
-        os.startfile(path)
-        pass
+        path = paths[0] + paths[1] + "/vac_" + str(dt.datetime.now().date()) + ".docx"
+        try:
+            doc.save(path)
+            os.startfile(path)
+        except:
+            return ERR
 
     def init_SP5(self, doc, ind):
         doc.tables[-1].rows[0].cells[3].text = "Дата первой прививки"
@@ -216,13 +223,9 @@ class MonthPass(TempPass):
     def add_footer(self, doc):
         try:
             self.parent.db.execute("SELECT big_post, big_boss "
-                                          "FROM company "
-                                          "WHERE company = '{0}'".format(self.parent.company))
+                                   "FROM company WHERE company = '{0}'".format(self.parent.company))
             big_boss = self.parent.db.cursor.fetchall()
         except:
             return ERR
-        note = big_boss[0][0] + "_"*15 + short_name(big_boss[0][1].split(" "))
+        note = big_boss[0][0] + "_" * 15 + short_name(big_boss[0][1].split(" "))
         doc.add_paragraph(note)
-
-    def init_part(self, key):
-        return False

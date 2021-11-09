@@ -3,8 +3,6 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5 import uic
 from database import *
 from PyQt5.QtWidgets import QMessageBox as mes
-# logging.basicConfig(filename=get_path("path") + "/log_file.log", level=logging.INFO)
-
 
 
 class Notepad(QDialog):
@@ -16,7 +14,10 @@ class Notepad(QDialog):
             return
         self.b_close.clicked.connect(self.ev_close)
         self.file_note = self.conf.get_path("path") + "/notepad.txt"
-        self.ui_text_area.appendPlainText(self.get_text())
+        text = self.get_text()
+        if text == ERR:
+            return
+        self.ui_text_area.appendPlainText(text)
         self.show()
 
     def check_start(self):
@@ -25,29 +26,34 @@ class Notepad(QDialog):
             uic.loadUi(self.ui_file, self)
             return True
         except:
-            mes.question(self, "Сообщение", "Не удалось открыть форму " + self.ui_file, mes.Cancel)
+            msg_er(self, GET_UI + self.ui_file)
             self.status_ = False
             return False
 
     def get_text(self):
         try:
             file = open(self.file_note, 'r')
-            text = file.read()
-            file.close()
-            return text
         except:
-            print("not get text")
-            return None
+            msg_er(self, GET_FILE + self.file_note)
+            return ERR
+        text = file.read()
+        file.close()
+        return text
 
     def set_text(self):
         text_ui = self.ui_text_area.toPlainText()
-        file = open(self.file_note, 'w')
+        try:
+            file = open(self.file_note, 'w')
+        except:
+            msg_er(self, GET_FILE + self.file_note)
+            return ERR
         file.write(text_ui + '\n')
         file.close()
 
     def ev_close(self):
         if self.ui_check_box.isChecked():
-            self.set_text()
+            if self.set_text() == ERR:
+                return
         self.close()
 
     def calc_tap_segments(self):

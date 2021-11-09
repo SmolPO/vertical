@@ -80,7 +80,6 @@ class TempForm (QDialog):
 
     def set_data(self, data):
         k = 0
-        print(data)
         for item in self.list_ui:
             if "QLineEdit" in str(type(item)):
                 item.setText(data[k])
@@ -99,10 +98,11 @@ class TempForm (QDialog):
             if "QSpinBox" in str(type(item)):
                 item.setValue(int(data[k]))
             if "QCheckBox" in str(type(item)):
-                item.setChecked(True) if data[k] == "да" else item.setChecked(False)
+                item.setChecked(True) if data[k] == YES else item.setChecked(False)
             k = k + 1
         if self.vac:
-            self.set_vac_data(data[-3])
+            if self.set_vac_data(data[-3]) == ERR:
+                return
         self.current_id = data[-1]
 
     def get_data(self):
@@ -279,7 +279,7 @@ class TempForm (QDialog):
         try:
             os.replace(self.filename, path)
         except:
-            return msg_er(self, PERMISSION_ERR)
+            return msg_er(self, PERMISSION_ERR + path)
         if self.create_report(self.sb_value.value(),
                               self.date.text().replace("-", "."),
                               self.cb_buyer.currentText()[:-5]) == ERR:
@@ -291,7 +291,7 @@ class TempForm (QDialog):
         path_2 = self.conf.get_path("path_bills")
         if path_1 == ERR or path_2 == ERR:
             return ERR
-        path = path_1 + path_2 +  "/" + str(dt.datetime.now().year) + \
+        path = path_1 + path_2 + "/" + str(dt.datetime.now().year) + \
                                   "/" + str(dt.datetime.now().month) + \
                                   "/" + str(dt.datetime.now().month) + str(dt.datetime.now().year) + ".xlsx"
         try:

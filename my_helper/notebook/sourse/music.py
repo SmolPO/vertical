@@ -1,16 +1,14 @@
 import webbrowser
 from my_helper.notebook.sourse.create.new_template import TempForm
 from database import *
-from PyQt5.QtWidgets import QMessageBox as mes
 
 
 class Web(TempForm):
     def __init__(self, parent=None):
-
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("web")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(Web, self).__init__(ui_file, parent, "links")
@@ -19,6 +17,8 @@ class Web(TempForm):
         self.b_start.clicked.connect(self.ev_start)
         self.parent.db.init_list(self.cb_select, "name, id", self.table)
         self.rows_from_db = self.parent.db.get_data("*", self.table)
+        if self.rows_from_db == ERR:
+            return
         self.list_ui = [self.name, self.add_link]
 
     def ev_start(self):

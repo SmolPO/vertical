@@ -27,14 +27,13 @@ class TempPass(QDialog):
                            "май", "июнь", "июль", "август", "сентябрь",
                            "октябрь", "ноябрь", "декабрь"]
         self.data = dict()
-        path_1 = self.conf.get_path("path")
-        path_2 = self.conf.get_path("path_pat_notes")
-        path_3 = self.conf.get_path("path_notes_docs")
-        if path_1 == ERR or path_2 == ERR or path_3 == ERR:
+        paths = [self.conf.get_path("path"), self.conf.get_path("path_pat_notes"),
+                 self.conf.get_path("path_notes_docs")]
+        if ERR in paths:
             self.status_ = False
             return
-        self.main_file = path_1 + path_2
-        self.print_folder = path_1 + path_3
+        self.main_file = paths[0] + paths[1]
+        self.print_folder = paths[0] + paths[2]
 
         fields = "family, name, surname, post, passport, passport_got, birthday, adr,  live_adr"
         self.people_all = self.parent.db.get_data(fields, "workers") + self.parent.db.get_data(fields, "itrs")
@@ -43,11 +42,10 @@ class TempPass(QDialog):
         self.people_mark = list()
         fields = "family, name, surname, post, passport, passport_got, " \
                  "birthday, adr,  live_adr, d_vac_1, d_vac_2, place, vac_doc, vac_type, id"
-        rows_w = self.parent.db.get_data(fields, "workers")
-        rows_i = self.parent.db.get_data(fields, "itrs")
-        if rows_i == ERR or rows_i == ERR:
+        rows = [self.parent.db.get_data(fields, "workers"), self.parent.db.get_data(fields, "itrs")]
+        if ERR in rows:
             return
-        self.all_people = rows_w + rows_i
+        self.all_people = rows[0] + rows[1]
 
     def check_start(self, ui_file):
         self.status_ = True
@@ -57,7 +55,7 @@ class TempPass(QDialog):
             return True
         except:
             self.status_ = False
-            return msg_er(self, GET_UI)
+            return msg_er(self, GET_UI + self.path_)
 
     # флаг на выбор всех
     def set_dates(self, state):
@@ -69,7 +67,8 @@ class TempPass(QDialog):
     def ev_ok(self):
         if not self._ev_ok():
             return False
-        self._get_data()
+        if self._get_data() == ERR:
+            return
         self.data["number"] = "Исх. № " + self.number.text()
         self.data["date"] = "от. " + self.d_note.text()
         self.data["customer"] = self.parent.customer
@@ -86,14 +85,16 @@ class TempPass(QDialog):
             doc.save(path)
         except:
             return msg_er(self, GET_FILE + path)
-        self._create_data(path)
-        self.conf.set_next_number(self.conf.get_next_number())
+        if self._create_data(path) == ERR:
+            return
+        if self.conf.set_next_number(self.conf.get_next_number()) == ERR:
+            return
         self.close()
 
     def new_worker(self):
         flag = True
         for item in self.list_ui:
-            if item.currentText() != "(нет)":
+            if item.currentText() != NOT:
                 item.setEnabled(True)
             else:
                 item.setEnabled(flag)
@@ -208,7 +209,6 @@ class TempPass(QDialog):
             end_next_month = str(count_days[12])
         else:
             end_next_month = str(count_days[int(next_month)])
-        print(".".join((end_next_month, next_month, next_year)))
         return (end_next_month, next_month, next_year)
 
     def check_row(self, row):

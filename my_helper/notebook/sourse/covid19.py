@@ -15,10 +15,11 @@ class NewCovid:
 
     def create_covid(self):
         list_people = list()
-        rows = self.parent.db.get_data("family, name, surname, post, status, id", "workers") + \
-               self.parent.db.get_data("family, name, surname, post, status, id", "itrs")
-        if ERR in rows:
+        rows_ = [self.parent.db.get_data("family, name, surname, post, status, id", "workers"),
+               self.parent.db.get_data("family, name, surname, post, status, id", "itrs")]
+        if ERR in rows_:
             return
+        rows = rows_[0] + rows_[1]
         if not rows:
             return msg_info(self, GET_DB)
         for row in rows:
@@ -28,17 +29,20 @@ class NewCovid:
         if not list_people:
             mes.question(self.parent, "Сообщение", "Нет рабочих в Базе данных", mes.Cancel)
             return
-        path = self.conf.get_path("path") + self.conf.get_path("path_pat_covid")
+        paths = [self.conf.get_path("path"), self.conf.get_path("path_pat_covid")]
+        if ERR in paths:
+            return ERR
+        path = paths[0] + paths[1]
         path_save = path
         try:
             doc = xlsx.open(path)
         except:
-            return msg_er(self, GET_FILE)
+            return msg_er(self, GET_FILE + path)
         try:
             page = "covid"
             sheet = doc[page]
         except:
-            return msg_er(self, GET_PAGE)
+            return msg_er(self, GET_PAGE + page)
         delta = 2
         count_column = 9
         for ind in range(1, 50):
@@ -56,5 +60,4 @@ class NewCovid:
             doc.save(path_save)
             os.startfile(path_save)
         except:
-            mes.question(self.parent, "Сообщение", "Неверный путь для сохранения файла." + path_save +
-                                      " Файл не сохранен", mes.Cancel)
+            return msg_er(self, GET_FILE + path_save)

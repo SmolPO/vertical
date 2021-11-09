@@ -2,15 +2,12 @@
 <ui version="4.0">
  <class>widget</class>
  <widget class="QWidget" name="widget">
-  <property name="enabled">
-   <bool>true</bool>
-  </property>
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>485</width>
-    <height>408</height>
+    <height>579</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -140,11 +137,105 @@
     <string>Цех/отдел *</string>
    </property>
   </widget>
+  <widget class="QLabel" name="label_7">
+   <property name="enabled">
+    <bool>true</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>210</x>
+     <y>240</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <bold>true</bold>
+    </font>
+   </property>
+   <property name="text">
+    <string>Список боссов</string>
+   </property>
+  </widget>
+  <widget class="QTableWidget" name="bosses">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="geometry">
+    <rect>
+     <x>40</x>
+     <y>260</y>
+     <width>421</width>
+     <height>241</height>
+    </rect>
+   </property>
+   <property name="font">
+    <font>
+     <bold>true</bold>
+    </font>
+   </property>
+   <row>
+    <property name="text">
+     <string>1</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>2</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>3</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>4</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>5</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>6</string>
+    </property>
+   </row>
+   <row>
+    <property name="text">
+     <string>7</string>
+    </property>
+   </row>
+   <column>
+    <property name="text">
+     <string>ФИО</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>Должность</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>email</string>
+    </property>
+   </column>
+   <column>
+    <property name="text">
+     <string>телефон</string>
+    </property>
+   </column>
+  </widget>
   <widget class="QPushButton" name="b_cancel">
    <property name="geometry">
     <rect>
      <x>290</x>
-     <y>330</y>
+     <y>510</y>
      <width>75</width>
      <height>24</height>
     </rect>
@@ -157,7 +248,7 @@
    <property name="geometry">
     <rect>
      <x>380</x>
-     <y>330</y>
+     <y>510</y>
      <width>75</width>
      <height>24</height>
     </rect>
@@ -169,7 +260,7 @@
   <widget class="QLineEdit" name="number">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>110</x>
      <y>120</y>
      <width>113</width>
      <height>22</height>
@@ -179,7 +270,7 @@
   <widget class="QLabel" name="label_8">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>110</x>
      <y>100</y>
      <width>101</width>
      <height>16</height>
@@ -192,7 +283,7 @@
   <widget class="QDateEdit" name="date">
    <property name="geometry">
     <rect>
-     <x>190</x>
+     <x>260</x>
      <y>120</y>
      <width>110</width>
      <height>22</height>
@@ -202,21 +293,21 @@
   <widget class="QLabel" name="label_9">
    <property name="geometry">
     <rect>
-     <x>190</x>
+     <x>260</x>
      <y>100</y>
      <width>101</width>
      <height>16</height>
     </rect>
    </property>
    <property name="text">
-    <string>Дата договора </string>
+    <string>Дата договора *</string>
    </property>
   </widget>
   <widget class="QComboBox" name="cb_select">
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>360</y>
+     <y>540</y>
      <width>141</width>
      <height>22</height>
     </rect>
@@ -231,7 +322,7 @@
    <property name="geometry">
     <rect>
      <x>40</x>
-     <y>330</y>
+     <y>510</y>
      <width>141</width>
      <height>16</height>
     </rect>
@@ -249,12 +340,17 @@
      <height>22</height>
     </rect>
    </property>
+   <item>
+    <property name="text">
+     <string>(нет)</string>
+    </property>
+   </item>
   </widget>
   <widget class="QPushButton" name="b_change">
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>360</y>
+     <y>540</y>
      <width>75</width>
      <height>24</height>
     </rect>
@@ -267,160 +363,13 @@
    <property name="geometry">
     <rect>
      <x>200</x>
-     <y>330</y>
+     <y>510</y>
      <width>75</width>
      <height>24</height>
     </rect>
    </property>
    <property name="text">
     <string>Удалить</string>
-   </property>
-  </widget>
-  <widget class="QDateEdit" name="date_end">
-   <property name="geometry">
-    <rect>
-     <x>320</x>
-     <y>120</y>
-     <width>110</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLineEdit" name="price">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>260</y>
-     <width>91</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_11">
-   <property name="geometry">
-    <rect>
-     <x>320</x>
-     <y>100</y>
-     <width>101</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Дата окончания</string>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_12">
-   <property name="geometry">
-    <rect>
-     <x>40</x>
-     <y>240</y>
-     <width>101</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Стоимость работ</string>
-   </property>
-  </widget>
-  <widget class="QCheckBox" name="nds">
-   <property name="geometry">
-    <rect>
-     <x>410</x>
-     <y>260</y>
-     <width>76</width>
-     <height>20</height>
-    </rect>
-   </property>
-   <property name="acceptDrops">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>НДС</string>
-   </property>
-   <property name="checked">
-    <bool>true</bool>
-   </property>
-  </widget>
-  <widget class="QSpinBox" name="avans">
-   <property name="geometry">
-    <rect>
-     <x>260</x>
-     <y>260</y>
-     <width>91</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
-  <widget class="QLabel" name="label_13">
-   <property name="geometry">
-    <rect>
-     <x>260</x>
-     <y>240</y>
-     <width>49</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Аванс</string>
-   </property>
-  </widget>
-  <widget class="QComboBox" name="status">
-   <property name="geometry">
-    <rect>
-     <x>148</x>
-     <y>260</y>
-     <width>91</width>
-     <height>22</height>
-    </rect>
-   </property>
-   <item>
-    <property name="text">
-     <string>Начат</string>
-    </property>
-   </item>
-   <item>
-    <property name="text">
-     <string>Завершен</string>
-    </property>
-   </item>
-  </widget>
-  <widget class="QLabel" name="label_14">
-   <property name="geometry">
-    <rect>
-     <x>150</x>
-     <y>240</y>
-     <width>49</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Статус</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="b_docs">
-   <property name="geometry">
-    <rect>
-     <x>260</x>
-     <y>290</y>
-     <width>101</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Создать доки</string>
-   </property>
-  </widget>
-  <widget class="QPushButton" name="b_menu">
-   <property name="geometry">
-    <rect>
-     <x>374</x>
-     <y>290</y>
-     <width>81</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Меню</string>
    </property>
   </widget>
  </widget>

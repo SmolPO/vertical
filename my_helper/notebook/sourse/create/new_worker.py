@@ -10,7 +10,7 @@ class NewWorker(TempForm):
         self.status_ = True
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("new_worker")
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(NewWorker, self).__init__(ui_file, parent, "workers")

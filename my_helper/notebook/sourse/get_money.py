@@ -11,7 +11,7 @@ class GetMoney(QDialog):
         self.conf = Ini(self)
         ui_file = self.conf.get_path_ui("get_money")
         uic.loadUi(ui_file)
-        if not ui_file:
+        if not ui_file or ui_file == ERR:
             self.status_ = False
             return
         super(GetMoney, self).__init__()
@@ -39,26 +39,32 @@ class GetMoney(QDialog):
 
         self.rows_from_db = self.parent.db.get_data("*", self.table)
         if self.rows_from_db == ERR:
-            msg_er(self, GET_DB)
+            self.status_ = False
             return
-        self.cb_select.addItems(["(нет)"])
+        self.cb_select.addItems([NOT])
         for row in self.parent.db.get_data("id, date", self.table):
             self.cb_select.addItems([", ".join((row[0], row[1]))])
         if self.parent.db.init_list(self.cb_recipient, "*", "itrs", people=True) == ERR:
+            self.status_ = False
             return
         if self.parent.db.init_list(self.cb_customer, "*", "itrs", people=True) == ERR:
+            self.status_ = False
             return
         self.next_id = self.parent.db.get_next_id(self.table)
         if self.next_id == ERR:
+            self.status_ = False
             return
         self.current_id = self.next_id
         self.my_id.setValue(self.next_id)
         self.data = {"date": "", "post": "", "family": "", "text": ""}
         self.change_note()
-
-        self.main_file = self.confget_path("path") + self.confget_path("path_pat_notes") + self.confget_from_ini("get_money", "patterns")
-        self.print_folder = self.confget_path("path") + self.confget_path("path_bills") + "/" + str(dt.datetime.now().year) + \
-                                                                        "/" + str(dt.datetime.now().month)
+        paths = [self.confget_path("path"), self.confget_path("path_pat_notes"),
+                 self.confget_from_ini("get_money", "patterns"),
+                 self.confget_path("path"), self.confget_path("path_bills")]
+        if ERR in paths:
+            return
+        self.main_file = "".join(paths[:3])
+        self.print_folder = "".join(paths[3:]) + "/" + str(dt.datetime.now().year) + "/" + str(dt.datetime.now().month)
 
     def ev_ok(self):
         if not self.check_input():
@@ -86,25 +92,19 @@ class GetMoney(QDialog):
                                                str(self.sb_value.value()) + ".docx"
         if not self.data:
             return False
+        path = self.main_file
         try:
-            doc = docxtpl.DocxTemplate(self.main_file)
-        except:
-            msg_er(self, GET_FILE + self.main_file)
-            return
-        doc.render(self.data)
-        try:
+            doc = docxtpl.DocxTemplate(path)
+            doc.render(self.data)
+            path = print_file
             doc.save(print_file)
-        except:
-            msg_er(self, GET_FILE + print_file)
-            return
-        self.close()
-        try:
+            self.close()
             os.startfile(print_file)
         except:
-            msg_er(self, GET_FILE + print_file)
+            msg_er(self, GET_FILE + path)
             return
-        mes.question(self, "Сообщение", "Запись добавлена", mes.Ok)
-        answer = mes.question(self, "Сообщение", "Отправить бухгалтеру?", mes.Ok | mes.Cancel)
+        msg_info(self, ADDED_NOTE)
+        answer = msg_q(self, "Отправить бухгалтеру?")
         if answer == mes.Ok:
             wnd = SendPost(self.parent.db, print_file)
             if not wnd.status_:
@@ -175,26 +175,22 @@ class GetMoney(QDialog):
             self.sb_cost.setEnabled(False)
 
     def ev_change(self):
-        answer = mes.question(self, "Изменение записи", "Вы действительно хотите изменить запись на " +
-                              str(self.get_data()) + "?", mes.Ok | mes.Cancel)
+        answer = msg_q(self, CHANGE_NOTE + str(self.get_data())[1:-1] + "?")
         if answer == mes.Ok:
             data = self.get_data()
             data[-1] = str(self.current_id)
             if self.parent.db.my_update(data, self.table) == ERR:
                 return msg_er(self, UPDATE_DB)
-            answer = mes.question(self, "Сообщение", "Запись изменена", mes.Ok)
-            if answer == mes.Ok:
-                self.close()
+            msg_info(self, CHANGED_NOTE)
+            self.close()
 
     def ev_kill(self):
-        answer = mes.question(self, "Удаление записи", "Вы действительно хотите удалить запись " +
-                              str(self.get_data()) + "?", mes.Ok | mes.Cancel)
+        answer = msg_q(self, KILL_NOTE + str(self.get_data())[1:-1] + "?")
         if answer == mes.Ok:
             if self.parent.db.kill_value(self.current_id, self.table) == ERR:
-                return msg_er(self, KILLD_NOTE)
-            answer = mes.question(self, "Сообщение", "Запись удалена", mes.Ok)
-            if answer == mes.Ok:
-                self.close()
+                return msg_er(self, ER_KILL_NOTE)
+            msg_info(self, KILLD_NOTE)
+            self.close()
 
     def set_data(self, data):
         self.my_id.setValue(data[0])
@@ -209,14 +205,11 @@ class GetMoney(QDialog):
     def get_data(self):
         cost = self.sb_days.value() * self.sb_emploeeyrs.value() * self.sb_cost.value()
         if cost + self.sb_some_value.value() > self.sb_value.value():
-            QMessageBox.question(self, "Внимание",
-                                 "Сумма в итоге меньше, чем сумма пунктов. Вы хотите за своих оплачивать?))",
-                                 QMessageBox.Ok | QMessageBox.Cancel)
-            return
+            msg_info(self, "Сумма в итоге меньше, чем сумма пунктов.")
+            return False
         if not self.note.toPlainText():
             if cost + self.sb_some_value.value() != self.sb_value.value():
-                QMessageBox.question(self, "Внимание", "Не сходится сумма, напишите куда именно вы потратите разницу",
-                                     QMessageBox.Ok)
+                msg_info(self, "Не сходится сумма, напишите куда именно вы потратите разницу")
                 return
         data = list()
         data.append(self.date.text())
@@ -244,20 +237,19 @@ class GetMoney(QDialog):
 
     def check_input(self):
         if self.sb_value.value() == 0:
-            mes.question(self, "Сообщение", "Укажите общую сумму", mes.Cancel)
+            msg_info(self, "Укажите общую сумму")
             return False
-        if self.cb_recipient.currentText() == "(нет)":
-            mes.question(self, "Сообщение", "Укажите получателя перевода", mes.Cancel)
+        if self.cb_recipient.currentText() == NOT:
+            msg_info(self, "Укажите получателя перевода")
             return False
         if self.cb_day.isChecked():
             cost = self.sb_days.value() * self.sb_emploeeyrs.value() * self.sb_cost.value()
             if cost == 0:
-                mes.question(self, "Сообщение", "Укажите значения в суточных или уберите галочку", mes.Cancel)
+                msg_info(self, "Укажите значения в суточных или уберите галочку")
                 return False
         if self.cb_some.isChecked():
             if self.sb_some_value.value() == 0:
-                mes.question(self, "Сообщение", "Укажите значения в производственных нуждах или уберите галочку",
-                             mes.Cancel)
+                msg_info(self, "Укажите значения в производственных нуждах или уберите галочку")
                 return False
         return True
 
