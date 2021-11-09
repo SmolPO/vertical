@@ -2,8 +2,8 @@ from PyQt5 import uic
 from PyQt5.QtCore import Qt
 import os
 import docxtpl
-from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-from my_helper.notebook.sourse.database import *
+from pass_template import TempPass
+from database import *
 
 
 class AutoPass(TempPass):

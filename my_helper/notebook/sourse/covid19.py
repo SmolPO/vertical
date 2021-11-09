@@ -1,7 +1,7 @@
 import openpyxl as xlsx
 from openpyxl.styles import Side, Border
 import os
-from my_helper.notebook.sourse.database import *
+from database import *
 
 
 class NewCovid:

@@ -4,10 +4,10 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5.QtGui import QRegExpValidator as QREVal
 import os
 import PyPDF2
-from my_helper.notebook.sourse.create.new_template import TempForm
-from my_helper.notebook.sourse.database import *
-from my_helper.notebook.sourse.acts.journal import Journal
-from my_helper.notebook.sourse.acts.report import CreateReport
+from new_template import TempForm
+from database import *
+from journal import Journal
+from report import CreateReport
 statues_cntr = ["Начат", "Завершен"]
 
 

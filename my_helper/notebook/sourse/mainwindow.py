@@ -1,32 +1,28 @@
-from PyQt5 import uic
-from PyQt5.QtWidgets import QMainWindow, QApplication, QCheckBox, QMessageBox, QAction, QInputDialog
+from PyQt5.QtWidgets import QMainWindow, QApplication, QCheckBox, QAction, QInputDialog
 import sys
-import os
 import requests
-import logging
-from PyQt5.QtWidgets import QMessageBox as mes
-from my_helper.notebook.sourse.create.new_boss import NewBoss
-from my_helper.notebook.sourse.create.new_itr import NewITR
-from my_helper.notebook.sourse.create.new_worker import NewWorker
-from my_helper.notebook.sourse.create.nw_company import NewCompany
-from my_helper.notebook.sourse.create.new_auto import NewAuto
-from my_helper.notebook.sourse.create.new_driver import NewDriver
-from my_helper.notebook.sourse.create.new_bill import NewBill
-from my_helper.notebook.sourse.covid19 import NewCovid
-from my_helper.notebook.sourse.table import NewTable
+from new_boss import NewBoss
+from new_itr import NewITR
+from new_worker import NewWorker
+from nw_company import NewCompany
+from new_auto import NewAuto
+from new_driver import NewDriver
+from new_bill import NewBill
+from covid19 import NewCovid
+from table import NewTable
 from pdf_module import PDFModule
-from my_helper.notebook.sourse.create.new_contract import NewContact
-from my_helper.notebook.sourse.create.material import NewMaterial
-from my_helper.notebook.sourse.create.new_TB import NewTB, CountPeople
-from my_helper.notebook.sourse.acts.acts import Acts
+from new_contract import NewContact
+from material import NewMaterial
+from new_TB import NewTB, CountPeople
+from acts import Acts
 from my_email import *
-from my_helper.notebook.sourse.my_pass.pass_week import WeekPass
-from my_helper.notebook.sourse.my_pass.pass_unlock import UnlockPass
-from my_helper.notebook.sourse.my_pass.pass_month import MonthPass
-from my_helper.notebook.sourse.my_pass.pass_get import GetPass
-from my_helper.notebook.sourse.my_pass.pass_auto import AutoPass
-from my_helper.notebook.sourse.my_pass.pass_drive import DrivePass
-from my_helper.notebook.sourse.settings import Settings
+from pass_week import WeekPass
+from pass_unlock import UnlockPass
+from pass_month import MonthPass
+from pass_get import GetPass
+from pass_auto import AutoPass
+from pass_drive import DrivePass
+from settings import Settings
 from database import *
 from my_tools import Notepad
 from music import Web

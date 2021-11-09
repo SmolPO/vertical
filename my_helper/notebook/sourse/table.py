@@ -4,7 +4,7 @@ from openpyxl.styles import Side, Border
 import os
 import datetime as dt
 from PyQt5.QtWidgets import QInputDialog
-from my_helper.notebook.sourse.database import *
+from database import *
 month = ["январь", "февраль", "март", "апрель", "май", "июнь",
          "июль", "август", "сентябрь", "октябрь", "ноябрь", "декабрь"]
 

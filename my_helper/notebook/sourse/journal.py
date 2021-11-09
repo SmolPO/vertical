@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import QMessageBox as mes
 import docxtpl
 import os
 import datetime as dt
-from my_helper.notebook.sourse.database import *
+from database import *
 
 
 class Journal(QDialog):

@@ -1,7 +1,7 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog, QMessageBox
 from PyQt5.QtCore import Qt
-from my_helper.notebook.sourse.inserts import get_from_db
+from inserts import get_from_db
 import datetime as dt
 import os
 import docx

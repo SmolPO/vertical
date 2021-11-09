@@ -1,7 +1,7 @@
 from PyQt5.QtCore import Qt
 import os
-from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-from my_helper.notebook.sourse.database import *
+from pass_template import TempPass
+from database import *
 import docx
 
 

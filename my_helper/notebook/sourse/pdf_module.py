@@ -5,8 +5,7 @@ from PyQt5.QtWidgets import QInputDialog
 import PyPDF2
 import pytesseract
 from datetime import datetime as dt
-from my_helper.notebook.sourse.database import *
-from my_helper.notebook.sourse.my_email import *
+from database import *
 from my_email import *
 
 pytesseract.pytesseract.tesseract_cmd = r'C:/Program Files/Tesseract-OCR/tesseract.exe'

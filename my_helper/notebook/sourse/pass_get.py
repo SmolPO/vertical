@@ -1,6 +1,6 @@
 import docx
-from my_helper.notebook.sourse.database import *
-from my_helper.notebook.sourse.my_pass.pass_template import TempPass
+from database import *
+from pass_template import TempPass
 
 
 class GetPass(TempPass):

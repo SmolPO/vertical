@@ -5,7 +5,7 @@ from PyQt5 import uic
 import docx
 import docxtpl
 import os
-from my_helper.notebook.sourse.database import *
+from database import *
 types_docs = {"1": "/ot_doc.docx", "2": "/ptm_doc.docx", "3": "/eb_doc.docx"}
 types_card = {"1": "/ot_card.docx", "2": "/ptm_card.docx", "3": "/es_card.docx"}
 

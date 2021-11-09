@@ -1,7 +1,7 @@
 from PyQt5 import uic
 import os
 from PyQt5.QtWidgets import QDialog
-from my_helper.notebook.sourse.database import *
+from database import *
 
 
 class Contract(QDialog):

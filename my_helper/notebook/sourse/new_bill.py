@@ -2,8 +2,8 @@ from PyQt5.QtWidgets import *
 from datetime import datetime as dt
 import os
 import openpyxl
-from my_helper.notebook.sourse.database import *
-from my_helper.notebook.sourse.create.new_template import TempForm, set_cb_text
+from database import *
+from new_template import TempForm
 
 
 class NewBill(TempForm):

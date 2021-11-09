@@ -1,8 +1,8 @@
 from PyQt5.QtCore import QRegExp as QRE
 from PyQt5.QtGui import QRegExpValidator as QREVal
 from PyQt5.QtCore import Qt
-from my_helper.notebook.sourse.create.new_template import TempForm
-from my_helper.notebook.sourse.database import *
+from new_template import TempForm
+from database import *
 fields = ["model", "brand", "gov_number", "track_number", "id"]
 
 

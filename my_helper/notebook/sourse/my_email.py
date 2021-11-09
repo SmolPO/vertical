@@ -6,7 +6,7 @@ from email import encoders
 from email.mime.text import MIMEText
 from email.mime.base import MIMEBase
 from email.mime.multipart import MIMEMultipart
-from my_helper.notebook.sourse.database import *
+from database import *
 
 
 class SendPost(QDialog):

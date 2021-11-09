@@ -1,10 +1,10 @@
 from PyQt5 import uic
 from PyQt5.QtWidgets import QDialog
-import my_helper.notebook.sourse.inserts as ins
+import inserts as ins
 from datetime import datetime as dt
 import openpyxl
 import os
-from my_helper.notebook.sourse.database import *
+from database import *
 
 
 class TempForm (QDialog):

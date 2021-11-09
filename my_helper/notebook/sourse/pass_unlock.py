@@ -1,14 +1,10 @@
-from PyQt5.QtWidgets import QMessageBox as mes
-import datetime as dt
 import docx
 import os
-import logging
-import openpyxl
 import pymorphy2
 from docx.oxml.text.paragraph import CT_P
 from docx.text.paragraph import Paragraph
-from my_helper.notebook.sourse.my_pass.pass_template import TempPass
-from my_helper.notebook.sourse.database import *
+from pass_template import TempPass
+from database import *
 
 
 class UnlockPass(TempPass):

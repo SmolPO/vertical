@@ -3,7 +3,7 @@ from PyQt5.QtWidgets import QDialog
 from PyQt5.QtCore import Qt
 import os
 import docxtpl
-from my_helper.notebook.sourse.database import *
+from database import *
 
 
 class TempPass(QDialog):

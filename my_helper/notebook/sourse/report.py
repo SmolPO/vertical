@@ -3,10 +3,8 @@ from PyQt5.QtWidgets import QDialog
 import openpyxl as xlxs
 from openpyxl.styles import Border, Side, NamedStyle, Font
 from openpyxl.styles.borders import BORDER_THIN
-import datetime as dt
 import os
-from PyQt5.QtWidgets import QMessageBox as mes
-from my_helper.notebook.sourse.database import *
+from database import *
 idx_table = 25
 
 

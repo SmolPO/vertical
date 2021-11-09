@@ -2,9 +2,9 @@ from PyQt5 import uic
 from PyQt5.QtWidgets import *
 from PyQt5.QtWidgets import QDialog
 import os
-from my_helper.notebook.sourse.acts.asr import Asr
-from my_helper.notebook.sourse.acts.report import CreateReport
-from my_helper.notebook.sourse.database import *
+from asr import Asr
+from report import CreateReport
+from database import *
 
 
 class Acts(QDialog):
