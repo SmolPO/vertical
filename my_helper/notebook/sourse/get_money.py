@@ -2,7 +2,7 @@ from PyQt5.QtWidgets import QMessageBox
 import docxtpl
 import inserts as ins
 from my_email import *
-import pymorphy2
+# import pymorphy2
 
 
 class GetMoney(QDialog):
@@ -67,7 +67,7 @@ class GetMoney(QDialog):
         data = self.get_data()
         if not data:
             return
-        morph = pymorphy2.MorphAnalyzer()
+        # morph = pymorphy2.MorphAnalyzer()
         if self.parent.db.my_commit(ins.add_to_db(data, self.table)) == ERR:
             return msg_er(self, ADD_DB)
         rows = self.parent.db.get_data("post, family, name, surname, id", "itrs")
@@ -78,8 +78,8 @@ class GetMoney(QDialog):
                 self.data["post"] = row[0].lower()
                 people = self.cb_customer.currentText()
                 family = people.split(". ")[1][:-5]
-                fam = morph.parse(family)[0].inflect({'gent'})[0].capitalize()
-                self.data["family_g"] = fam + " " + people[-4:]
+                # fam = morph.parse(family)[0].inflect({'gent'})[0].capitalize()
+                self.data["family_g"] = family + " " + people[-4:]
                 self.data["text"] = self.note_result.toPlainText()
                 self.data["date"] = self.date.text()
                 self.data["family_i"] = "".join(people.split(". ")[1:])
@@ -131,7 +131,7 @@ class GetMoney(QDialog):
         self.sb_some_value.setEnabled(True) if self.cb_some.isChecked() else self.sb_some_value.setEnabled(False)
         self.day_money(self.cb_day.isChecked())
         itr = ""
-        morph = pymorphy2.MorphAnalyzer()
+        # morph = pymorphy2.MorphAnalyzer()
         people = self.parent.db.get_data("post, family, name, surname, id", "itrs")
         if people == ERR:
             return ERR
@@ -150,7 +150,8 @@ class GetMoney(QDialog):
             if post in dictionary.keys():
                 word = dictionary[post]["gent"]
             else:
-                word = morph.parse(item)[0].inflect({'gent'})[0].capitalize()
+                word = post
+            #   word = morph.parse(item)[0].inflect({'gent'})[0].capitalize()
             text.append(word)
         text.append(" для:\n")
         if self.cb_day.isChecked():

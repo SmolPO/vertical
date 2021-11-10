@@ -1,6 +1,6 @@
 import docx
 import os
-import pymorphy2
+# import pymorphy2
 from docx.oxml.text.paragraph import CT_P
 from docx.text.paragraph import Paragraph
 from pass_template import TempPass
@@ -43,19 +43,23 @@ class UnlockPass(TempPass):
 
     def _get_data(self):
         family = self.cb_worker.currentText()
-        morph = pymorphy2.MorphAnalyzer()
+        # morph = pymorphy2.MorphAnalyzer()
         people = self.check_row(family)  # на форме фамилия в виде Фамилия И.
         post = people[3]
-        if post in dictionary.keys():
-            post = dictionary[post]['datv']
+        if key in dictionary.keys():
+            post = dictionary[key]['datv']
         else:
-            try:
-                post = morph.parse(people[3])[0].inflect({'datv'})[0]
-            except:
-                post = people[3]
-        self.data["family"] = morph.parse(people[0])[0].inflect({'datv'})[0].capitalize()
-        self.data["name"] = morph.parse(people[1])[0].inflect({'datv'})[0].capitalize()
-        self.data["surname"] = morph.parse(people[2])[0].inflect({'datv'})[0].capitalize()
+            post = people[3]
+        #    try:
+        #         post = morph.parse(people[3])[0].inflect({'datv'})[0]
+        #    except:
+        #        post = people[3]
+        self.data["family"] = people[0]
+        self.data["name"] = people[1]
+        self.data["surname"] = people[2]
+        # self.data["family"] = morph.parse(people[0])[0].inflect({'datv'})[0].capitalize()
+        # self.data["name"] = morph.parse(people[1])[0].inflect({'datv'})[0].capitalize()
+        # self.data["surname"] = morph.parse(people[2])[0].inflect({'datv'})[0].capitalize()
         self.data["post"] = post
         self.data["adr"] = people[8]
         self.data["start_date"] = self.d_from.text()
