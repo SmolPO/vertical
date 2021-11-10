@@ -17,12 +17,13 @@ class NewTB(QDialog):
         if not ui_file or ui_file == ERR:
             self.status_ = False
             return
+        super(NewTB, self).__init__()
+
         try:
             uic.loadUi(ui_file, self)
         except:
             self.status_ = False
             return
-        super(NewTB, self).__init__()
         self.parent = parent
         self.table = "workers"
         self.rows_from_db = self.parent.db.get_data("*", self.table)
@@ -150,16 +151,16 @@ class CountPeople(QDialog):
     def __init__(self, parent=None):
         self.status_ = True
         self.conf = Ini(self)
-        ui_file = self.conf.get_path_ui("new_TB")
+        ui_file = self.conf.get_path_ui("count")
         if not ui_file or ui_file == ERR:
             self.status_ = False
             return
+        super(CountPeople, self).__init__(parent)
         try:
             uic.loadUi(ui_file, self)
         except:
             self.status_ = False
             return
-        super(CountPeople, self).__init__(parent)
         # my_pass
         self.parent = parent
         self.table = "workers"

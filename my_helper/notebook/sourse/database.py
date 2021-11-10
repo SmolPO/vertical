@@ -106,6 +106,7 @@ class DataBase:
             return
 
     def connect_to_db(self):
+
         try:
             self.conn = psycopg2.connect(dbname=self.name_db,
                                          user=self.user_db,

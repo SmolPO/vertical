@@ -34,14 +34,13 @@ class MainWindow(QMainWindow):
         super(MainWindow, self).__init__()
         self.path = "B:/my_helper/my_config.ini"
         self.conf = Ini(self)
-        path_1 = self.conf.get_path("path")
-        path_2 = self.conf.get_path("ui_files")
-        if path_1 == ERR or path_2 == ERR:
+        path = self.conf.get_path_ui("main_menu")
+        if path == ERR:
             return
         try:
-            uic.loadUi(path_1 + path_2 + '/main_menu.ui', self)
+            uic.loadUi(path, self)
         except:
-            msg_er(self, GET_UI + path_1 + path_2 + '/main_menu.ui')
+            msg_er(self, GET_UI + path)
             return
 
         self.db = DataBase(self, self.path)
@@ -82,11 +81,15 @@ class MainWindow(QMainWindow):
 
         exitAction = QAction('Настройки', self)
         exitAction.setStatusTip('Настройки')
+        sqlAction = QAction('Запрос в базу данных', self)
+        sqlAction.setStatusTip('SQL запрос')
+        sqlAction.triggered.connect(self.sql_mes)
         exitAction.triggered.connect(self.ev_settings)
 
         menu = self.menu
         fileMenu = menu.addMenu("Настройки")
         fileMenu.addAction(exitAction)
+        fileMenu.addAction(sqlAction)
 
         self.b_empty.clicked.connect(self.ev_btn_start_file)
 
@@ -292,6 +295,17 @@ class MainWindow(QMainWindow):
              return False
         return True
 
+    def sql_mes(self):
+        text, ok = QInputDialog.getText(self, "SQL запрос", "Введите запрос")
+        if ok:
+            if text:
+                try:
+                    self.db.execute(text)
+                except:
+                    msg_info(self, "Запос не удался")
+                    return
+                file = open("text.txt", "w")
+                file.write(str(self.db.cursor.fetchall()))
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
