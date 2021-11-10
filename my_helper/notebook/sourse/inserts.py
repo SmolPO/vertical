@@ -1,16 +1,16 @@
 import logging
-logging.basicConfig(filename="D:/my_helper/log_file.log", level=logging.INFO)
+logging.basicConfig(filename="B:/my_helper/log_file.log", level=logging.INFO)
 
 db_keys = {"auto": "(gov_number, brand, model, track_number, id)",
            "drivers": "(family, name, surname, birthday, passport, adr, id)",
-           "workers": "(family, name, surname, birthday, post, phone, passport, passport_got, adr, live_adr, inn, "
+           "workers": "(family, name, surname, birthday, post, passport, passport_got, adr, live_adr, phone, inn, "
                       "snils, "
                       "numb_contract, date_contract, "
                       "numb_h, numb_group_h, date_h, "
                       "numb_study, numb_study_card, d_study, "
                       "numb_protocol, numb_card, d_protocol, object, "
                       "d_vac_1, d_vac_2, place, vac_doc, vac_type, status, id)",
-           "itrs": "(family, name, surname, post, passport, passport_date, passport_got, adr, live_adr, auto, inn, "
+           "itrs": "(family, name, surname, post, passport, passport_got, adr, live_adr, auto, inn, "
                    "snils, n_employment_contract, date_employment_contract, "
                    "ot_protocol, ot_date, ot_card, "
                    "PTM_protocol, PTM_date, PTM_card, "

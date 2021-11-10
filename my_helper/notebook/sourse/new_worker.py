@@ -21,8 +21,8 @@ class NewWorker(TempForm):
         self.cb_vac.activated[str].connect(self.change_vac)
         self.init_mask()
         self.list_ui = [self.family, self.name, self.surname, self.bday, self.post,
-                        self.phone, self.passport, self.passport_post,
-                        self.adr, self.live_adr, self.inn, self.snils,
+                        self.passport, self.passport_post,
+                        self.adr, self.live_adr, self.phone, self.inn, self.snils,
                         self.n_td, self.d_td, self.n_hght, self.n_group_h,
                         self.d_height, self.n_study, self.n_study_card, self.d_study,
                         self.n_prot, self.n_card, self.d_prot, self.cb_contract,

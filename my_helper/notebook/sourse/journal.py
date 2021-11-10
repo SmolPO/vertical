@@ -93,6 +93,9 @@ class Journal(QDialog):
         doc.render(self.data)
         try:
             doc.save(self.parent.path + JORNAL_FILE)
+            msg_info(self, "Журнал создан")
+            os.startfile(path)
+            self.close()
         except:
             msg_er(self, GET_FILE + self.parent.path + JORNAL_FILE)
             return False

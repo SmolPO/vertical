@@ -32,7 +32,7 @@ from get_money import GetMoney
 class MainWindow(QMainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
-        self.path = "D:/my_helper/my_config.ini"
+        self.path = "B:/my_helper/my_config.ini"
         self.conf = Ini(self)
         path_1 = self.conf.get_path("path")
         path_2 = self.conf.get_path("ui_files")
@@ -47,13 +47,13 @@ class MainWindow(QMainWindow):
         self.db = DataBase(self, self.path)
         if self.db.connect_to_db() == ERR:
             return
-        check = self.conf.get_config("is_create_db")
+        check = self.conf.get_config("is_created_db")
         if check == ERR:
             return
-        if check == "0":
+        if check == "NO":
             if self.db.create_db() == ERR:
                 return
-            if self.conf.set_val("config", "is_create_db", "1") == ERR:
+            if self.conf.set_val("config", "is_create_db", "YES") == ERR:
                 return
         self.b_pass_week.clicked.connect(self.start_wnd)
         self.b_pass_month.clicked.connect(self.start_wnd)
@@ -95,14 +95,6 @@ class MainWindow(QMainWindow):
         self.b_invoice.clicked.connect(self.ev_btn_start_file)
 
         self.b_scan.setEnabled(False)
-        company = self.db.get_data("*", "company")
-        if company == ERR:
-            return
-        for item in company:
-            if item[-2] == "Подрядчик":
-                self.company = item
-            if item[-2] == "Заказчик":
-                self.customer = item
 
         self.get_param_from_widget = None
         self.company = self.conf.get_config("company")
@@ -111,6 +103,9 @@ class MainWindow(QMainWindow):
             self.company = "<Подрядчик>"
         if self.customer == ERR:
             self.company = "<Заказчик>"
+        self.company_ = ""
+        self.customer_ = ""
+        self.check_company()
         self.new_worker = []
         self.data_to_db = None
         self.init_notif()
@@ -141,25 +136,33 @@ class MainWindow(QMainWindow):
                  "Сканер": (PDFModule, None),
                  "Автомобиль": (NewAuto, None),
                  "Заказчик": (NewCompany, None),
-                 "Договор": (NewContact, None),
+                 "Договор": (NewContact, "company"),
                  "Водитель": (NewDriver, None),
-                 "Босс": (NewBoss, None),
+                 "Босс": (NewBoss, "company"),
                  "Сотрудник": (NewWorker, "contracts"),
                  "Прораб": (NewITR, None),
                  "Чек": (NewBill, None),
                  "Заявка на деньги": (GetMoney, None),
-                 "Разовый пропуск на машину": (DrivePass, None)}
+                 "Разовый пропуск": (DrivePass, "contracts")}
         _wnd = forms.get(name, "")
         if _wnd:
             if _wnd[1]:
-                check = self.is_have_some(_wnd[1])
-                if check == ERR:
-                    return
-                elif check:
-                    wnd = _wnd[0](self)
+                if name == "Договор":
+                    data = self.db.get_data("status", "company")
+                    if not ("Заказчик",) in data:
+                        msg_info(self, "Введите сначала данные Заказчика")
+                        return
+                    else:
+                        wnd = _wnd[0](self)
                 else:
-                    msg_info(self, "База данных пока не заполнена. Добавбте сначала " + trans[_wnd[1]])
-                    return
+                    check = self.is_have_some(_wnd[1])
+                    if check == ERR:
+                        return
+                    elif check:
+                        wnd = _wnd[0](self)
+                    else:
+                        msg_info(self, "База данных пока не заполнена. Добавбте сначала " + trans[_wnd[1]])
+                        return
             else:
                 wnd = _wnd[0](self)
         elif name == "Распечатать ТБ":
@@ -187,6 +190,18 @@ class MainWindow(QMainWindow):
              return
         wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
         wnd.exec_()
+        if self.sender().text() == "Заказчик":
+           self.check_company()
+
+    def check_company(self):
+        company = self.db.get_data("*", "company")
+        if company == ERR:
+            return
+        for item in company:
+            if item[-2] == "Подрядчик":
+                self.company_ = item
+            if item[-2] == "Заказчик":
+                self.customer_ = item
 
     def ev_btn_start_file(self):
         files = {"Доверенность": "/Доверенность.xlsx",
@@ -281,6 +296,6 @@ class MainWindow(QMainWindow):
 if __name__ == "__main__":
     app = QApplication(sys.argv)
     ex = MainWindow()
-    ex.setFixedSize(587, 591)
+    ex.setFixedSize(ex.geometry().width(), ex.geometry().height())
     ex.show()
     sys.exit(app.exec())

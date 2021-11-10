@@ -37,12 +37,12 @@ class NewCompany(TempForm):
         self.korbill.setValidator(QREVal(QRE("[0-9]{20}")))
         self.rbill.setValidator(QREVal(QRE("[0-9]{20}")))
         self.bank.setValidator(QREVal(QRE("[А-Яа-я /- 0-9]{10}")))
-        self.big_boss.setValidator(QREVal(QRE("[а-яА-Я ]{30}")))
-        self.big_post.setValidator(QREVal(QRE("[а-яА-Я ]{30}")))
-        self.big_at.setValidator(QREVal(QRE("[А-Яа-я /- 0-9]{10}")))
-        self.mng_boss.setValidator(QREVal(QRE("[а-яА-Я ]{30}")))
-        self.mng_post.setValidator(QREVal(QRE("[а-яА-Я ]{30}")))
-        self.mng_at.setValidator(QREVal(QRE("[А-Яа-я /- 0-9]{10}")))
+        self.big_boss.setValidator(QREVal(QRE("[а-яА-Я ]{100}")))
+        self.big_post.setValidator(QREVal(QRE("[а-яА-Я ]{100}")))
+        self.big_at.setValidator(QREVal(QRE("[А-Яа-я /- 0-9]{100}")))
+        self.mng_boss.setValidator(QREVal(QRE("[а-яА-Я ]{100}")))
+        self.mng_post.setValidator(QREVal(QRE("[а-яА-Я ]{100}")))
+        self.mng_at.setValidator(QREVal(QRE("[А-Яа-я /- 0-9]{100}")))
 
     def _select(self, text):
         return True

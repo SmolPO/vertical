@@ -7,7 +7,7 @@ import logging
 from PyQt5.QtWidgets import QMessageBox as mes
 from inserts import db_keys
 
-path_conf = "D:/my_helper/my_config.ini"
+path_conf = "B:/my_helper/my_config.ini"
 empty = "(нет)"
 si = ["тн", "т", "кг", "м2", "м", "м/п", "мм", "м3", "л", "мм", "шт"]
 count_days = (31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31)
@@ -106,13 +106,12 @@ class DataBase:
             return
 
     def connect_to_db(self):
-        self.conn = psycopg2.connect(dbname=self.name_db,
-                                     user=self.user_db,
-                                     password=self.password_db,
-                                     host=self.ip,
-                                     port=self.port)
         try:
-            self.conn = psycopg2.connect(dbname=self.name_db, user=self.user_db, password=self.password_db, host=self.ip)
+            self.conn = psycopg2.connect(dbname=self.name_db,
+                                         user=self.user_db,
+                                         password=self.password_db,
+                                         host=self.ip,
+                                         port=self.port)
             if not self.conn:
                 return msg_er(self.parent, CONNECT_DB)
             self.cursor = self.conn.cursor()
@@ -211,10 +210,10 @@ class Ini:
     def get_path(self, my_type):
         try:
             config = ConfigParser()
-            config.read(path_conf, encoding="utf-8")
+            config.read(path_conf, encoding="utf8")
             return str(config.get('path', my_type))
         except:
-            msg_er(self, GET_INI)
+            msg_er(self.parent, GET_INI)
             return ERR
 
     def get_config(self, my_type):
@@ -223,7 +222,7 @@ class Ini:
         try:
             return config.get('config', my_type)
         except:
-            msg_er(self, GET_INI)
+            msg_er(self.parent, GET_INI)
             return ERR
 
     def get_from_ini(self, my_type, part):
@@ -232,7 +231,7 @@ class Ini:
         try:
             return config.get(part, my_type)
         except:
-            msg_er(self, GET_INI)
+            msg_er(self.parent, GET_INI)
             return ERR
 
     def get_path_ui(self, my_type):
@@ -241,7 +240,7 @@ class Ini:
         if path_1 and path_2:
             return path_1 + path_2
         else:
-            msg_er(self, GET_INI)
+            msg_er(self.parent, GET_INI)
             return ERR
 
     def get_next_number(self):
@@ -252,7 +251,7 @@ class Ini:
             next_number = int(number_note) + 1
             return int(number_note)
         except:
-            msg_er(self, GET_INI)
+            msg_er(self.parent, GET_INI)
             return ERR
 
     def set_next_number(self, n):
@@ -266,7 +265,7 @@ class Ini:
                 config.write(configfile)
             return int(number_note)
         except:
-            msg_er(self, GET_INI)
+            msg_er(self.parent, GET_INI)
             return ERR
 
     def set_val(self, section, field, val):
@@ -278,7 +277,7 @@ class Ini:
                 config.write(configfile)
             return True
         except:
-            msg_er(self, GET_INI)
+            msg_er(self.parent, GET_INI)
             return ERR
 
 

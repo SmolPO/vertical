@@ -100,6 +100,9 @@ class PDFModule(QDialog):
         folder = self.get_folder()
         try:
             files = os.listdir(folder)
+            if not files:
+                msg_info(self, "Файлы не найдены. Отсканируйте в PDF и программа сама их объединит по порядку")
+                return
         except:
             mes.question(self, "Сообщение", GET_FILE + folder, mes.Cancel)
             return False
@@ -131,9 +134,13 @@ class PDFModule(QDialog):
         folder = self.get_folder()
         files = os.listdir(folder)
         if not files:
-            mes(self, "Файлы не найдены. Отсканируйте в PDF и программа сама их объединит по порядку")
+            msg_info(self, "Файлы не найдены. Отсканируйте в PDF и программа сама их объединит по порядку")
             return
         text, ok = QInputDialog.getText(self, "Название", "Название документа")
+        if not text:
+            return
+        if not ok:
+            return
         dirlist = QFileDialog.getExistingDirectory(self, "Выбрать папку", folder)
         if ok:
             path = dirlist + "/" + text + PDF

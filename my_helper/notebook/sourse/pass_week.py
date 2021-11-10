@@ -150,6 +150,6 @@ class WeekPass(TempPass):
         return True
 
     def check_input(self):
-        if self.list_ui[0].currentText() == empty:
+        if self.list_ui[0].currentText() == NOT:
             return msg_er(self, ADD_PEOPLE)
         return True

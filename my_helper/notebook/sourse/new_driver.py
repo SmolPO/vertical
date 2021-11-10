@@ -15,7 +15,7 @@ class NewDriver(TempForm):
         super(NewDriver, self).__init__(ui_file, parent, "drivers")
         if not self.status_:
             return
-        if self.parent.db.init_list(self.cb_select, "*", "itrs", people=True) == ERR:
+        if self.parent.db.init_list(self.cb_select, "*", self.table, people=True) == ERR:
             self.status_ = False
             return
         self.list_ui = [self.family, self.name, self.surname, self.d_birthday, self.passport, self.adr]

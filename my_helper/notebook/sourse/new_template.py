@@ -33,6 +33,7 @@ class TempForm (QDialog):
             self.current_id = int(self.rows_from_db[-1][-1]) + 1
         self.vac = False
         self.bill = False
+        self.mat = False
 
     def check_start(self, ui_file):
         try:
@@ -42,31 +43,32 @@ class TempForm (QDialog):
             return msg_er(self, LOAD_UI)
 
     def check_input(self):
-        data = set(self.get_data())
+        data = self.get_data()
         if data == ERR:
-            return
+            return ERR
         empty = {"", ZERO, NOT}
-        if data.intersection(empty):
+        if empty.intersection(set(data)):
             msg_info(self, FULL_ALL)
-            return
+            return False
         if self.vac:
             if not self.check_vac():
                 msg_info(self, CHECK_COVID)
                 return False
-        return True
+        return data
 
     def ev_ok(self):
-        if not self.check_input() or self.check_input() == ERR:
+        data = self.check_input()
+        if not data or data == ERR:
             return False
-        data = self.get_data()
-        if not data:
-            return
         if self.parent.db.my_commit(ins.add_to_db(data, self.table)) == ERR:
+            msg_info(self, "Запись не добавлена")
             return
         if self.bill:
             if self.create_bill(data) == ERR:
                 return
-        self.close()
+        answer = msg_q(self, ADDED_NOTE)
+        if answer == mes.Ok:
+            self.close()
 
     def ev_select(self, text):
         self._select(text)
@@ -86,8 +88,13 @@ class TempForm (QDialog):
 
     def set_data(self, data):
         k = 0
+        if self.mat:
+            self.summ.setText(data[2])
         for item in self.list_ui:
             if "QLineEdit" in str(type(item)):
+                if self.mat and k == 2:
+                    k = k + 1
+                    continue
                 item.setText(data[k])
             if "QLabel" in str(type(item)):
                 item.setText(data[k])
@@ -127,7 +134,10 @@ class TempForm (QDialog):
                 if item.currentText().split(". ")[0].isdigit():
                     val = "".join(item.currentText().split(". ")[1:])
                 else:
-                    val = ""
+                    if item.currentText() == "M" or item.currentText() == "Ж":
+                        val = item.currentText()
+                    if item.currentText() in si:
+                        val = item.currentText()
             elif "QSpinBox" in str(type(item)):
                 val = str(item.value())
             elif "QCheckBox" in str(type(item)):
@@ -165,6 +175,8 @@ class TempForm (QDialog):
         data = self.get_data()
         if not data:
             return
+        if self.mat:
+            data[2] = str(int(self.summ.text()) + int(data[2]))
         answer = msg_q(self, CHANGE_NOTE + str(data) + "?")
         if answer == mes.Ok:
             data[-1] = str(self.current_id)

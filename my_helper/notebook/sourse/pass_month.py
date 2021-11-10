@@ -52,7 +52,13 @@ class MonthPass(TempPass):
             item.activated[str].connect(self.new_worker)
             item.setEnabled(False)
         self.list_ui[0].setEnabled(True)
-        for people in self.all_people:
+        fields = "(family, name, surname, post, birthday, passport, passport_got, adr, live_adr, status)"
+        workers_ = self.parent.db.get_data(fields, self.table) + self.parent.db.get_data(fields, "itrs")
+        self.workers = list()
+        for item in workers_:
+            if "работает" in item[-1] or "в отпуске" in item[-1]:
+                self.workers.append(item)
+        for people in self.workers:
             family = str(people[-1]) + ". " + short_name(people)
             if family[-2] != 3:
                 for item in self.list_ui:
@@ -103,7 +109,7 @@ class MonthPass(TempPass):
         except:
             return msg_er(self,  + path)
         if self.cb_all.isChecked():
-            people = self.all_people
+            people = self.workers
         else:
             for elem in self.list_ui:
                 if elem.currentText() != NOT:

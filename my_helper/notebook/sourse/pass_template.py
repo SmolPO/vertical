@@ -89,6 +89,7 @@ class TempPass(QDialog):
             return
         if self.conf.set_next_number(self.conf.get_next_number()) == ERR:
             return
+        os.startfile(path)
         self.close()
 
     def new_worker(self):

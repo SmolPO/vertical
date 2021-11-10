@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>485</width>
-    <height>408</height>
+    <width>657</width>
+    <height>442</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,15 +19,16 @@
   <widget class="QLabel" name="label">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>10</y>
-     <width>171</width>
+     <x>260</x>
+     <y>20</y>
+     <width>161</width>
      <height>31</height>
     </rect>
    </property>
    <property name="font">
     <font>
-     <pointsize>12</pointsize>
+     <family>Times New Roman</family>
+     <pointsize>14</pointsize>
      <bold>true</bold>
     </font>
    </property>
@@ -38,34 +39,52 @@
   <widget class="QLabel" name="label_2">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>50</y>
+     <x>50</x>
+     <y>70</y>
      <width>121</width>
-     <height>16</height>
+     <height>30</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>Короткое название *</string>
+    <string>Название</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="name">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>150</x>
      <y>70</y>
-     <width>131</width>
-     <height>22</height>
+     <width>150</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLabel" name="label_3">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>50</y>
+     <x>50</x>
+     <y>160</y>
      <width>81</width>
-     <height>16</height>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Заказчик</string>
@@ -74,80 +93,122 @@
   <widget class="QTextEdit" name="my_object">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>170</y>
+     <x>400</x>
+     <y>70</y>
      <width>201</width>
-     <height>61</height>
+     <height>90</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLabel" name="label_4">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>150</y>
-     <width>49</width>
+     <x>330</x>
+     <y>70</y>
+     <width>71</width>
      <height>16</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>Объект *</string>
+    <string>Объект</string>
    </property>
   </widget>
   <widget class="QTextEdit" name="work">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>170</y>
+     <x>400</x>
+     <y>190</y>
      <width>201</width>
-     <height>61</height>
+     <height>90</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLabel" name="label_5">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>150</y>
+     <x>320</x>
+     <y>180</y>
      <width>111</width>
-     <height>16</height>
+     <height>31</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>Вид работ *</string>
+    <string>Вид работ</string>
    </property>
   </widget>
   <widget class="QLineEdit" name="part">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>70</y>
-     <width>131</width>
-     <height>22</height>
+     <x>150</x>
+     <y>130</y>
+     <width>150</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLabel" name="label_6">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>50</y>
+     <x>50</x>
+     <y>130</y>
      <width>91</width>
-     <height>16</height>
+     <height>30</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>Цех/отдел *</string>
+    <string>Цех/отдел</string>
    </property>
   </widget>
   <widget class="QPushButton" name="b_cancel">
    <property name="geometry">
     <rect>
-     <x>290</x>
-     <y>330</y>
-     <width>75</width>
-     <height>24</height>
+     <x>510</x>
+     <y>390</y>
+     <width>90</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Отмена</string>
@@ -156,11 +217,17 @@
   <widget class="QPushButton" name="b_ok">
    <property name="geometry">
     <rect>
-     <x>380</x>
-     <y>330</y>
-     <width>75</width>
-     <height>24</height>
+     <x>510</x>
+     <y>350</y>
+     <width>90</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>ОК</string>
@@ -169,57 +236,87 @@
   <widget class="QLineEdit" name="number">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>120</y>
-     <width>113</width>
-     <height>22</height>
+     <x>150</x>
+     <y>100</y>
+     <width>150</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLabel" name="label_8">
    <property name="geometry">
     <rect>
-     <x>40</x>
+     <x>50</x>
      <y>100</y>
      <width>101</width>
-     <height>16</height>
+     <height>30</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>Номер договора *</string>
+    <string>Номер</string>
    </property>
   </widget>
   <widget class="QDateEdit" name="date">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>120</y>
-     <width>110</width>
-     <height>22</height>
+     <x>150</x>
+     <y>190</y>
+     <width>150</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLabel" name="label_9">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>100</y>
+     <x>50</x>
+     <y>190</y>
      <width>101</width>
-     <height>16</height>
+     <height>30</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>Дата договора </string>
+    <string>Дата начала</string>
    </property>
   </widget>
   <widget class="QComboBox" name="cb_select">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>360</y>
-     <width>141</width>
-     <height>22</height>
+     <x>150</x>
+     <y>390</y>
+     <width>151</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <item>
     <property name="text">
@@ -230,34 +327,52 @@
   <widget class="QLabel" name="label_10">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>330</y>
-     <width>141</width>
-     <height>16</height>
+     <x>50</x>
+     <y>390</y>
+     <width>81</width>
+     <height>30</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>Выбрать/редактировать</string>
+    <string>Выбрать</string>
    </property>
   </widget>
   <widget class="QComboBox" name="cb_comp">
    <property name="geometry">
     <rect>
-     <x>190</x>
-     <y>70</y>
-     <width>111</width>
-     <height>22</height>
+     <x>150</x>
+     <y>160</y>
+     <width>150</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QPushButton" name="b_change">
    <property name="geometry">
     <rect>
-     <x>200</x>
-     <y>360</y>
-     <width>75</width>
-     <height>24</height>
+     <x>400</x>
+     <y>390</y>
+     <width>90</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Изменить</string>
@@ -266,11 +381,17 @@
   <widget class="QPushButton" name="b_kill">
    <property name="geometry">
     <rect>
-     <x>200</x>
-     <y>330</y>
-     <width>75</width>
-     <height>24</height>
+     <x>400</x>
+     <y>350</y>
+     <width>90</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Удалить</string>
@@ -279,57 +400,87 @@
   <widget class="QDateEdit" name="date_end">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>120</y>
-     <width>110</width>
-     <height>22</height>
+     <x>150</x>
+     <y>220</y>
+     <width>150</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLineEdit" name="price">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>260</y>
-     <width>91</width>
-     <height>22</height>
+     <x>150</x>
+     <y>250</y>
+     <width>150</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLabel" name="label_11">
    <property name="geometry">
     <rect>
-     <x>320</x>
-     <y>100</y>
+     <x>50</x>
+     <y>220</y>
      <width>101</width>
-     <height>16</height>
+     <height>30</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>Дата окончания</string>
+    <string>Окончание</string>
    </property>
   </widget>
   <widget class="QLabel" name="label_12">
    <property name="geometry">
     <rect>
-     <x>40</x>
-     <y>240</y>
+     <x>50</x>
+     <y>250</y>
      <width>101</width>
-     <height>16</height>
+     <height>30</height>
     </rect>
    </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
+   </property>
    <property name="text">
-    <string>Стоимость работ</string>
+    <string>Стоимость</string>
    </property>
   </widget>
   <widget class="QCheckBox" name="nds">
    <property name="geometry">
     <rect>
-     <x>410</x>
-     <y>260</y>
+     <x>320</x>
+     <y>310</y>
      <width>76</width>
-     <height>20</height>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="acceptDrops">
     <bool>false</bool>
@@ -344,21 +495,33 @@
   <widget class="QSpinBox" name="avans">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>260</y>
-     <width>91</width>
-     <height>22</height>
+     <x>150</x>
+     <y>280</y>
+     <width>150</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
   </widget>
   <widget class="QLabel" name="label_13">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>240</y>
+     <x>50</x>
+     <y>280</y>
      <width>49</width>
-     <height>16</height>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Аванс</string>
@@ -367,31 +530,43 @@
   <widget class="QComboBox" name="status">
    <property name="geometry">
     <rect>
-     <x>148</x>
-     <y>260</y>
-     <width>91</width>
-     <height>22</height>
+     <x>150</x>
+     <y>310</y>
+     <width>151</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <item>
     <property name="text">
-     <string>Начат</string>
+     <string>1. Начат</string>
     </property>
    </item>
    <item>
     <property name="text">
-     <string>Завершен</string>
+     <string>2. Завершен</string>
     </property>
    </item>
   </widget>
   <widget class="QLabel" name="label_14">
    <property name="geometry">
     <rect>
-     <x>150</x>
-     <y>240</y>
+     <x>50</x>
+     <y>310</y>
      <width>49</width>
-     <height>16</height>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Статус</string>
@@ -400,11 +575,17 @@
   <widget class="QPushButton" name="b_docs">
    <property name="geometry">
     <rect>
-     <x>260</x>
-     <y>290</y>
-     <width>101</width>
-     <height>24</height>
+     <x>150</x>
+     <y>350</y>
+     <width>151</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Создать доки</string>
@@ -413,11 +594,17 @@
   <widget class="QPushButton" name="b_menu">
    <property name="geometry">
     <rect>
-     <x>374</x>
-     <y>290</y>
-     <width>81</width>
-     <height>24</height>
+     <x>400</x>
+     <y>310</y>
+     <width>90</width>
+     <height>30</height>
     </rect>
+   </property>
+   <property name="font">
+    <font>
+     <family>Times New Roman</family>
+     <pointsize>12</pointsize>
+    </font>
    </property>
    <property name="text">
     <string>Меню</string>

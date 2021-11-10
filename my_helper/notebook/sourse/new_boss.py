@@ -15,7 +15,7 @@ class NewBoss(TempForm):
         super(NewBoss, self).__init__(ui_file, parent, "bosses")
         if not self.status_:
             return
-        if self.parent.db.init_list(self.cb_select, "*", "itrs", people=True) == ERR:
+        if self.parent.db.init_list(self.cb_select, "*", "bosses", people=True) == ERR:
             self.status_ = False
             return
         self.list_ui = list([self.family, self.name, self.surname, self.post, self.email, self.phone, self.cb_sex])

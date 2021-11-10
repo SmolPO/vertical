@@ -525,8 +525,8 @@ class CreateReport(QDialog):
         for key in self.list_ui.keys():
             for ui in self.list_ui.get(key):
                 ui.addItem("(нет)")
-                self.parent.parent.db.init_list(ui, "*", "bosses", people=True)
-                self.parent.parent.db.init_list(ui, "*", "itrs", people=True)
+                self.parent.parent.parent.db.init_list(ui, "*", "bosses", people=True)
+                self.parent.parent.parent.db.init_list(ui, "*", "itrs", people=True)
         pass
 
     def init_dicts(self):

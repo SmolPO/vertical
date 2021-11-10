@@ -57,6 +57,10 @@ class NewTable:
             for j in range(1, count_column):
                 sheet.cell(row=ind + delta, column=j).value = ""
         for ind in range(1, len(list_people) + 5):
+            if ind >= len(list_people):
+                for i in range(1, count_column):
+                    sheet.cell(row=ind + delta, column=i).border = self.border
+                continue
             sheet.cell(row=ind + delta, column=1).value = ind
             sheet.cell(row=ind + delta, column=2).value = list_people[ind - 1]
             for i in range(1, count_column):

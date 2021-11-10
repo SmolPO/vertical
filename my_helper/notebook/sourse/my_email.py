@@ -13,6 +13,7 @@ class SendPost(QDialog):
     def __init__(self, db, path):
         self.status_ = True
         self.conf = Ini(self)
+        super(SendPost, self).__init__()
         ui_file = self.conf.get_path_ui("email")
         if not ui_file or ui_file == ERR:
             self.status_ = False
@@ -22,7 +23,7 @@ class SendPost(QDialog):
         except:
             self.status_ = True
             return
-        super(SendPost, self).__init__()
+
         self.db = db
         self.b_ok.clicked.connect(self.ev_send)
         self.b_cancel.clicked.connect(self.ev_cancel)

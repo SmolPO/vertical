@@ -26,7 +26,7 @@ class NewITR(TempForm):
             self.status_ = False
             return
         self.list_ui = [self.family, self.name, self.surname, self.post,
-                        self.passport, self.passport_date, self.passport_got,
+                        self.passport, self.passport_got,
                         self.adr, self.live_adr, self.cb_auto,
                         self.inn, self.snils,
                         self.n_td, self.d_td,

@@ -14,6 +14,8 @@ class NewMaterial(TempForm):
         super(NewMaterial, self).__init__(ui_file, parent, "materials")
         if not self.status_:
             return
+        self.b_change.setText("Добавить")
+        self.b_ok.setText("Создать")
         self.provider_ = ""
         self.add_new = True
         self.provider.stateChanged.connect(self.provider_select)
@@ -23,13 +25,13 @@ class NewMaterial(TempForm):
         if self.parent.db.init_list(self.cb_contracts, "number, id", "contracts") == ERR:
             return
         self.init_mask()
-        self.list_ui = [self.value, self.name, self.cb_contracts, self.cb_si]
+        self.list_ui = [self.name, self.cb_si, self.value, self.cb_contracts, self.cb_si]
+        self.mat = True
 
     def init_mask(self):
         self.value.setValidator(QREVal(QRE("[0-9]{9}")))
 
-    def _ev_select(self, text):
-        self.slice_select = len(text)
+    def _select(self, text):
         if text != NOT:
             self.add_new = False
         else:

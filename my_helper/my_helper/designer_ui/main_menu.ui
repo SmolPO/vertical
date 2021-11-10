@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>587</width>
-    <height>556</height>
+    <width>650</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,11 +17,17 @@
    <widget class="QPushButton" name="b_attorney">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>160</y>
+      <x>470</x>
+      <y>190</y>
       <width>121</width>
-      <height>21</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Доверенность</string>
@@ -30,11 +36,17 @@
    <widget class="QPushButton" name="b_invoice">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>470</x>
       <y>70</y>
       <width>121</width>
-      <height>21</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Накладная</string>
@@ -43,11 +55,17 @@
    <widget class="QPushButton" name="b_journal">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>130</y>
+      <x>470</x>
+      <y>150</y>
       <width>121</width>
-      <height>21</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Журнал-ковид</string>
@@ -56,11 +74,17 @@
    <widget class="QPushButton" name="b_tabel">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>100</y>
+      <x>470</x>
+      <y>110</y>
       <width>121</width>
-      <height>21</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Табель</string>
@@ -69,11 +93,17 @@
    <widget class="Line" name="ui_line">
     <property name="geometry">
      <rect>
-      <x>410</x>
-      <y>30</y>
+      <x>440</x>
+      <y>50</y>
       <width>20</width>
-      <height>301</height>
+      <height>281</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -85,11 +115,17 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>40</y>
-      <width>121</width>
-      <height>21</height>
+      <x>590</x>
+      <y>480</y>
+      <width>1</width>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Сканировать</string>
@@ -98,11 +134,17 @@
    <widget class="QPushButton" name="b_new_company">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>310</y>
+      <x>270</x>
+      <y>390</y>
       <width>121</width>
-      <height>21</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Заказчик</string>
@@ -111,11 +153,17 @@
    <widget class="QPushButton" name="b_new_person">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>460</y>
+      <x>120</x>
+      <y>430</y>
       <width>121</width>
-      <height>21</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Сотрудник</string>
@@ -124,19 +172,21 @@
    <widget class="QLabel" name="ui_l_fast">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>20</y>
+      <x>470</x>
+      <y>30</y>
       <width>111</width>
-      <height>16</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
       <bold>true</bold>
      </font>
     </property>
     <property name="text">
-     <string>Быстрые действия</string>
+     <string>Бланки</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_act">
@@ -145,11 +195,17 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>240</y>
+      <x>50</x>
+      <y>310</y>
       <width>181</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Исполнительная</string>
@@ -158,11 +214,17 @@
    <widget class="QPushButton" name="b_pass_month">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>100</y>
+      <x>50</x>
+      <y>110</y>
       <width>181</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Продление на месяц</string>
@@ -171,11 +233,17 @@
    <widget class="QPushButton" name="b_pass_week">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>40</y>
+      <x>50</x>
+      <y>70</y>
       <width>181</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Пропуск на выходные</string>
@@ -187,45 +255,35 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>70</y>
-      <width>181</width>
-      <height>24</height>
+      <x>450</x>
+      <y>90</y>
+      <width>1</width>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Продление на машину</string>
     </property>
    </widget>
-   <widget class="QLabel" name="ui_l_notf">
-    <property name="enabled">
-     <bool>false</bool>
-    </property>
+   <widget class="QPushButton" name="b_pass_unlock">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>280</y>
-      <width>111</width>
-      <height>16</height>
+      <x>50</x>
+      <y>150</y>
+      <width>181</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
-      <bold>true</bold>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
      </font>
-    </property>
-    <property name="text">
-     <string>Уведомления</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="b_pass_unlock">
-    <property name="geometry">
-     <rect>
-      <x>20</x>
-      <y>130</y>
-      <width>181</width>
-      <height>24</height>
-     </rect>
     </property>
     <property name="text">
      <string>Разблокировка пропуска</string>
@@ -234,11 +292,17 @@
    <widget class="QPushButton" name="b_new_material">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>40</y>
+      <x>250</x>
+      <y>70</y>
       <width>181</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Ввоз материалов</string>
@@ -250,11 +314,17 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>130</y>
+      <x>250</x>
+      <y>190</y>
       <width>181</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Заявка на деньги</string>
@@ -263,14 +333,16 @@
    <widget class="QLabel" name="ui_l_pass">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>20</y>
+      <x>50</x>
+      <y>30</y>
       <width>81</width>
-      <height>16</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
       <bold>true</bold>
      </font>
     </property>
@@ -281,14 +353,16 @@
    <widget class="QLabel" name="ui_l_ohter">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>20</y>
+      <x>250</x>
+      <y>30</y>
       <width>81</width>
-      <height>16</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
       <bold>true</bold>
      </font>
     </property>
@@ -299,14 +373,16 @@
    <widget class="QLabel" name="ui_l_doc">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>220</y>
-      <width>91</width>
-      <height>16</height>
+      <x>50</x>
+      <y>270</y>
+      <width>151</width>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
       <bold>true</bold>
      </font>
     </property>
@@ -317,14 +393,16 @@
    <widget class="QLabel" name="ui_l_accounting">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>110</y>
+      <x>250</x>
+      <y>150</y>
       <width>91</width>
-      <height>16</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
       <bold>true</bold>
      </font>
     </property>
@@ -332,35 +410,19 @@
      <string>Бухгалтерия</string>
     </property>
    </widget>
-   <widget class="QLabel" name="ui_l_create">
-    <property name="geometry">
-     <rect>
-      <x>440</x>
-      <y>290</y>
-      <width>61</width>
-      <height>16</height>
-     </rect>
-    </property>
-    <property name="font">
-     <font>
-      <bold>true</bold>
-     </font>
-    </property>
-    <property name="text">
-     <string>Добавить</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="ui_l_SP">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>200</y>
+      <x>250</x>
+      <y>270</y>
       <width>91</width>
-      <height>16</height>
+      <height>30</height>
      </rect>
     </property>
     <property name="font">
      <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
       <bold>true</bold>
      </font>
     </property>
@@ -371,24 +433,36 @@
    <widget class="QPushButton" name="b_pass_drive">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>160</y>
+      <x>50</x>
+      <y>190</y>
       <width>181</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
     </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
+    </property>
     <property name="text">
-     <string>Разовый пропуск на машину</string>
+     <string>Разовый пропуск</string>
     </property>
    </widget>
    <widget class="QPushButton" name="b_pass_issue">
     <property name="geometry">
      <rect>
-      <x>20</x>
-      <y>190</y>
+      <x>50</x>
+      <y>230</y>
       <width>181</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Выдать пропуск</string>
@@ -400,11 +474,17 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>70</y>
+      <x>250</x>
+      <y>110</y>
       <width>181</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Сканер</string>
@@ -413,11 +493,17 @@
    <widget class="QPushButton" name="b_new_boss">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>370</y>
+      <x>270</x>
+      <y>470</y>
       <width>121</width>
-      <height>21</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Босс</string>
@@ -426,11 +512,17 @@
    <widget class="QPushButton" name="b_notepad">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>190</y>
+      <x>470</x>
+      <y>230</y>
       <width>121</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Блокнот</string>
@@ -439,11 +531,17 @@
    <widget class="QPushButton" name="b_new_build">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>340</y>
+      <x>270</x>
+      <y>430</y>
       <width>121</width>
-      <height>21</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Договор</string>
@@ -452,11 +550,17 @@
    <widget class="QPushButton" name="b_new_itr">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>490</y>
+      <x>120</x>
+      <y>390</y>
       <width>121</width>
-      <height>21</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Прораб</string>
@@ -465,11 +569,17 @@
    <widget class="QPushButton" name="b_music">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>220</y>
+      <x>470</x>
+      <y>270</y>
       <width>121</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Сайты</string>
@@ -478,11 +588,17 @@
    <widget class="QPushButton" name="b_new_auto">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>400</y>
+      <x>420</x>
+      <y>390</y>
       <width>121</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Автомобиль</string>
@@ -491,11 +607,17 @@
    <widget class="QPushButton" name="b_new_driver">
     <property name="geometry">
      <rect>
-      <x>440</x>
+      <x>420</x>
       <y>430</y>
       <width>121</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Водитель</string>
@@ -507,11 +629,17 @@
     </property>
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>220</y>
+      <x>250</x>
+      <y>310</y>
       <width>181</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Распечатать ТБ</string>
@@ -520,11 +648,17 @@
    <widget class="QLabel" name="l_weather">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>470</y>
+      <x>60</x>
+      <y>500</y>
       <width>221</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>TextLabel</string>
@@ -533,11 +667,17 @@
    <widget class="QLabel" name="l_temp">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>490</y>
+      <x>60</x>
+      <y>520</y>
       <width>71</width>
       <height>16</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>TextLabel</string>
@@ -546,11 +686,16 @@
    <widget class="Line" name="line">
     <property name="geometry">
      <rect>
-      <x>10</x>
-      <y>470</y>
+      <x>40</x>
+      <y>500</y>
       <width>16</width>
       <height>41</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+     </font>
     </property>
     <property name="orientation">
      <enum>Qt::Vertical</enum>
@@ -559,11 +704,17 @@
    <widget class="QPushButton" name="b_new_bill">
     <property name="geometry">
      <rect>
-      <x>220</x>
-      <y>160</y>
+      <x>250</x>
+      <y>230</y>
       <width>181</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Чек</string>
@@ -572,14 +723,40 @@
    <widget class="QPushButton" name="b_empty">
     <property name="geometry">
      <rect>
-      <x>440</x>
-      <y>250</y>
+      <x>470</x>
+      <y>310</y>
       <width>121</width>
-      <height>24</height>
+      <height>30</height>
      </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>12</pointsize>
+     </font>
     </property>
     <property name="text">
      <string>Бланк</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label">
+    <property name="geometry">
+     <rect>
+      <x>280</x>
+      <y>350</y>
+      <width>111</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Times New Roman</family>
+      <pointsize>14</pointsize>
+      <bold>true</bold>
+     </font>
+    </property>
+    <property name="text">
+     <string>Добавить</string>
     </property>
    </widget>
   </widget>
@@ -589,7 +766,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>587</width>
+     <width>650</width>
      <height>22</height>
     </rect>
    </property>

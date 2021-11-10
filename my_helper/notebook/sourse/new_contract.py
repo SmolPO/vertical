@@ -31,7 +31,7 @@ class NewContact(TempForm):
             return
         self.list_ui = [self.name, self.cb_comp, self.number, self.date, self.my_object, self.work,
                         self.part, self.price, self.date_end, self.nds, self.avans, self.status]
-        self.cb_comp.addItem(self.parent.customer)
+        self.cb_comp.addItem("1. " + self.parent.customer_[0])
         self.b_menu.setEnabled(False)
         path_1 = self.conf.get_path("path")
         path_2 = self.conf.get_path("path_contracts")
@@ -47,7 +47,7 @@ class NewContact(TempForm):
         self.b_menu.setEnabled(False) if text == empty else self.b_menu.setEnabled(True)
         return True
 
-    def create_docs(self):
+    def create_folders(self):
         if not self.check_input():
             return
         contract = str(self.number.text())
@@ -62,12 +62,27 @@ class NewContact(TempForm):
                 except:
                     return msg_er(self, CREATE_FOLDER)
 
-        if self.create_acts():
-            msg_info(self, CREATE_ACT)
-        if self.create_doc() == ERR:
-            msg_info(self, CREATE_DOCS)
-        if self.create_journal():
-            msg_info(self, CREATE_JOURNAL)
+    def create_docs(self):
+        if self.cb_select.currentText() == NOT:
+            msg_info(self, "Выберите сначала договор")
+            return
+        self.create_folders()
+        wnd = CreateContract(self, self.path)
+        if not wnd.status_:
+            return
+        wnd.exec_()
+
+    def create_journal(self):
+        wnd = Journal(self)
+        if not wnd.status_:
+            return ERR
+        wnd.exec_()
+
+    def create_acts(self):
+        wnd = CreateReport(self)
+        if not wnd.status_:
+            return ERR
+        wnd.exec_()
 
     def check_folder(self, contract, path):
         path_docs = path + "/" + contract
@@ -108,58 +123,6 @@ class NewContact(TempForm):
                 if not "Накладные" in current_folder:
                     folders.append(_folders[6])
 
-    def create_doc(self):
-        path_1 = self.conf.get_path("path")
-        path_2 = self.conf.get_path("path_scan")
-        if path_1 == ERR or path_2 == ERR:
-            return ERR
-        folder = path_1 + path_2
-        types = ["Договор", "ЕКР", "Дефектная", "Материалы"]
-        for file in types:
-            answer = msg_q(self,  "Отсканируйте " + file + " в PDF по порядку и затем нажмите ОК.")
-            if answer == mes.Ok:
-                answer = msg_q(self, "Вы точно отсканировали?")
-                if answer == mes.Ok:
-                    pdf_merger = PyPDF2.PdfFileMerger()
-                    files = s_list_dir(folder)
-                    if files == ERR:
-                        return ERR
-                    path_to = self.path + "/документы/Договор/" + file + ".pdf"
-                    for doc in files:
-                        if ".pdf" in doc:
-                            try:
-                                pdf_merger.append(str(folder + "/" + doc))
-                            except:
-                                return msg_er(self, GET_FILE + str(folder + "/" + doc))
-                    try:
-                        pdf_merger.write(path_to)
-                    except:
-                        return msg_er(self, GET_FILE + path_to)
-                    pdf_merger.close()
-                    for doc in files:
-                        try:
-                            os.remove(str(folder + "/" + doc))
-                        except:
-                            return msg_er(self, GET_FILE + str(folder + "/" + doc))
-
-    def create_journal(self):
-        answer = msg_q(self, "Создать журнал работ?")
-        if answer == mes.Ok:
-            wnd = Journal(self)
-            if not wnd.status_:
-                return ERR
-            wnd.exec_()
-
-    def create_acts(self):
-        answer = msg_q(self, "Создать исполнительную?")
-        if answer == mes.Ok:
-            wnd = CreateReport(self)
-            if not wnd.status_:
-                return ERR
-            wnd.exec_()
-        else:
-            return
-
     def check_input(self):
         if "" in list([self.name.text(), self.number.text(),
                        self.my_object.toPlainText(), self.work.toPlainText(),
@@ -182,6 +145,78 @@ class NewContact(TempForm):
         if not wnd.status_:
             return ERR
         wnd.exec_()
+
+
+class CreateContract(QDialog):
+    def __init__(self, parent=None, path=None):
+        self.status_ = True
+        self.conf = Ini(self)
+        ui_file = self.conf.get_path_ui("menu_contract")
+        if not ui_file:
+            self.status_ = False
+            return
+        super(CreateContract, self).__init__()
+        uic.loadUi(ui_file, self)
+        self.parent = parent
+        self.b_act.clicked.connect(self.create_file)
+        self.b_journal.clicked.connect(self.create_file)
+        self.b_def.clicked.connect(self.create_file)
+        self.b_ekr.clicked.connect(self.create_file)
+        self.b_mat.clicked.connect(self.create_file)
+        self.b_contract.clicked.connect(self.create_file)
+        self.path = path
+
+    def create_file(self):
+        name = self.sender().text()
+        if name in ["Договор", "ЕКР", "Дефектная", "Материалы"]:
+            path = self.path + "/Документы/" + name + PDF
+            if self.merge_docs(path) == ERR:
+                return
+            else:
+                msg_info(self, "Документ создан")
+                os.startfile(path)
+                return
+        elif name == "Журнал":
+            wnd = Journal(self)
+            if not wnd.status_:
+                return ERR
+            wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
+            wnd.exec_()
+        elif name == "Исполнительная":
+            wnd = CreateReport(self)
+            if not wnd.status_:
+                return ERR
+            wnd.setFixedSize(wnd.geometry().width(), wnd.geometry().height())
+            wnd.exec_()
+
+    def merge_docs(self, path_save):
+        path_1 = self.conf.get_path("path")
+        path_2 = self.conf.get_path("path_scan")
+        if path_1 == ERR or path_2 == ERR:
+            return ERR
+        folder = path_1 + path_2
+        pdf_merger = PyPDF2.PdfFileMerger()
+        files = os.listdir(folder)
+        answer = msg_q(self, "Отсканируйте документ в PDF по порядку и затем нажмите ОК.")
+        if answer == mes.Ok:
+            answer = msg_q(self, "Вы точно отсканировали?")
+            if answer == mes.Ok:
+                if not files:
+                    msg_info(self, "Сканы не найдены. Пожалуйста отсканируйте документы")
+                    return
+                for item in files:
+                    if PDF in item:
+                        try:
+                            pdf_merger.append(str(folder + "/" + item))
+                        except:
+                            return msg_er(self, GET_FILE + str(folder + "/" + item))
+                try:
+                    pdf_merger.write(path_save)
+                    pdf_merger.close()
+                    for item in files:
+                        os.remove(str(folder + "/" + item))
+                except:
+                    return msg_er(self, GET_FILE + path_save)
 
 
 class MenuContract(QDialog):

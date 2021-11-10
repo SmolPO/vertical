@@ -159,8 +159,8 @@
   <widget class="QTextEdit" name="passport_got">
    <property name="geometry">
     <rect>
-     <x>820</x>
-     <y>60</y>
+     <x>240</x>
+     <y>70</y>
      <width>111</width>
      <height>101</height>
     </rect>
@@ -169,7 +169,7 @@
   <widget class="QTextEdit" name="adr">
    <property name="geometry">
     <rect>
-     <x>650</x>
+     <x>780</x>
      <y>110</y>
      <width>151</width>
      <height>51</height>
@@ -179,7 +179,7 @@
   <widget class="QTextEdit" name="live_adr">
    <property name="geometry">
     <rect>
-     <x>650</x>
+     <x>780</x>
      <y>60</y>
      <width>151</width>
      <height>31</height>
@@ -202,8 +202,8 @@
   <widget class="QLabel" name="label_9">
    <property name="geometry">
     <rect>
-     <x>820</x>
-     <y>40</y>
+     <x>240</x>
+     <y>50</y>
      <width>111</width>
      <height>16</height>
     </rect>
@@ -212,23 +212,10 @@
     <string>Выдан (отдел, код)</string>
    </property>
   </widget>
-  <widget class="QLabel" name="label_10">
-   <property name="geometry">
-    <rect>
-     <x>20</x>
-     <y>170</y>
-     <width>71</width>
-     <height>16</height>
-    </rect>
-   </property>
-   <property name="text">
-    <string>Дата выдачи</string>
-   </property>
-  </widget>
   <widget class="QLabel" name="label_11">
    <property name="geometry">
     <rect>
-     <x>650</x>
+     <x>780</x>
      <y>90</y>
      <width>91</width>
      <height>16</height>
@@ -241,7 +228,7 @@
   <widget class="QLabel" name="label_12">
    <property name="geometry">
     <rect>
-     <x>650</x>
+     <x>780</x>
      <y>40</y>
      <width>121</width>
      <height>16</height>
@@ -254,7 +241,7 @@
   <widget class="QLineEdit" name="inn">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>440</x>
      <y>90</y>
      <width>121</width>
      <height>22</height>
@@ -264,7 +251,7 @@
   <widget class="QLineEdit" name="snils">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>440</x>
      <y>110</y>
      <width>121</width>
      <height>22</height>
@@ -274,7 +261,7 @@
   <widget class="QLabel" name="label_13">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>380</x>
      <y>90</y>
      <width>31</width>
      <height>16</height>
@@ -287,7 +274,7 @@
   <widget class="QLabel" name="label_14">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>380</x>
      <y>110</y>
      <width>51</width>
      <height>16</height>
@@ -300,7 +287,7 @@
   <widget class="QLineEdit" name="n_td">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>440</x>
      <y>130</y>
      <width>121</width>
      <height>22</height>
@@ -310,7 +297,7 @@
   <widget class="QLabel" name="label_15">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>380</x>
      <y>130</y>
      <width>61</width>
      <height>16</height>
@@ -323,7 +310,7 @@
   <widget class="QDateEdit" name="d_td">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>440</x>
      <y>150</y>
      <width>121</width>
      <height>22</height>
@@ -333,7 +320,7 @@
   <widget class="QLabel" name="label_16">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>380</x>
      <y>150</y>
      <width>51</width>
      <height>16</height>
@@ -709,7 +696,7 @@
   <widget class="QLabel" name="label_40">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>380</x>
      <y>50</y>
      <width>41</width>
      <height>16</height>
@@ -804,7 +791,7 @@
   <widget class="QComboBox" name="cb_auto">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>440</x>
      <y>50</y>
      <width>121</width>
      <height>22</height>
@@ -896,20 +883,10 @@
     <string>Добавить</string>
    </property>
   </widget>
-  <widget class="QDateEdit" name="passport_date">
-   <property name="geometry">
-    <rect>
-     <x>100</x>
-     <y>170</y>
-     <width>111</width>
-     <height>22</height>
-    </rect>
-   </property>
-  </widget>
   <widget class="QComboBox" name="status">
    <property name="geometry">
     <rect>
-     <x>310</x>
+     <x>440</x>
      <y>70</y>
      <width>121</width>
      <height>22</height>
@@ -939,7 +916,7 @@
   <widget class="QComboBox" name="cb_vac">
    <property name="geometry">
     <rect>
-     <x>520</x>
+     <x>650</x>
      <y>50</y>
      <width>111</width>
      <height>22</height>
@@ -964,7 +941,7 @@
   <widget class="QDateEdit" name="d_vac_1">
    <property name="geometry">
     <rect>
-     <x>520</x>
+     <x>650</x>
      <y>70</y>
      <width>110</width>
      <height>22</height>
@@ -974,7 +951,7 @@
   <widget class="QDateEdit" name="d_vac_2">
    <property name="geometry">
     <rect>
-     <x>520</x>
+     <x>650</x>
      <y>90</y>
      <width>110</width>
      <height>22</height>
@@ -984,7 +961,7 @@
   <widget class="QLineEdit" name="vac_doc">
    <property name="geometry">
     <rect>
-     <x>520</x>
+     <x>650</x>
      <y>110</y>
      <width>111</width>
      <height>22</height>
@@ -994,7 +971,7 @@
   <widget class="QTextEdit" name="place">
    <property name="geometry">
     <rect>
-     <x>520</x>
+     <x>650</x>
      <y>130</y>
      <width>111</width>
      <height>31</height>
@@ -1004,7 +981,7 @@
   <widget class="QLabel" name="label_46">
    <property name="geometry">
     <rect>
-     <x>250</x>
+     <x>380</x>
      <y>70</y>
      <width>41</width>
      <height>16</height>
@@ -1017,7 +994,7 @@
   <widget class="QLabel" name="label_47">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>590</x>
      <y>50</y>
      <width>49</width>
      <height>16</height>
@@ -1030,7 +1007,7 @@
   <widget class="QLabel" name="label_48">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>590</x>
      <y>70</y>
      <width>49</width>
      <height>16</height>
@@ -1043,7 +1020,7 @@
   <widget class="QLabel" name="label_49">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>590</x>
      <y>90</y>
      <width>49</width>
      <height>16</height>
@@ -1056,7 +1033,7 @@
   <widget class="QLabel" name="label_50">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>590</x>
      <y>110</y>
      <width>49</width>
      <height>16</height>
@@ -1069,7 +1046,7 @@
   <widget class="QLabel" name="label_51">
    <property name="geometry">
     <rect>
-     <x>460</x>
+     <x>590</x>
      <y>130</y>
      <width>49</width>
      <height>16</height>

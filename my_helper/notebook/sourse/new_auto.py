@@ -19,7 +19,7 @@ class NewAuto(TempForm):
         self.init_list()
         self.track_number.setEnabled(False)
         self.list_ui = [self.gov_number, self.brand, self.model,  self.track_number]
-        self.track_number.setText(empty)
+        self.track_number.setText(NO)
 
     def init_list(self):
         rows = self.parent.db.get_data("id, gov_number, model", self.table)
@@ -35,7 +35,7 @@ class NewAuto(TempForm):
             item.setValidator(symbols)
 
     def _set_data(self, data):
-        if not self.track_number.text() or self.track_number.text() == empty:
+        if not self.track_number.text() or self.track_number.text() == NO:
             self.is_track.setChecked(False)
         else:
             self.is_track.setChecked(True)
@@ -46,7 +46,7 @@ class NewAuto(TempForm):
             self.track_number.setEnabled(True)
         else:
             self.track_number.setEnabled(False)
-            self.track_number.setText(empty)
+            self.track_number.setText(NO)
 
     def _clean_data(self):
         self.is_track.setChecked(False)
