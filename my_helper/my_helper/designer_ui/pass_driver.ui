@@ -191,11 +191,6 @@ p, li { white-space: pre-wrap; }
      <height>22</height>
     </rect>
    </property>
-   <item>
-    <property name="text">
-     <string>(нет)</string>
-    </property>
-   </item>
   </widget>
   <widget class="QDateEdit" name="d_arrive">
    <property name="geometry">
@@ -262,11 +257,6 @@ p, li { white-space: pre-wrap; }
      <height>22</height>
     </rect>
    </property>
-   <item>
-    <property name="text">
-     <string>(нет)</string>
-    </property>
-   </item>
   </widget>
   <widget class="QComboBox" name="cb_drivers">
    <property name="geometry">
@@ -277,11 +267,6 @@ p, li { white-space: pre-wrap; }
      <height>22</height>
     </rect>
    </property>
-   <item>
-    <property name="text">
-     <string>(нет)</string>
-    </property>
-   </item>
   </widget>
   <widget class="QLabel" name="label_2">
    <property name="geometry">
