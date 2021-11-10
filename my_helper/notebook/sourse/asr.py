@@ -133,7 +133,7 @@ class Asr(QDialog):
         else:
             number = self.numbers.toPlainText().split(",")[ind]
         self.data = self.create_data(day_start, day_end, number)
-        if data == ERR:
+        if self.data == ERR:
             return
         path = self.path + ASR_FILE
         try:

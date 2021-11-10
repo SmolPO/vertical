@@ -49,7 +49,10 @@ class UnlockPass(TempPass):
         if post in dictionary.keys():
             post = dictionary[post]['datv']
         else:
-            post = morph.parse(people[3])[0].inflect({'datv'})[0]
+            try:
+                post = morph.parse(people[3])[0].inflect({'datv'})[0]
+            except:
+                post = people[3]
         self.data["family"] = morph.parse(people[0])[0].inflect({'datv'})[0].capitalize()
         self.data["name"] = morph.parse(people[1])[0].inflect({'datv'})[0].capitalize()
         self.data["surname"] = morph.parse(people[2])[0].inflect({'datv'})[0].capitalize()

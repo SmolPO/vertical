@@ -68,7 +68,7 @@ ASR_FILE = "/asr.docx"
 JORNAL_FILE = "/Журнал.docx"
 PDF = ".pdf"
 
-dictionary = {"Производитель работ": {"gent": "прооизводителя работ", "datv": "прооизводителю работ"},
+dictionary = {"Производитель работ": {"gent": "производителя работ", "datv": "производителю работ"},
               "Технический директор": {"gent": "технического директора", "datv": "техническому директору"}}
 logging.basicConfig(filename="D:/my_helper/log_file.log", level=logging.INFO)
 
